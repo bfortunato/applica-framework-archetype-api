@@ -1,0 +1,14 @@
+<applica>
+    <appname>api</appname>
+    <archetype>webapp</archetype>
+
+    <webapps>
+        <webapp name="api-api">
+            <mappings>
+                <includes>
+                    <include>api-domain</include>
+                </includes>
+            </mappings>
+        </webapp>
+    </webapps>
+</applica>
