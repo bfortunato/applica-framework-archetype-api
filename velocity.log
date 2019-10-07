@@ -444,3 +444,49 @@
 2019-04-11 17:56:52,329 - Velocimacro : Velocimacro : initialization complete.
 2019-04-11 17:56:52,330 - RuntimeInstance successfully initialized.
 2019-04-11 17:56:52,340 - ResourceManager : found mailTemplates/passwordRecoveryCode.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:17:04,590 - Log4JLogChute initialized using file 'velocity.log'
+2019-10-07 18:17:04,605 - The version of log4j being used does not support the "trace" level.
+2019-10-07 18:17:04,605 - Initializing Velocity, Calling init()...
+2019-10-07 18:17:04,605 - *******************************************************************
+2019-10-07 18:17:04,605 - Starting Apache Velocity v1.7 (compiled: 2010-11-19 12:14:37)
+2019-10-07 18:17:04,605 - RuntimeInstance initializing.
+2019-10-07 18:17:04,605 - Default Properties File: org/apache/velocity/runtime/defaults/velocity.properties
+2019-10-07 18:17:04,605 - Trying to use logger class org.apache.velocity.runtime.log.AvalonLogChute
+2019-10-07 18:17:04,605 - Target log system for org.apache.velocity.runtime.log.AvalonLogChute is not available (java.lang.NoClassDefFoundError: org/apache/log/format/Formatter).  Falling back to next log system...
+2019-10-07 18:17:04,605 - Trying to use logger class org.apache.velocity.runtime.log.Log4JLogChute
+2019-10-07 18:17:04,605 - Using logger class org.apache.velocity.runtime.log.Log4JLogChute
+2019-10-07 18:17:04,606 - Default ResourceManager initializing. (class org.apache.velocity.runtime.resource.ResourceManagerImpl)
+2019-10-07 18:17:04,645 - ResourceLoader instantiated: org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:17:04,646 - ClasspathResourceLoader : initialization complete.
+2019-10-07 18:17:04,650 - ResourceCache: initialized (class org.apache.velocity.runtime.resource.ResourceCacheImpl) with class java.util.Collections$SynchronizedMap cache map.
+2019-10-07 18:17:04,650 - Default ResourceManager initialization complete.
+2019-10-07 18:17:04,651 - Loaded System Directive: org.apache.velocity.runtime.directive.Stop
+2019-10-07 18:17:04,651 - Loaded System Directive: org.apache.velocity.runtime.directive.Define
+2019-10-07 18:17:04,652 - Loaded System Directive: org.apache.velocity.runtime.directive.Break
+2019-10-07 18:17:04,652 - Loaded System Directive: org.apache.velocity.runtime.directive.Evaluate
+2019-10-07 18:17:04,652 - Loaded System Directive: org.apache.velocity.runtime.directive.Literal
+2019-10-07 18:17:04,653 - Loaded System Directive: org.apache.velocity.runtime.directive.Macro
+2019-10-07 18:17:04,653 - Loaded System Directive: org.apache.velocity.runtime.directive.Parse
+2019-10-07 18:17:04,654 - Loaded System Directive: org.apache.velocity.runtime.directive.Include
+2019-10-07 18:17:04,654 - Loaded System Directive: org.apache.velocity.runtime.directive.Foreach
+2019-10-07 18:17:04,695 - Created '20' parsers.
+2019-10-07 18:17:04,697 - Velocimacro : initialization starting.
+2019-10-07 18:17:04,697 - Velocimacro : "velocimacro.library" is not set.  Trying default library: VM_global_library.vm
+2019-10-07 18:17:04,698 - Could not load resource 'VM_global_library.vm' from ResourceLoader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader: ClasspathResourceLoader Error: cannot find resource VM_global_library.vm
+2019-10-07 18:17:04,698 - Velocimacro : Default library not found.
+2019-10-07 18:17:04,698 - Velocimacro : allowInline = true : VMs can be defined inline in templates
+2019-10-07 18:17:04,698 - Velocimacro : allowInlineToOverride = false : VMs defined inline may NOT replace previous VM definitions
+2019-10-07 18:17:04,698 - Velocimacro : allowInlineLocal = false : VMs defined inline will be global in scope if allowed.
+2019-10-07 18:17:04,698 - Velocimacro : autoload off : VM system will not automatically reload global library macros
+2019-10-07 18:17:04,698 - Velocimacro : Velocimacro : initialization complete.
+2019-10-07 18:17:04,698 - RuntimeInstance successfully initialized.
+2019-10-07 18:17:04,736 - ResourceManager : found mailTemplates/register.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:17:04,737 - Null reference [template 'mailTemplates/register.vm', line 10, column 82] : ${loginUrl} cannot be resolved.
+2019-10-07 18:17:06,141 - ResourceManager : found mailTemplates/register.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:17:06,142 - Null reference [template 'mailTemplates/register.vm', line 10, column 82] : ${loginUrl} cannot be resolved.
+2019-10-07 18:18:12,883 - ResourceManager : found mailTemplates/register.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:18:12,883 - Null reference [template 'mailTemplates/register.vm', line 10, column 82] : ${loginUrl} cannot be resolved.
+2019-10-07 18:18:12,883 - ResourceManager : found mailTemplates/register.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:18:12,883 - Null reference [template 'mailTemplates/register.vm', line 10, column 82] : ${loginUrl} cannot be resolved.
+2019-10-07 18:18:12,883 - ResourceManager : found mailTemplates/register.vm with loader org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+2019-10-07 18:18:12,883 - Null reference [template 'mailTemplates/register.vm', line 10, column 82] : ${loginUrl} cannot be resolved.

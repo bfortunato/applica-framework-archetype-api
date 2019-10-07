@@ -2,8 +2,8 @@ package applica.api.runner.controllers;
 
 import applica.api.domain.data.RolesRepository;
 import applica.api.domain.data.UsersRepository;
-import applica.api.domain.model.Role;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.Role;
+import applica.api.domain.model.auth.User;
 import applica.framework.Query;
 import applica.framework.library.SimpleItem;
 import applica.framework.library.responses.ValueResponse;

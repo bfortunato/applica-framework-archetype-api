@@ -2,8 +2,8 @@ package applica.api.services.impl;
 
 import applica.api.data.mongodb.utils.RepositoryUtils;
 import applica.api.domain.model.Filters;
-import applica.api.domain.model.Role;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.Role;
+import applica.api.domain.model.auth.User;
 import applica.api.services.UserService;
 import applica.framework.*;
 import applica.framework.security.Security;

@@ -1,6 +1,6 @@
 package applica.api.domain.data;
 
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 import applica.framework.Repository;
 
 /**

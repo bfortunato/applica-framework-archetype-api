@@ -1,6 +1,6 @@
 package applica.api.runner.operations;
 
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.framework.Entity;
 import applica.framework.widgets.operations.BaseGetOperation;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -1,5 +1,8 @@
 package applica.api.runner.configuration;
 
+import applica.api.domain.model.auth.CustomPermissions;
+import applica.api.domain.model.auth.Role;
+import applica.api.domain.model.auth.User;
 import applica.api.runner.facade.AccountFacade;
 import applica.api.runner.permissions.PermissionMap;
 import applica.api.domain.data.RolesRepository;

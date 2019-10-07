@@ -2,6 +2,7 @@ package applica.api.services.impl;
 
 import applica.api.domain.data.RolesRepository;
 import applica.api.domain.model.*;
+import applica.api.domain.model.auth.*;
 import applica.api.services.AccountService;
 import applica.api.services.MailService;
 import applica.api.services.UserService;
@@ -57,7 +58,7 @@ public class AccountServiceImpl implements AccountService {
     private UserService userService;
 
     @Override
-    public void register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
+    public String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(password)) {
             throw new ValidationException(null);
         }
@@ -106,6 +107,8 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("activationUrl", activationUrl);
 
         mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
+
+        return activationCode;
     }
 
     @Override

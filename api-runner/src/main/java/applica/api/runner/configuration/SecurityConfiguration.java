@@ -46,6 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void init(WebSecurity web) throws Exception {
         web.ignoring()
+                .antMatchers("/ping")
                 .antMatchers("/auth/**")
                 .antMatchers("/account/**")
                 .antMatchers("/images/**")

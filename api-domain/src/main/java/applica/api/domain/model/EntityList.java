@@ -1,5 +1,7 @@
 package applica.api.domain.model;
 
+import applica.api.domain.model.auth.Role;
+
 /**
  * Created by antoniolovicario on 18/10/17.
  */

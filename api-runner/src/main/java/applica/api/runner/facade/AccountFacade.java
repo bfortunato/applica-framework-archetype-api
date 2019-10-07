@@ -1,9 +1,9 @@
 package applica.api.runner.facade;
 
-import applica.api.domain.model.CustomPermissions;
+import applica.api.domain.model.auth.CustomPermissions;
 import applica.api.domain.model.Filters;
-import applica.api.domain.model.PasswordRecoveryCode;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.PasswordRecoveryCode;
+import applica.api.domain.model.auth.User;
 import applica.api.services.AccountService;
 import applica.api.services.MailService;
 import applica.api.services.exceptions.MailNotFoundException;

@@ -1,6 +1,6 @@
 package applica.api.services;
 
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.framework.library.mail.Recipient;
 import applica.framework.library.mail.TemplatedMail;
 

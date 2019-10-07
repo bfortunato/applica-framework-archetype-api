@@ -1,6 +1,6 @@
 package applica.api.domain.validation;
 
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;

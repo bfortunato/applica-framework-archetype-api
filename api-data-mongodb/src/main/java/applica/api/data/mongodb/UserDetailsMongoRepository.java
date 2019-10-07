@@ -1,6 +1,6 @@
 package applica.api.data.mongodb;
 
-import applica.api.domain.model.UserDetails;
+import applica.api.domain.model.auth.UserDetails;
 import applica.api.domain.data.UsersRepository;
 import applica.api.domain.model.Filters;
 import applica.framework.Query;

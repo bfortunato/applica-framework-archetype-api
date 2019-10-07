@@ -1,7 +1,7 @@
 package applica.api.services;
 
-import applica.api.domain.model.PasswordRecoveryCode;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.PasswordRecoveryCode;
+import applica.api.domain.model.auth.User;
 import applica.api.services.exceptions.*;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.library.base64.URLData;
@@ -19,7 +19,7 @@ public interface AccountService {
      * @param mail
      * @param password
      */
-    void register(String name, String mail, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
+    String register(String name, String mail, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
 
     /**
      * Confirm a previously registered account

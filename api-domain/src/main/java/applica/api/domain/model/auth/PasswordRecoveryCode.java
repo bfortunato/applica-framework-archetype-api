@@ -1,4 +1,4 @@
-package applica.api.domain.model;
+package applica.api.domain.model.auth;
 
 import applica.framework.AEntity;
 

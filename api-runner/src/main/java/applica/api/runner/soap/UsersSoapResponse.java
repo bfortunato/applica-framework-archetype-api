@@ -1,6 +1,6 @@
 package applica.api.runner.soap;
 
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,8 @@
 package applica.api.data.mongodb.constraints;
 
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 import applica.api.domain.model.Filters;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.framework.Query;
 import applica.framework.data.mongodb.constraints.ForeignKeyConstraint;
 import org.springframework.stereotype.Component;

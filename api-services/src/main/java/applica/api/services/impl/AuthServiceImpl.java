@@ -1,7 +1,7 @@
 package applica.api.services.impl;
 
 import applica.api.domain.data.UsersRepository;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.api.services.AuthService;
 import applica.api.services.exceptions.BadCredentialsException;
 import applica.framework.security.Security;

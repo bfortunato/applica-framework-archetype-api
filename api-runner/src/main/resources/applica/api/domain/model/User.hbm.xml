@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="applica.api.domain.model.User" table="users" >
+	<class name="applica.api.domain.model.auth.User" table="users" >
 		<id name="id" type="long">
 			<generator class="native" />
 		</id>
@@ -15,7 +15,7 @@
 		<list name="roles" table="users_roles" lazy="false" >
 			<key column="userId" />
 			<list-index column="idx" />
-			<many-to-many class="applica.api.domain.model.Role" column="roleId" />
+			<many-to-many class="applica.api.domain.model.auth.Role" column="roleId" />
 		</list>
 		<property name="name" />
 	</class>

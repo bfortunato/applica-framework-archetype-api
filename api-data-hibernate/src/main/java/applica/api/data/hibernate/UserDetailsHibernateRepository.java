@@ -1,7 +1,7 @@
 package applica.api.data.hibernate;
 
 import applica.api.domain.model.Filters;
-import applica.api.domain.model.UserDetails;
+import applica.api.domain.model.auth.UserDetails;
 import applica.api.domain.data.UsersRepository;
 import applica.framework.Query;
 import applica.framework.security.UserDetailsRepository;

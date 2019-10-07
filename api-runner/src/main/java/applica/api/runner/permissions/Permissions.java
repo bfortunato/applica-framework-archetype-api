@@ -2,7 +2,7 @@ package applica.api.runner.permissions;
 
 
 
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 
 import java.util.*;
 

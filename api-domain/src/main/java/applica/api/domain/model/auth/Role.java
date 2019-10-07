@@ -1,5 +1,6 @@
-package applica.api.domain.model;
+package applica.api.domain.model.auth;
 
+import applica.api.domain.model.EntityList;
 import applica.framework.AEntity;
 import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.widgets.entities.EntityId;

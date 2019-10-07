@@ -1,4 +1,4 @@
-package applica.api.domain.model;
+package applica.api.domain.model.auth;
 
 import java.util.ArrayList;
 import java.util.Arrays;

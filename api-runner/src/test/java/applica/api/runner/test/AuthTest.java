@@ -3,7 +3,7 @@ package applica.api.runner.test;
 import applica.api.services.responses.LoginResponse;
 import applica.api.domain.data.UsersRepository;
 import applica.api.domain.model.Filters;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.api.services.responses.ResponseCode;
 import applica.api.services.AccountService;
 import applica.api.services.exceptions.UserNotFoundException;

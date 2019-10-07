@@ -1,7 +1,7 @@
 package applica.api.runner.validation;
 
 
-import applica.api.domain.model.PasswordChange;
+import applica.api.domain.model.auth.PasswordChange;
 import applica.api.services.AccountService;
 import applica.framework.Entity;
 import applica.framework.library.validation.ValidationResult;

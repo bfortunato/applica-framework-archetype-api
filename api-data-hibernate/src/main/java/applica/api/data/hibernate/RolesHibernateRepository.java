@@ -1,7 +1,7 @@
 package applica.api.data.hibernate;
 
 import applica.api.domain.data.RolesRepository;
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 import applica.framework.Query;
 import applica.framework.Sort;
 import applica.framework.data.hibernate.HibernateRepository;

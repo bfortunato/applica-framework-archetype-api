@@ -4,7 +4,7 @@ import applica.framework.Query;
 import applica.framework.Sort;
 import applica.framework.data.mongodb.MongoRepository;
 import applica.api.domain.data.UsersRepository;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;

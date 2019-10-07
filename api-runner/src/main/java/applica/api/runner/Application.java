@@ -1,26 +1,30 @@
 package applica.api.runner;
 
-import applica.api.api.configuration.*;
 import applica.api.domain.model.Filters;
+import applica.api.runner.configuration.ApplicationConfiguration;
+import applica.api.runner.configuration.ApplicationInitializer;
+import applica.api.runner.configuration.MongoConfiguration;
+import applica.api.runner.configuration.SecurityConfiguration;
 import applica.framework.AEntity;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.EntitiesScanner;
 import applica.framework.security.authorization.Permissions;
 import applica.framework.widgets.entities.EntitiesRegistry;
 import applica.framework.widgets.entities.PermissionsRegistry;
-import org.apache.cxf.spring.boot.autoconfigure.CxfAutoConfiguration;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.*;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
 
 import static applica.framework.security.authorization.BaseAuthorizationService.SUPERUSER_PERMISSION;
 
@@ -33,9 +37,8 @@ import static applica.framework.security.authorization.BaseAuthorizationService.
 @EnableWebMvc
 @ComponentScan("applica.api.domain")
 @ComponentScan("applica.api.data.mongodb")
-@ComponentScan("applica.api.data.hibernate")
 @ComponentScan("applica.api.services")
-@ComponentScan("applica.api.api")
+@ComponentScan("applica.api.runner")
 @Import({
         DispatcherServletAutoConfiguration.class,
         ErrorMvcAutoConfiguration.class,
@@ -47,19 +50,21 @@ import static applica.framework.security.authorization.BaseAuthorizationService.
         WebMvcAutoConfiguration.class,
         ApplicationConfiguration.class,
         MongoConfiguration.class,
-        SecurityConfiguration.class,
-        CxfAutoConfiguration.class
+        SecurityConfiguration.class
 })
 public class Application implements InitializingBean {
     static {
         AEntity.strategy = AEntity.IdStrategy.String;
     }
 
-    @Autowired
-    private ApplicationContextProvider applicationContextProvider;
+    private final ApplicationContextProvider applicationContextProvider;
+    private final ApplicationInitializer applicationInitializer;
 
     @Autowired
-    private ApplicationInitializer applicationInitializer;
+    public Application(ApplicationContextProvider applicationContextProvider, ApplicationInitializer applicationInitializer) {
+        this.applicationContextProvider = applicationContextProvider;
+        this.applicationInitializer = applicationInitializer;
+    }
 
     @Override
     public void afterPropertiesSet() {
@@ -74,7 +79,6 @@ public class Application implements InitializingBean {
             scanner.scan(Filters.class.getPackage());
 
             Permissions.instance().registerStatic(SUPERUSER_PERMISSION);
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

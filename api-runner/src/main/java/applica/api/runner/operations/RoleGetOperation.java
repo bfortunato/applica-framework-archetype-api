@@ -1,7 +1,7 @@
 package applica.api.runner.operations;
 
 import applica.api.domain.data.RolesRepository;
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
 import applica.framework.library.SimpleItem;

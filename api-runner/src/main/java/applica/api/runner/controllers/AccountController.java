@@ -47,8 +47,8 @@ public class AccountController {
     @PostMapping("/register")
     public Response register(String name, String mail, String password) {
         try {
-            accountService.register(name, mail, password);
-            return new Response(OK);
+            var activationCode = accountService.register(name, mail, password);
+            return new ValueResponse(activationCode);
         } catch (MailAlreadyExistsException e) {
             return new Response(ERROR_MAIL_ALREADY_EXISTS);
         } catch (MailNotValidException e) {
@@ -129,7 +129,7 @@ public class AccountController {
     public @ResponseBody
     Response resetPassword(String password, String passwordConfirm) throws TokenGenerationException, BadCredentialsException {
         try {
-            accountService.changePassword((applica.api.domain.model.User) Security.withMe().getLoggedUser(), password, passwordConfirm);
+            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), password, passwordConfirm);
         } catch (ValidationException e) {
             e.getValidationResult().getErrors();
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
@@ -138,7 +138,7 @@ public class AccountController {
             return new Response(Response.ERROR, e.getMessage());
         }
         User user = Security.withMe().getLoggedUser();
-        return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.User) user).getMail(), password)));
+        return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.auth.User) user).getMail(), password)));
 
     }
 
@@ -153,7 +153,7 @@ public class AccountController {
             if (Security.withMe().getLoggedUser().getId().equals(id)) {
                 //Se sto modificando la mia stessa password dovrò aggiornare l'utenza sul client
                 User user = Security.withMe().getLoggedUser();
-                return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.User) user).getMail(), newPassword)));
+                return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.auth.User) user).getMail(), newPassword)));
             }
         } catch (BadCredentialsException e) {
             e.printStackTrace();

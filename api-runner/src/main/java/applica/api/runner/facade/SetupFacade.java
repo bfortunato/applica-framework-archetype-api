@@ -1,8 +1,8 @@
 package applica.api.runner.facade;
 
-import applica.api.domain.model.Role;
+import applica.api.domain.model.auth.Role;
 import applica.api.domain.data.UsersRepository;
-import applica.api.domain.model.User;
+import applica.api.domain.model.auth.User;
 import applica.framework.library.utils.ProgramException;
 import applica.framework.security.authorization.Permissions;
 import org.springframework.beans.factory.annotation.Autowired;
