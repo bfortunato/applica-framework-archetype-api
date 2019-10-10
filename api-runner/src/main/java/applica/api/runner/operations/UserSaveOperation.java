@@ -30,7 +30,6 @@ public class UserSaveOperation extends BaseSaveOperation {
     @Override
     protected void finishEntity(ObjectNode node, Entity entity) {
         map().dataUrlToImage(node, entity, "_image", "image", "images/users");
-        map().dataUrlToImage(node, entity, "_cover", "coverImage", "images/covers");
     }
 
     @Override

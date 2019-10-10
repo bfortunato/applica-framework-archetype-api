@@ -140,17 +140,7 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("password", newPassword);
         templatedMail.put("mail", mail);
 
-        mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));    }
-
-    @Override
-    public URLData getCoverImage(Object userId, String size) throws UserNotFoundException, IOException {
-        User user = usersRepository.get(userId).orElseThrow(UserNotFoundException::new);
-        if (StringUtils.isNoneEmpty(user.getCoverImage())) {
-            InputStream in = fileServer.getImage(user.getCoverImage(), size);
-            return new URLData(String.format("image/%s", FilenameUtils.getExtension(user.getImage())), in);
-        }
-
-        return null;
+        mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
     }
 
     @Override

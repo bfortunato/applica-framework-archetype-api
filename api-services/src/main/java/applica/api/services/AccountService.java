@@ -40,13 +40,6 @@ public interface AccountService {
     void recover(String mail) throws MailNotFoundException;
 
     /**
-     * Gets user cover image (the background image in top left of web application)
-     * @param userId
-     * @return
-     */
-    URLData getCoverImage(Object userId, String size) throws UserNotFoundException, IOException;
-
-    /**
      * Gets user profile image (the user image in top left of web application)
      * @param userId
      * @return

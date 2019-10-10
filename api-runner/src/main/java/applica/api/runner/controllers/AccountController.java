@@ -89,27 +89,10 @@ public class AccountController {
         }
     }
 
-    @GetMapping("/{userId}/cover")
-    public Response cover(@PathVariable String userId) {
-        try {
-            URLData coverImage = accountService.getCoverImage(userId, "268x129");
-            if (coverImage != null) {
-                return new ValueResponse(coverImage.write());
-            } else {
-                return new Response(ERROR_NOT_FOUND);
-            }
-        } catch (UserNotFoundException e) {
-            return new Response(ResponseCode.ERROR_USER_NOT_FOUND);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new Response(Response.ERROR);
-        }
-    }
-
     @GetMapping("/{userId}/profile/image")
     public Response image(@PathVariable String userId) {
         try {
-            URLData profileImage = accountService.getProfileImage(userId, "47x47");
+            URLData profileImage = accountService.getProfileImage(userId, "100x100");
             if (profileImage != null) {
                 return new ValueResponse(profileImage.write());
             } else {

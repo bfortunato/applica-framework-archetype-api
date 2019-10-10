@@ -27,7 +27,6 @@ public class User extends AEntity implements applica.framework.security.User {
     private Date registrationDate;
     private String activationCode;
     private String image;
-    private String coverImage;
     private Date lastLogin;
     private Date currentPasswordSetDate;
 
@@ -106,14 +105,6 @@ public class User extends AEntity implements applica.framework.security.User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    public String getCoverImage() {
-        return coverImage;
-    }
-
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
     }
 
     public void setFirstLogin(boolean firstLogin) {
