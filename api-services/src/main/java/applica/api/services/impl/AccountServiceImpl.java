@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -201,22 +202,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public String encryptAndGetPassword(String password) {
-        password = password + "{" + options.get("password.salt") + "}";
-
-        try {
-            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-            byte[] array = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte anArray : array) {
-                sb.append(Integer.toHexString((anArray & 0xFF) | 0x100), 1, 3);
-            }
-
-            return sb.toString();
-
-        } catch (java.security.NoSuchAlgorithmException ignored) {
-
-        }
-        return "";
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.encode(password);
     }
 
     @Override
