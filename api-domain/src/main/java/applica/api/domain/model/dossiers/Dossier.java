@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Dossier extends AEntity {
 
+    public static final String STATUS_QUOTATION = "quotation";
     public static final String STATUS_DRAFT = "draft";
     public static final String STATUS_TO_VERIFY = "to-verify";
     public static final String STATUS_TO_CANDIDATE = "to-candidate";

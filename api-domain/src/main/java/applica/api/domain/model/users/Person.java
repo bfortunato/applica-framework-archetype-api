@@ -17,7 +17,8 @@ public class Person extends AEntity {
     public static final String SUBJECT_TYPE_PHYSICAL_PERSON = "physical-person";
     public static final String SUBJECT_TYPE_LEGAL_PERSON = "legal-person";
 
-    String userId; //authentication enabled user
+    Object userId; //authentication enabled user
+    Object ownerId; //if required, the person who created this one
 
     private String type; //person type
     private boolean active;
@@ -35,12 +36,20 @@ public class Person extends AEntity {
 
     private String notes;
 
-    public String getUserId() {
+    public Object getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Object userId) {
         this.userId = userId;
+    }
+
+    public Object getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Object ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getType() {

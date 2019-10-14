@@ -23,9 +23,18 @@ public class DossierWorkflow {
         dossier.setCreationDate(new Date());
         dossier.setFabricatorId(fabricator.getId());
         dossier.setCustomerId(customer.getId());
-        dossier.setStatus(Dossier.STATUS_DRAFT);
+        dossier.setStatus(Dossier.STATUS_QUOTATION);
 
         this.dossier = dossier;
+    }
+
+    /**
+     *
+     */
+    public void confirmQuotation() {
+        Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
+
+        dossier.setStatus(Dossier.STATUS_DRAFT);
     }
 
     /**
