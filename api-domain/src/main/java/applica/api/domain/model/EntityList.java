@@ -11,6 +11,11 @@ public class EntityList {
     // inserire i nomi di tutte le entità
     public static final String USER = "user";
     public static final String ROLE = "role";
+    public static final String END_USER = "endUser";
+    public static final String FABRICATOR = "fabricator";
+    public static final String ADMIN_USER_CATEGORY = "adminUserCategory";
+    public static final String END_USER_CATEGORY = "endUserCategory";
+    public static final String FABRICATOR_CATEGORY = "fabricatorCategory";
 
 
     public static String [] getPermittedEntitiesByRole(String permission) {
@@ -32,6 +37,6 @@ public class EntityList {
     }
 
     public static String[] getAll() {
-        return new String[]{USER, ROLE};
+        return new String[]{USER, ROLE, END_USER, FABRICATOR, ADMIN_USER_CATEGORY, END_USER, FABRICATOR_CATEGORY};
     }
 }

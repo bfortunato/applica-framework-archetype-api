@@ -1,16 +1,13 @@
 package applica.api.domain.model.users;
 
-import applica.api.domain.model.geo.Address;
-import applica.framework.AEntity;
+import applica.api.domain.model.CodedEntity;
 
-import java.util.Date;
-
-public class Person extends AEntity {
+public class Person extends CodedEntity {
 
     public static final String SEX_MALE = "M";
     public static final String SEX_FEMALE = "F";
 
-    public static final String TYPE_CUSTOMER = "customer";
+    public static final String TYPE_END_USER = "end-user";
     public static final String TYPE_FABRICATOR = "fabricator";
     public static final String TYPE_ADMIN = "admin";
 
@@ -20,19 +17,11 @@ public class Person extends AEntity {
     Object userId; //authentication enabled user
     Object ownerId; //if required, the person who created this one
 
-    private String type; //person type
+    private String categoryId; //person type
     private boolean active;
 
-    private String subjectType;
-    private String firstName;
-    private String lastName;
-    private String sex;
-    private Date birthDate;
-    private String birthMunicipality;
-    private Address address = new Address();
-    private String socialReason;
-    private boolean vatCodeEnabled;
-    private String vatCode;
+    private String mail;
+    private String password;
 
     private String notes;
 
@@ -52,12 +41,28 @@ public class Person extends AEntity {
         this.ownerId = ownerId;
     }
 
-    public String getType() {
-        return type;
+    public String getCategoryId() {
+        return categoryId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean isActive() {
@@ -66,86 +71,6 @@ public class Person extends AEntity {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public String getSubjectType() {
-        return subjectType;
-    }
-
-    public void setSubjectType(String subjectType) {
-        this.subjectType = subjectType;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public String getBirthMunicipality() {
-        return birthMunicipality;
-    }
-
-    public void setBirthMunicipality(String birthMunicipality) {
-        this.birthMunicipality = birthMunicipality;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
-    public void setAddress(Address address) {
-        this.address = address;
-    }
-
-    public String getSocialReason() {
-        return socialReason;
-    }
-
-    public void setSocialReason(String socialReason) {
-        this.socialReason = socialReason;
-    }
-
-    public boolean isVatCodeEnabled() {
-        return vatCodeEnabled;
-    }
-
-    public void setVatCodeEnabled(boolean vatCodeEnabled) {
-        this.vatCodeEnabled = vatCodeEnabled;
-    }
-
-    public String getVatCode() {
-        return vatCode;
-    }
-
-    public void setVatCode(String vatCode) {
-        this.vatCode = vatCode;
     }
 
     public String getNotes() {
