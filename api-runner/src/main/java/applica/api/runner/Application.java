@@ -67,7 +67,7 @@ public class Application implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() {
+    public void afterPropertiesSet() throws Exception {
         applicationInitializer.init();
     }
 

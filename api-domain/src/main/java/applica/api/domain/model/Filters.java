@@ -18,4 +18,7 @@ public class Filters {
     public static final String LAST_LOGIN = "lastLogin";
     public static final String CODE = "code";
     public static final String REPOSITORY_ID = "_id";
+    public static final String DESCRIPTION = "description";
+    public static final String POSTAL_CODE = "postalCode";
+    public static final String CAP = "cap";
 }

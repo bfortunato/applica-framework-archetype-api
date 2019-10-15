@@ -1,7 +1,7 @@
 package applica.api.runner.operations;
 
-import applica.api.runner.facade.AccountFacade;
 import applica.api.domain.model.auth.User;
+import applica.api.runner.facade.AccountFacade;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseSaveOperation;
@@ -29,7 +29,10 @@ public class UserSaveOperation extends BaseSaveOperation {
 
     @Override
     protected void finishEntity(ObjectNode node, Entity entity) {
-        map().dataUrlToImage(node, entity, "_image", "image", "images/users");
+//        map().dataUrlToImage(node, entity, "_image", "image", "images/users");
+        if (node.get("_category") != null){
+            ((User) entity).setCategoryId(node.get("_category").get("id").asText());
+        }
     }
 
     @Override

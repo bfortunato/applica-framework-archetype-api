@@ -4,36 +4,18 @@ import applica.framework.AEntity;
 
 public class Address extends AEntity {
 
-    String country;
-    String municipality;
-    String postalCode;
+    GeoCity city;
     String address;
     String streetNumber;
     String fiscalCode;
     String phoneNumber;
 
-    public String getCountry() {
-        return country;
+    public GeoCity getCity() {
+        return city;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getMunicipality() {
-        return municipality;
-    }
-
-    public void setMunicipality(String municipality) {
-        this.municipality = municipality;
-    }
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
-    public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
+    public void setCity(GeoCity city) {
+        this.city = city;
     }
 
     public String getAddress() {

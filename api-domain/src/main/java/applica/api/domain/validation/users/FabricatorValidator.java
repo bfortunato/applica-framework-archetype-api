@@ -22,9 +22,9 @@ public class FabricatorValidator implements Validator {
         personValidator.validate(fabricator, validationResult);
 
         if(!StringUtils.hasLength(fabricator.getBusinessName())) { validationResult.reject("businessName", "validation.user.businessName"); }
-        if(!StringUtils.hasLength(fabricator.getAddress().getCountry())) { validationResult.reject("country", "validation.user.country"); }
-        if(!StringUtils.hasLength(fabricator.getAddress().getMunicipality())) { validationResult.reject("municipality", "validation.user.municipality"); }
-        if(!StringUtils.hasLength(fabricator.getAddress().getAddress())) { validationResult.reject("address", "validation.user.address"); }
+        if(fabricator.getAddress().getCity() == null) { validationResult.reject("_city", "validation.user.country"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getStreetNumber())) { validationResult.reject("_streetNumber", "validation.user.streetNumber"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getAddress())) { validationResult.reject("_address", "validation.user.address"); }
     }
 
     @Override

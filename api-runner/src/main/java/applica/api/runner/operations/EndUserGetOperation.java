@@ -1,7 +1,7 @@
 package applica.api.runner.operations;
 
-import applica.api.domain.model.auth.User;
-import applica.api.domain.model.usersCategories.AdminUserCategory;
+import applica.api.domain.model.users.EndUser;
+import applica.api.domain.model.usersCategories.EndUserCategory;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseGetOperation;
@@ -13,16 +13,17 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class UserGetOperation extends BaseGetOperation {
+public class EndUserGetOperation extends BaseGetOperation {
 
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
-        node.putPOJO("_category", Repo.of(AdminUserCategory.class).get(((User) entity).getCategoryId()).orElse(null));
+        map().imageToDataUrl(entity, node, "avatar", "_avatar", "150x*");
+        node.putPOJO("_category", Repo.of(EndUserCategory.class).get(((EndUser) entity).getCategoryId()).orElse(null));
     }
 
     @Override
     public Class<? extends Entity> getEntityType() {
-        return User.class;
+        return EndUser.class;
     }
 
 
