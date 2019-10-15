@@ -5,12 +5,11 @@ import applica.framework.AEntity;
 public class Address extends AEntity {
 
     String country;
+    String province;
     String municipality;
     String postalCode;
     String address;
     String streetNumber;
-    String fiscalCode;
-    String phoneNumber;
 
     public String getCountry() {
         return country;
@@ -52,19 +51,11 @@ public class Address extends AEntity {
         this.streetNumber = streetNumber;
     }
 
-    public String getFiscalCode() {
-        return fiscalCode;
+    public String getProvince() {
+        return province;
     }
 
-    public void setFiscalCode(String fiscalCode) {
-        this.fiscalCode = fiscalCode;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setProvince(String province) {
+        this.province = province;
     }
 }

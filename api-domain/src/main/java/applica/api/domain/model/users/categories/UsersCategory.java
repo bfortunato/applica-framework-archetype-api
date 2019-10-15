@@ -1,4 +1,4 @@
-package applica.api.domain.model.usersCategories;
+package applica.api.domain.model.users.categories;
 
 import applica.api.domain.model.CodedEntity;
 

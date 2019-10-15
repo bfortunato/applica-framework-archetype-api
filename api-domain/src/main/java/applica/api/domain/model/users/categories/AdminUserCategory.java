@@ -1,4 +1,4 @@
-package applica.api.domain.model.usersCategories;
+package applica.api.domain.model.users.categories;
 
 import applica.api.domain.model.EntityList;
 import applica.framework.widgets.entities.EntityId;

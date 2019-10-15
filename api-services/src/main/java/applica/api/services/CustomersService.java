@@ -1,13 +1,14 @@
 package applica.api.services;
 
+import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.Person;
 
 import java.util.List;
 
 public interface CustomersService {
 
-    List<Person> findCustomerByKeyword(String keyword);
-    void saveCustomer(Person customer);
+    List<Customer> findCustomerByKeyword(String keyword);
+    void saveCustomer(Customer customer);
     void deleteCustomer(Object customerId);
 
 }
