@@ -20,8 +20,12 @@ import static applica.framework.library.responses.Response.OK;
 @RequestMapping("/customers")
 public class CustomerController {
 
+    private final CustomersService customersService;
+
     @Autowired
-    private CustomersService customersService;
+    public CustomerController(CustomersService customersService) {
+        this.customersService = customersService;
+    }
 
     @PostMapping("")
     public Response save(@RequestBody Customer customer) {
