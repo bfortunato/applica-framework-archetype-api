@@ -9,8 +9,6 @@ public class Address extends AEntity {
     String postalCode;
     String address;
     String streetNumber;
-    String fiscalCode;
-    String phoneNumber;
 
     public String getCountry() {
         return country;
@@ -52,19 +50,4 @@ public class Address extends AEntity {
         this.streetNumber = streetNumber;
     }
 
-    public String getFiscalCode() {
-        return fiscalCode;
-    }
-
-    public void setFiscalCode(String fiscalCode) {
-        this.fiscalCode = fiscalCode;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }
