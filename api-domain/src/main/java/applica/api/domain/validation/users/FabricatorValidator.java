@@ -22,7 +22,7 @@ public class FabricatorValidator implements Validator {
         personValidator.validate(fabricator, validationResult);
 
         if(!StringUtils.hasLength(fabricator.getBusinessName())) { validationResult.reject("businessName", "validation.user.businessName"); }
-        if(fabricator.getAddress().getMunicipality() == null) { validationResult.reject("_city", "validation.user.country"); }
+        if(fabricator.getAddress().getCountry() == null) { validationResult.reject("_city", "validation.user.country"); }
         if(!StringUtils.hasLength(fabricator.getAddress().getStreetNumber())) { validationResult.reject("_streetNumber", "validation.user.streetNumber"); }
         if(!StringUtils.hasLength(fabricator.getAddress().getAddress())) { validationResult.reject("_address", "validation.user.address"); }
     }

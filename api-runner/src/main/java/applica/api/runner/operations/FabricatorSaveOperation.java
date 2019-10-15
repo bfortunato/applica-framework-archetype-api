@@ -31,11 +31,13 @@ public class FabricatorSaveOperation extends BaseSaveOperation {
 //            }
 //        }
 
-        fabricator.getAddress().setAddress(node.get("_address") != null ? node.get("_address").asText() : null);
         fabricator.getAddress().setCountry(node.get("_country") != null ? node.get("_country").asText() : null);
+        fabricator.getAddress().setRegion(node.get("_region") != null ? node.get("_region").asText() : null);
+        fabricator.getAddress().setProvince(node.get("_province") != null ? node.get("_province").asText() : null);
         fabricator.getAddress().setMunicipality(node.get("_municipality") != null ? node.get("_municipality").asText() : null);
-        fabricator.getAddress().setMunicipality(node.get("_streetNumber") != null ? node.get("_streetNumber").asText() : null);
-        fabricator.getAddress().setMunicipality(node.get("_postalCode") != null ?node.get("_postalCode").asText() : null);
+        fabricator.getAddress().setPostalCode(node.get("_postalCode") != null ?node.get("_postalCode").asText() : null);
+        fabricator.getAddress().setAddress(node.get("_address") != null ? node.get("_address").asText() : null);
+        fabricator.getAddress().setStreetNumber(node.get("_streetNumber") != null ? node.get("_streetNumber").asText() : null);
 
         if (node.get("_category") != null){
             fabricator.setCategoryId(node.get("_category").get("id").asText());

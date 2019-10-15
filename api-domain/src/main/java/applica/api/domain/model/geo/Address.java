@@ -4,11 +4,13 @@ import applica.framework.AEntity;
 
 public class Address extends AEntity {
 
-    String country;
-    String municipality;
-    String postalCode;
-    String address;
-    String streetNumber;
+    private String country;
+    private String region;
+    private String province;
+    private String municipality;
+    private String postalCode;
+    private String address;
+    private String streetNumber;
 
     public String getCountry() {
         return country;
@@ -16,6 +18,22 @@ public class Address extends AEntity {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
     }
 
     public String getMunicipality() {
@@ -49,5 +67,4 @@ public class Address extends AEntity {
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
     }
-
 }

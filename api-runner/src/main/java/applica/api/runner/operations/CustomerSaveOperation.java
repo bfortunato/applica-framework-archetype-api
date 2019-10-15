@@ -35,11 +35,14 @@ public class CustomerSaveOperation extends BaseSaveOperation {
 //            }
 //        }
 
-        customer.getAddress().setAddress(node.get("_address") != null ? node.get("_address").asText() : null);
+
         customer.getAddress().setCountry(node.get("_country") != null ? node.get("_country").asText() : null);
+        customer.getAddress().setRegion(node.get("_region") != null ? node.get("_region").asText() : null);
+        customer.getAddress().setProvince(node.get("_province") != null ? node.get("_province").asText() : null);
         customer.getAddress().setMunicipality(node.get("_municipality") != null ? node.get("_municipality").asText() : null);
-        customer.getAddress().setMunicipality(node.get("_streetNumber") != null ? node.get("_streetNumber").asText() : null);
-        customer.getAddress().setMunicipality(node.get("_postalCode") != null ?node.get("_postalCode").asText() : null);
+        customer.getAddress().setPostalCode(node.get("_postalCode") != null ?node.get("_postalCode").asText() : null);
+        customer.getAddress().setAddress(node.get("_address") != null ? node.get("_address").asText() : null);
+        customer.getAddress().setStreetNumber(node.get("_streetNumber") != null ? node.get("_streetNumber").asText() : null);
 
         if (customer.getSubjectType() != null){
             if (customer.getSubjectType().equals(Customer.SUBJECT_TYPE_PHYSICAL_PERSON)) {

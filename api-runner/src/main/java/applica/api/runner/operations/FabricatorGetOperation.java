@@ -21,11 +21,13 @@ public class FabricatorGetOperation extends BaseGetOperation {
         Fabricator fabricator = ((Fabricator) entity);
         node.putPOJO("_category", Repo.of(FabricatorCategory.class).get(fabricator.getCategoryId()).orElse(null));
 
-        if (fabricator.getAddress() != null){
-            node.put("_address", fabricator.getAddress().getAddress());
-            node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
-            node.putPOJO("_municipality", fabricator.getAddress().getMunicipality());
-        }
+        node.put("_country", fabricator.getAddress().getCountry());
+        node.put("_region", fabricator.getAddress().getRegion());
+        node.put("_province", fabricator.getAddress().getProvince());
+        node.put("_municipality", fabricator.getAddress().getMunicipality());
+        node.put("_postalCode", fabricator.getAddress().getPostalCode());
+        node.put("_address", fabricator.getAddress().getAddress());
+        node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
     }
 
     @Override
