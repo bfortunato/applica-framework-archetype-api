@@ -6,6 +6,7 @@ public class Document extends AEntity {
 
     private Object documentTypeId;
     private String file;
+    private boolean valid;
 
     public Object getDocumentTypeId() {
         return documentTypeId;
@@ -21,5 +22,13 @@ public class Document extends AEntity {
 
     public void setFile(String file) {
         this.file = file;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 }

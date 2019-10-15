@@ -10,11 +10,11 @@ public class Dossier extends AEntity {
 
     public static final String STATUS_QUOTATION = "quotation";
     public static final String STATUS_DRAFT = "draft";
-    public static final String STATUS_TO_VERIFY = "to-verify";
     public static final String STATUS_TO_CANDIDATE = "to-candidate";
     public static final String STATUS_CANDIDATED = "candidated";
     public static final String STATUS_REFUSED = "refused";
     public static final String STATUS_APPROVED = "approved";
+    public static final String STATUS_PAY_OFF = "pay-off";
 
     private Object customerId;
     private Object fabricatorId;

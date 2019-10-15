@@ -8,6 +8,7 @@ public class DocumentType extends AEntity {
     private boolean required;
     private String information;
     private String templatePath;
+    private boolean active;
 
     public String getDescription() {
         return description;
@@ -39,5 +40,13 @@ public class DocumentType extends AEntity {
 
     public void setTemplatePath(String templatePath) {
         this.templatePath = templatePath;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

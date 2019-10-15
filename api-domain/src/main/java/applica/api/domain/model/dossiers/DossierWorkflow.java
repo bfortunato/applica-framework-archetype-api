@@ -17,13 +17,14 @@ public class DossierWorkflow {
 
     }
 
-    public void create(Person fabricator, Person customer) {
+    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet) {
         var dossier = new Dossier();
 
         dossier.setCreationDate(new Date());
         dossier.setFabricatorId(fabricator.getId());
         dossier.setCustomerId(customer.getId());
         dossier.setStatus(Dossier.STATUS_QUOTATION);
+        dossier.setPriceCalculatorSheet(priceCalculatorSheet);
 
         this.dossier = dossier;
     }
@@ -41,12 +42,6 @@ public class DossierWorkflow {
      * Try to move a dossier from draft status to toVerify status
      */
     public void commit() {
-        Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
-
-        dossier.setStatus(Dossier.STATUS_TO_VERIFY);
-    }
-
-    public void verify() {
         Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
 
         dossier.setStatus(Dossier.STATUS_TO_CANDIDATE);
@@ -68,6 +63,12 @@ public class DossierWorkflow {
         Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
 
         dossier.setStatus(Dossier.STATUS_REFUSED);
+    }
+
+    public void payOff() {
+        Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
+
+        dossier.setStatus(Dossier.STATUS_PAY_OFF);
     }
 
 }
