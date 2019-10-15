@@ -17,28 +17,15 @@ import static applica.framework.library.responses.Response.OK;
 
 
 @RestController
-@RequestMapping("/customer")
+@RequestMapping("/customers")
 public class CustomerController {
 
     @Autowired
     private CustomersService customersService;
 
-
-    @PostMapping("/")
-    public Response save(@RequestBody String customerJson) {
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-
-        Customer customer = null;
+    @PostMapping("")
+    public Response save(@RequestBody Customer customer) {
         try {
-            customer = mapper.readValue(mapper.readValue(customerJson, String.class), Customer.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new Response(Response.ERROR);
-        }
-
-        try{
             customersService.saveCustomer(customer);
             return new Response(Response.OK);
         } catch (Exception e) {
@@ -46,7 +33,7 @@ public class CustomerController {
         }
     }
 
-    @GetMapping("/getByKeyword")
+    @GetMapping("")
     public Response getByKeyword(String keyword) {
         try {
             return new ValueResponse(customersService.findCustomerByKeyword(keyword));
@@ -56,8 +43,8 @@ public class CustomerController {
         }
     }
 
-    @PostMapping("/delete/{customerId}")
-    public Response delete(@PathVariable Object customerId) {
+    @DeleteMapping("/{customerId}")
+    public Response delete(@PathVariable String customerId) {
         try {
             customersService.deleteCustomer(customerId);
             return new Response(OK);
