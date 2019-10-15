@@ -7,6 +7,7 @@ import applica.framework.Disjunction;
 import applica.framework.Filter;
 import applica.framework.Query;
 import applica.framework.Repo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +18,13 @@ public class CustomerServiceImpl implements CustomersService {
     @Override
     public List<Customer> findCustomerByKeyword(String keyword) {
         Query query = Query.build();
-        Disjunction disjunction = new Disjunction();
-        disjunction.getChildren().add(new Filter(Filters.SOCIAL_REASON, keyword, Filter.LIKE));
-        disjunction.getChildren().add(new Filter(Filters.NAME, keyword, Filter.LIKE));
-        disjunction.getChildren().add(new Filter(Filters.LAST_NAME, keyword, Filter.LIKE));
-        query.getFilters().add(disjunction);
+        if (StringUtils.isNotEmpty(keyword)) {
+            Disjunction disjunction = new Disjunction();
+            disjunction.getChildren().add(new Filter(Filters.SOCIAL_REASON, keyword, Filter.LIKE));
+            disjunction.getChildren().add(new Filter(Filters.NAME, keyword, Filter.LIKE));
+            disjunction.getChildren().add(new Filter(Filters.LAST_NAME, keyword, Filter.LIKE));
+            query.getFilters().add(disjunction);
+        }
         return Repo.of(Customer.class).find(query).getRows();
     }
 
