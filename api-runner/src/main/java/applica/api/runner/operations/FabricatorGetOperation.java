@@ -24,7 +24,7 @@ public class FabricatorGetOperation extends BaseGetOperation {
         if (fabricator.getAddress() != null){
             node.put("_address", fabricator.getAddress().getAddress());
             node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
-            node.putPOJO("_city", fabricator.getAddress().getCity());
+            node.putPOJO("_municipality", fabricator.getAddress().getMunicipality());
         }
     }
 

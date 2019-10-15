@@ -94,8 +94,8 @@ public class ApplicationInitializer {
         setupPermissions();
         initializeCustomPermissions();
 
-        checkGeoProvinceImportStatus();
-        checkGeoCityImportStatus();
+//        checkGeoProvinceImportStatus();
+//        checkGeoCityImportStatus();
 
         User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, DEFAULT_ADMIN_USERNAME)).findFirst().orElse(null);
         if (user == null) {

@@ -22,6 +22,33 @@ public class CustomerValidator implements Validator {
             if (!StringUtils.hasLength(customer.getLastName())) {
                 validationResult.reject("lastName", "validation.user.lastname");
             }
+            if (!StringUtils.hasLength(customer.getSex())) {
+                validationResult.reject("sex", "validation.user.sex");
+            }
+            if (customer.getBirthAddress().getMunicipality() == null) {
+                validationResult.reject("_birthCity", "validation.user.city");
+            }
+            if (!StringUtils.hasLength(customer.getFiscalCode())) {
+                validationResult.reject("fiscalCode", "validation.user.fiscalCode");
+            }
+
+        } else {
+            if (!StringUtils.hasLength(customer.getSocialReason())) {
+                validationResult.reject("socialReason", "validation.user.socialReason");
+            }
+            if (customer.isVatCodeDisabled()){
+                if (!StringUtils.hasLength(customer.getFiscalCode())) {
+                    validationResult.reject("fiscalCode", "validation.user.fiscalCode");
+                }
+            } else {
+                if (!StringUtils.hasLength(customer.getVatCode())) {
+                    validationResult.reject("vatCode", "validation.user.vatCode");
+                }
+            }
+        }
+
+        if (!StringUtils.hasLength(customer.getPhoneNumber())) {
+            validationResult.reject("phoneNumber", "validation.user.phoneNumber");
         }
     }
 
