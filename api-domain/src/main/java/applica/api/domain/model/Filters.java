@@ -21,4 +21,7 @@ public class Filters {
     public static final String DESCRIPTION = "description";
     public static final String POSTAL_CODE = "postalCode";
     public static final String CAP = "cap";
+    public static final String SOCIAL_REASON = "socialReason";
+    public static final String NAME = "name";
+    public static final String LAST_NAME = "lastname";
 }

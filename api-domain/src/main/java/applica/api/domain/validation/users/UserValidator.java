@@ -28,7 +28,7 @@ public class UserValidator implements Validator {
         personValidator.validate(user, validationResult);
 
         if(!StringUtils.hasLength(user.getName())) { validationResult.reject("name", "validation.user.name"); }
-        if(!StringUtils.hasLength(user.getLastname())) { validationResult.reject("lastname", "validation.user.lastname"); }
+//        if(!StringUtils.hasLength(user.getLastname())) { validationResult.reject("lastname", "validation.user.lastname"); }
 
     }
 

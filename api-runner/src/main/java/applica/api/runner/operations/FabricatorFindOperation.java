@@ -1,7 +1,7 @@
 package applica.api.runner.operations;
 
 import applica.api.domain.model.users.Fabricator;
-import applica.api.domain.model.usersCategories.FabricatorCategory;
+import applica.api.domain.model.users.categories.FabricatorCategory;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseFindOperation;

@@ -7,8 +7,6 @@ public class Address extends AEntity {
     GeoCity city;
     String address;
     String streetNumber;
-    String fiscalCode;
-    String phoneNumber;
 
     public GeoCity getCity() {
         return city;
@@ -32,21 +30,5 @@ public class Address extends AEntity {
 
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
-    }
-
-    public String getFiscalCode() {
-        return fiscalCode;
-    }
-
-    public void setFiscalCode(String fiscalCode) {
-        this.fiscalCode = fiscalCode;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 }

@@ -1,7 +1,7 @@
 package applica.api.domain.model.auth;
 
 import applica.api.domain.model.EntityList;
-import applica.api.domain.model.users.Person;
+import applica.framework.AEntity;
 import applica.framework.annotations.ManyToMany;
 import applica.framework.widgets.entities.EntityId;
 import org.springframework.util.StringUtils;
@@ -16,17 +16,19 @@ import java.util.List;
  * Time: 17:08
  */
 @EntityId(EntityList.USER)
-public class User extends Person implements applica.framework.security.User {
+public class User extends AEntity implements applica.framework.security.User {
 
     private String name;
     private String lastname;
+    private String mail;
+    private String password;
+    private boolean active;
     private boolean firstLogin;
     private Date registrationDate;
     private String activationCode;
     private String image;
     private Date lastLogin;
     private Date currentPasswordSetDate;
-    private String phoneNumber;
 
     @ManyToMany
     private List<Role> roles;
@@ -39,6 +41,30 @@ public class User extends Person implements applica.framework.security.User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public Date getRegistrationDate() {
@@ -111,10 +137,6 @@ public class User extends Person implements applica.framework.security.User {
 
     public void setNeedToChangePassword(boolean needToChangePassword) {
         this.needToChangePassword = needToChangePassword;
-    }
-
-    public String getLastname() {
-        return lastname;
     }
 
     public String getInitials() {

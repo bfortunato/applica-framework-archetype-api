@@ -10,6 +10,7 @@ public class Fabricator extends Person {
     private String businessName;
     private Address address = new Address();
     private String referent;
+    private String phoneNumber;
 
     public String getBusinessName() {
         return businessName;
@@ -33,5 +34,13 @@ public class Fabricator extends Person {
 
     public void setReferent(String referent) {
         this.referent = referent;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

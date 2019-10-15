@@ -1,7 +1,7 @@
 package applica.api.runner.operations;
 
 import applica.api.domain.model.users.EndUser;
-import applica.api.domain.model.usersCategories.EndUserCategory;
+import applica.api.domain.model.users.categories.EndUserCategory;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseFindOperation;

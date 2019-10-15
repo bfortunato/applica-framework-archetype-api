@@ -31,8 +31,6 @@ public class FabricatorSaveOperation extends BaseSaveOperation {
 
         Fabricator fabricator = ((Fabricator) entity);
 
-        fabricator.getAddress().setPhoneNumber(node.get("_phoneNumber") != null ? node.get("_phoneNumber").asText() : null);
-
         if (node.get("_address") != null && !node.get("_address").isNull())
             fabricator.getAddress().setAddress(StringUtils.hasLength(node.get("_address").asText()) ? node.get("_address").asText() : null);
         if (node.get("_streetNumber") != null && !node.get("_streetNumber").isNull())
@@ -50,48 +48,4 @@ public class FabricatorSaveOperation extends BaseSaveOperation {
         }
     }
 
-//    @Override
-//    protected void beforeSave(ObjectNode data, Entity entity) {
-//        String passwordToSave = null;
-//        if (org.springframework.util.StringUtils.hasLength(data.get("password").asText())) {
-//            //set / modifica password
-//            passwordToSave = new BCryptPasswordEncoder().encode(data.get("password").asText());
-//            ((User) entity).setCurrentPasswordSetDate(new Date());
-//        } else {
-//            if (entity.getId() != null) {
-//                User previous = Repo.of(User.class).get(((User) entity).getSid()).get();
-//                passwordToSave = ((User) previous).getPassword();
-//            }
-//        }
-//        ((User) entity).setPassword(passwordToSave);
-//        ((User) entity).setMail(((User) entity).getMail());
-//
-//    }
-//
-//    @Override
-//    protected void afterSave(ObjectNode node, Entity entity) {
-//        // Ottengo tutte le info necessarie ad aggiornare/creare un utente
-//        User user = (User) entity;
-//
-//        if (user.isActive()) {
-//            boolean needToActivate = false;
-//
-//            // Se nuovo utente autogenero password temporanea
-//            if (node.get("id") == null) {
-//                needToActivate = true;
-//                user.setFirstLogin(true);
-//                user.setRegistrationDate(new Date());
-//
-//                String tempPassword = user.getSid();
-//                user.setPassword(new BCryptPasswordEncoder().encode(tempPassword));
-//            }
-//
-//            Repo.of(User.class).save(user);
-//
-//            if (needToActivate) {
-//                new Thread(() -> accountFacade.sendRegistrationMail(user, user.getSid())).start();
-//            }
-//        }
-//
-//    }
 }

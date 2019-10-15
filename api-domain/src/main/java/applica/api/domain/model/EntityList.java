@@ -16,6 +16,8 @@ public class EntityList {
     public static final String ADMIN_USER_CATEGORY = "adminUserCategory";
     public static final String END_USER_CATEGORY = "endUserCategory";
     public static final String FABRICATOR_CATEGORY = "fabricatorCategory";
+    public static final String ADMIN_USER = "adminUser";
+    public static final String CUSTOMER = "customer";
 
 
     public static String [] getPermittedEntitiesByRole(String permission) {
@@ -37,6 +39,6 @@ public class EntityList {
     }
 
     public static String[] getAll() {
-        return new String[]{USER, ROLE, END_USER, FABRICATOR, ADMIN_USER_CATEGORY, END_USER, FABRICATOR_CATEGORY};
+        return new String[]{USER, ROLE, END_USER, FABRICATOR, ADMIN_USER_CATEGORY, END_USER, FABRICATOR_CATEGORY, ADMIN_USER, CUSTOMER};
     }
 }
