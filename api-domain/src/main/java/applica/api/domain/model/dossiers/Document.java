@@ -8,6 +8,12 @@ public class Document extends AEntity {
     private String file;
     private boolean valid;
 
+    public Document(Object documentTypeId, String file) {
+        this.documentTypeId = documentTypeId;
+        this.file = file;
+        this.valid = true;
+    }
+
     public Object getDocumentTypeId() {
         return documentTypeId;
     }

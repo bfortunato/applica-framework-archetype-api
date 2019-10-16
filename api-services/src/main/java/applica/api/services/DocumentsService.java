@@ -1,13 +1,13 @@
 package applica.api.services;
 
 import applica.api.domain.model.dossiers.DocumentType;
+import applica.api.domain.model.dossiers.Dossier;
 
-import java.io.OutputStreamWriter;
 import java.util.List;
 
 public interface DocumentsService {
 
     List<DocumentType> findAllDocumentTypes();
-    void generateFromTemplate(OutputStreamWriter writer, Object documentTypeId, Object dossierId);
+    String generateFromTemplate(DocumentType documentType, Dossier dossier) throws Exception;
 
 }

@@ -4,7 +4,6 @@ import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.DefaultRepositoriesFactory;
-import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.RepositoriesFactory;
 import applica.framework.fileserver.FileServer;
 import applica.framework.fileserver.SimpleFileServer;
@@ -12,6 +11,7 @@ import applica.framework.fileserver.servlets.FilesServlet;
 import applica.framework.fileserver.servlets.ImagesServlet;
 import applica.framework.library.cache.Cache;
 import applica.framework.library.cache.MemoryCache;
+import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.options.OptionsManager;
 import applica.framework.library.options.PropertiesOptionManager;
 import applica.framework.library.utils.ErrorsUtils;
@@ -24,14 +24,21 @@ import applica.framework.widgets.mapping.EntityMapper;
 import applica.framework.widgets.operations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.annotation.*;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.util.unit.DataSize;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.context.MessageSource;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+import javax.servlet.MultipartConfigElement;
 import java.util.Locale;
 /**
  * Created by bimbobruno on 14/11/2016.
@@ -178,6 +185,14 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
         messageSource.setBasenames("classpath:messages/messages");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
+    }
+
+    @Bean
+    MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize(DataSize.ofMegabytes(5120));
+        factory.setMaxRequestSize(DataSize.ofMegabytes(5120));
+        return factory.createMultipartConfig();
     }
 
     /*

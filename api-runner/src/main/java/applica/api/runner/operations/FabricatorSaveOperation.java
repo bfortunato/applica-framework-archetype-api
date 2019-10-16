@@ -1,13 +1,16 @@
 package applica.api.runner.operations;
 
+import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.Fabricator;
+import applica.api.domain.utils.CustomUtils;
+import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
-import applica.framework.widgets.operations.BaseSaveOperation;
+import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FabricatorSaveOperation extends BaseSaveOperation {
+public class FabricatorSaveOperation extends EntityCodedBaseSaveOperation {
 
     @Override
     public Class<? extends Entity> getEntityType() {
@@ -41,6 +44,17 @@ public class FabricatorSaveOperation extends BaseSaveOperation {
 
         if (node.get("_category") != null){
             fabricator.setCategoryId(node.get("_category").get("id").asText());
+        }
+    }
+
+    @Override
+    protected void beforeSave(ObjectNode node, Entity entity) throws OperationException {
+        super.beforeSave(node, entity);
+        if (node.get("mail") == null || node.get("mail").isNull() || node.get("password") == null || node.get("password").isNull()){
+            throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
+        } else {
+            User user = CustomUtils.createUserFromPerson(node);
+            ((Fabricator) entity).setUserId(user.getId());
         }
     }
 

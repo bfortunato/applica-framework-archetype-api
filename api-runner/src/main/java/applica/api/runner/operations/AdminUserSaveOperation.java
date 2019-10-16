@@ -1,9 +1,11 @@
 package applica.api.runner.operations;
 
+import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.AdminUser;
-import applica.api.domain.model.users.EndUser;
+import applica.api.domain.utils.CustomUtils;
+import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
-import applica.framework.widgets.operations.BaseSaveOperation;
+import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class AdminUserSaveOperation extends BaseSaveOperation {
+public class AdminUserSaveOperation extends EntityCodedBaseSaveOperation {
 
     @Override
     public Class<? extends Entity> getEntityType() {
@@ -22,55 +24,22 @@ public class AdminUserSaveOperation extends BaseSaveOperation {
     @Override
     protected void finishEntity(ObjectNode node, Entity entity) {
 
-        EndUser endUser = ((EndUser) entity);
+        AdminUser adminUser = ((AdminUser) entity);
 
         if (node.get("_category") != null){
-            endUser.setCategoryId(node.get("_category").get("id").asText());
+            adminUser.setCategoryId(node.get("_category").get("id").asText());
         }
     }
 
-//    @Override
-//    protected void beforeSave(ObjectNode data, Entity entity) {
-//        String passwordToSave = null;
-//        if (org.springframework.util.StringUtils.hasLength(data.get("password").asText())) {
-//            //set / modifica password
-//            passwordToSave = new BCryptPasswordEncoder().encode(data.get("password").asText());
-//            ((User) entity).setCurrentPasswordSetDate(new Date());
-//        } else {
-//            if (entity.getId() != null) {
-//                User previous = Repo.of(User.class).get(((User) entity).getSid()).get();
-//                passwordToSave = ((User) previous).getPassword();
-//            }
-//        }
-//        ((User) entity).setPassword(passwordToSave);
-//        ((User) entity).setMail(((User) entity).getMail());
-//
-//    }
-//
-//    @Override
-//    protected void afterSave(ObjectNode node, Entity entity) {
-//        // Ottengo tutte le info necessarie ad aggiornare/creare un utente
-//        User user = (User) entity;
-//
-//        if (user.isActive()) {
-//            boolean needToActivate = false;
-//
-//            // Se nuovo utente autogenero password temporanea
-//            if (node.get("id") == null) {
-//                needToActivate = true;
-//                user.setFirstLogin(true);
-//                user.setRegistrationDate(new Date());
-//
-//                String tempPassword = user.getSid();
-//                user.setPassword(new BCryptPasswordEncoder().encode(tempPassword));
-//            }
-//
-//            Repo.of(User.class).save(user);
-//
-//            if (needToActivate) {
-//                new Thread(() -> accountFacade.sendRegistrationMail(user, user.getSid())).start();
-//            }
-//        }
-//
-//    }
+    @Override
+    protected void beforeSave(ObjectNode node, Entity entity) throws OperationException {
+        super.beforeSave(node, entity);
+        if (node.get("mail") == null || node.get("mail").isNull() || node.get("password") == null || node.get("password").isNull()){
+            throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
+        } else {
+            User user = CustomUtils.createUserFromPerson(node);
+            ((AdminUser) entity).setUserId(user.getId());
+        }
+    }
+
 }

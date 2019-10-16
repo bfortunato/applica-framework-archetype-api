@@ -45,7 +45,7 @@ public class PriceCalculatorSheet extends AEntity {
     }
 
     public double getTotal() {
-        return total;
+        return this.significantValue + this.nonSignificantValue;
     }
 
     public void setTotal(double total) {

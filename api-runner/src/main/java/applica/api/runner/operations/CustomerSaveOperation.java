@@ -2,7 +2,6 @@ package applica.api.runner.operations;
 
 import applica.api.domain.model.users.Customer;
 import applica.framework.Entity;
-import applica.framework.widgets.operations.BaseSaveOperation;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class CustomerSaveOperation extends BaseSaveOperation {
+public class CustomerSaveOperation extends EntityCodedBaseSaveOperation {
 
     @Override
     public Class<? extends Entity> getEntityType() {
@@ -52,6 +51,13 @@ public class CustomerSaveOperation extends BaseSaveOperation {
 //                        customer.getBirthAddress().setCity(Repo.of(GeoCity.class).get(node.get("_birthCity").get("id").asText()).orElse(null));
 //                    }
 //                }
+                customer.getBirthAddress().setCountry(node.get("_birthCountry") != null ? node.get("_birthCountry").asText() : null);
+                customer.getBirthAddress().setRegion(node.get("_birthRegion") != null ? node.get("_birthRegion").asText() : null);
+                customer.getBirthAddress().setProvince(node.get("_birthProvince") != null ? node.get("_birthProvince").asText() : null);
+                customer.getBirthAddress().setMunicipality(node.get("_birthMunicipality") != null ? node.get("_birthMunicipality").asText() : null);
+                customer.getBirthAddress().setPostalCode(node.get("_birthPostalCode") != null ?node.get("_birthPostalCode").asText() : null);
+                customer.getBirthAddress().setAddress(node.get("_birthAddress") != null ? node.get("_birthAddress").asText() : null);
+                customer.getBirthAddress().setStreetNumber(node.get("_birthStreetNumber") != null ? node.get("_birthStreetNumber").asText() : null);
             }
         }
 

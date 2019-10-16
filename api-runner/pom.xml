@@ -17,6 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <applica.framework.version>2.3.0</applica.framework.version>
+        <poi.version>3.10-FINAL</poi.version>
     </properties>
 
     <dependencies>

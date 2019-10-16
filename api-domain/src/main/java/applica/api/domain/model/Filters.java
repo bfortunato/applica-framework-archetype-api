@@ -23,5 +23,9 @@ public class Filters {
     public static final String CAP = "cap";
     public static final String SOCIAL_REASON = "socialReason";
     public static final String NAME = "name";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LASTNAME = "lastName";
     public static final String LAST_NAME = "lastname";
+    public static final String FABRICATOR_ID = "fabricatorId";
+    public static final String ACTIVE = "active";
 }

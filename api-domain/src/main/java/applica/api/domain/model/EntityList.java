@@ -18,6 +18,7 @@ public class EntityList {
     public static final String FABRICATOR_CATEGORY = "fabricatorCategory";
     public static final String ADMIN_USER = "adminUser";
     public static final String CUSTOMER = "customer";
+    public static final String DOCUMENT_TYPE = "documentType";
 
 
     public static String [] getPermittedEntitiesByRole(String permission) {

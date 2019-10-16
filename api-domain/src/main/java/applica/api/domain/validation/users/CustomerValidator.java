@@ -25,12 +25,14 @@ public class CustomerValidator implements Validator {
             if (!StringUtils.hasLength(customer.getSex())) {
                 validationResult.reject("sex", "validation.user.sex");
             }
-            if (customer.getBirthAddress().getMunicipality() == null) {
-                validationResult.reject("_birthCity", "validation.user.city");
-            }
             if (!StringUtils.hasLength(customer.getFiscalCode())) {
                 validationResult.reject("fiscalCode", "validation.user.fiscalCode");
             }
+            if(!StringUtils.hasLength(customer.getBirthAddress().getCountry())) { validationResult.reject("_birthCountry", "validation.user.country"); }
+            if(!StringUtils.hasLength(customer.getBirthAddress().getRegion())) { validationResult.reject("_birthRegion", "validation.user.region"); }
+            if(!StringUtils.hasLength(customer.getBirthAddress().getProvince())) { validationResult.reject("_birthProvince", "validation.user.province"); }
+            if(!StringUtils.hasLength(customer.getBirthAddress().getPostalCode())) { validationResult.reject("_birthPostalCode", "validation.user.postalCode"); }
+            if(!StringUtils.hasLength(customer.getBirthAddress().getMunicipality())) { validationResult.reject("_birthMunicipality", "validation.user.municipality"); }
 
         } else {
             if (!StringUtils.hasLength(customer.getSocialReason())) {

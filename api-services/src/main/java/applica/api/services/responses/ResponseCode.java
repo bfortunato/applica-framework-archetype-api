@@ -19,4 +19,11 @@ public class ResponseCode {
     public static final int ERROR_ROLE_NOT_FOUND            = 1013;
     public static final int ERROR_IO                        = 1014;
     public static final int ERROR_INVALID_DATA              = 1015;
+    public static final int ERROR_MAIL_AND_PASSWORD_REQUIRED              = 1016;
+    public static final int ERROR_FABRICATOR_NOT_FOUND              = 1017;
+    public static final int ERROR_CUSTOMER_NOT_FOUND              = 1018;
+    public static final int OPERATION_NOT_ALLOWED           = 1019;
+    public static final int ERROR_DOSSIER_NOT_FOUND = 1020;
+    public static final int ERROR_DOCUMENT_NOT_FOUND = 1021;
+    public static final int ERROR_DOCUMENT_TYPE_NOT_FOUND = 1022;
 }

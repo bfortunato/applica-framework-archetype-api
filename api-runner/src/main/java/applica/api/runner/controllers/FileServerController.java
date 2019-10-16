@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static applica.api.runner.utils.FileUtils.downloadAndRenameFile;
+import static applica.api.services.utils.FileUtils.downloadAndRenameFile;
 
 /**
  * Created by bimbobruno on 08/03/2017.

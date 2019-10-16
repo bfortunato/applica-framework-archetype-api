@@ -22,9 +22,14 @@ public class FabricatorValidator implements Validator {
         personValidator.validate(fabricator, validationResult);
 
         if(!StringUtils.hasLength(fabricator.getBusinessName())) { validationResult.reject("businessName", "validation.user.businessName"); }
-        if(fabricator.getAddress().getCountry() == null) { validationResult.reject("_city", "validation.user.country"); }
-        if(!StringUtils.hasLength(fabricator.getAddress().getStreetNumber())) { validationResult.reject("_streetNumber", "validation.user.streetNumber"); }
+
+        if(!StringUtils.hasLength(fabricator.getAddress().getCountry())) { validationResult.reject("_country", "validation.user.country"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getRegion())) { validationResult.reject("_region", "validation.user.region"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getProvince())) { validationResult.reject("_province", "validation.user.province"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getPostalCode())) { validationResult.reject("_postalCode", "validation.user.postalCode"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getMunicipality())) { validationResult.reject("_municipality", "validation.user.municipality"); }
         if(!StringUtils.hasLength(fabricator.getAddress().getAddress())) { validationResult.reject("_address", "validation.user.address"); }
+        if(!StringUtils.hasLength(fabricator.getAddress().getStreetNumber())) { validationResult.reject("_streetNumber", "validation.user.streetNumber"); }
     }
 
     @Override

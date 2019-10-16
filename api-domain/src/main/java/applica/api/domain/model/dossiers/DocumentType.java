@@ -1,13 +1,17 @@
 package applica.api.domain.model.dossiers;
 
-import applica.framework.AEntity;
+import applica.api.domain.model.CodedEntity;
+import applica.api.domain.model.EntityList;
+import applica.framework.widgets.entities.EntityId;
+import applica.framework.widgets.mapping.Attachment;
 
-public class DocumentType extends AEntity {
+@EntityId(EntityList.DOCUMENT_TYPE)
+public class DocumentType extends CodedEntity {
 
     private String description;
     private boolean required;
     private String information;
-    private String templatePath;
+    private Attachment template;
     private boolean active;
 
     public String getDescription() {
@@ -34,12 +38,12 @@ public class DocumentType extends AEntity {
         this.information = information;
     }
 
-    public String getTemplatePath() {
-        return templatePath;
+    public Attachment getTemplate() {
+        return template;
     }
 
-    public void setTemplatePath(String templatePath) {
-        this.templatePath = templatePath;
+    public void setTemplate(Attachment template) {
+        this.template = template;
     }
 
     public boolean isActive() {

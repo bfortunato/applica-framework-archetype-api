@@ -1,6 +1,8 @@
 package applica.api.services;
 
+import applica.api.domain.exceptions.WorkflowException;
 import applica.api.domain.model.dossiers.*;
+import applica.framework.widgets.operations.OperationException;
 
 import java.util.List;
 
@@ -10,7 +12,7 @@ public interface DossiersService {
 
     ServiceCost calculateServiceCost(PriceCalculatorSheet sheet);
     RecommendedPrice calculateRecommendedPrice(PriceCalculatorSheet sheet);
-    SimulatedFinancing simulateFinancing(PriceCalculatorSheet sheet, int numberOfQuotes);
+    SimulatedFinancing simulateFinancing(PriceCalculatorSheet sheet);
 
     /**
      * Chiamato dall'app quando viene caricato un documento.
@@ -19,18 +21,17 @@ public interface DossiersService {
      * @param documentTypeId
      * @param attachmentData
      */
-    void attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData); //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    void attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws OperationException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
     /**
      * Solitamente chiamato da app, per rimuovere un documento gia allegato
      * @param dossierId
      * @param documentTypeId
-     * @param attachmentData
      */
-    void clearDocumentAttachment(Object dossierId, Object documentTypeId, byte[] attachmentData);
+    void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws OperationException;
 
 
-    void refuseDocument(Object dossierId, Object documentTypeId);
+    void refuseDocument(Object dossierId, Object documentTypeId) throws OperationException;
 
 
     void saveDossier(Dossier dossier);
@@ -44,19 +45,27 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet);
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException;
 
 
-    void confirmQuotation(Dossier dossier);
+    void confirmQuotation(Dossier dossier) throws OperationException, WorkflowException;
 
     /**
      * Da chiamare se tutt
      * @param dossier
      */
-    void commit(Dossier dossier);
+    void commit(Dossier dossier) throws OperationException, WorkflowException;
     /*
     altri metodi del workflow
      */
 
+    void candidate(Dossier dossier) throws OperationException, WorkflowException;
 
+    void approve(Dossier dossier) throws OperationException, WorkflowException;
+
+    void refuse(Dossier dossier) throws OperationException, WorkflowException;
+
+    void payOff(Dossier dossier) throws OperationException, WorkflowException;
+
+    Dossier getById(String dossierId) throws OperationException;
 }

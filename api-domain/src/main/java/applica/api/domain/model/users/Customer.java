@@ -17,6 +17,7 @@ public class Customer extends Person {
     public static final String SUBJECT_TYPE_PHYSICAL_PERSON = "physical-person";
     public static final String SUBJECT_TYPE_LEGAL_PERSON = "legal-person";
 
+    private Object fabricatorId;
     private String subjectType;
     private String firstName;
     private String lastName;
@@ -29,6 +30,15 @@ public class Customer extends Person {
     private String vatCode;
     private String fiscalCode;
     private String phoneNumber;
+    private transient String name;
+
+    public Object getFabricatorId() {
+        return fabricatorId;
+    }
+
+    public void setFabricatorId(Object fabricatorId) {
+        this.fabricatorId = fabricatorId;
+    }
 
     public String getSubjectType() {
         return subjectType;
@@ -124,5 +134,13 @@ public class Customer extends Person {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getName() {
+        if (this.subjectType.equals(SUBJECT_TYPE_PHYSICAL_PERSON)){
+            return firstName + " " + lastName;
+        } else {
+            return socialReason;
+        }
     }
 }

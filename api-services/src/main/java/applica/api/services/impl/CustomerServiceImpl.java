@@ -3,10 +3,7 @@ package applica.api.services.impl;
 import applica.api.domain.model.Filters;
 import applica.api.domain.model.users.Customer;
 import applica.api.services.CustomersService;
-import applica.framework.Disjunction;
-import applica.framework.Filter;
-import applica.framework.Query;
-import applica.framework.Repo;
+import applica.framework.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +23,11 @@ public class CustomerServiceImpl implements CustomersService {
             query.getFilters().add(disjunction);
         }
         return Repo.of(Customer.class).find(query).getRows();
+    }
+
+    @Override
+    public Result<Customer> findCustomerByQuery(Query query) {
+        return Repo.of(Customer.class).find(query);
     }
 
     @Override
