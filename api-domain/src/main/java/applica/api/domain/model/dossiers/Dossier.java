@@ -1,12 +1,15 @@
 package applica.api.domain.model.dossiers;
 
-import applica.framework.AEntity;
+import applica.api.domain.model.CodedEntity;
+import applica.api.domain.model.EntityList;
+import applica.framework.widgets.entities.EntityId;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Dossier extends AEntity {
+@EntityId(EntityList.DOSSIER)
+public class Dossier extends CodedEntity {
 
     public static final String STATUS_QUOTATION = "quotation";
     public static final String STATUS_DRAFT = "draft";

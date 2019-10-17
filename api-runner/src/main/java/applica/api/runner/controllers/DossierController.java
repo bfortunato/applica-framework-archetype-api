@@ -143,7 +143,7 @@ public class DossierController {
         }
     }
 
-    @GetMapping("/serviceCost}")
+    @GetMapping("/serviceCost")
     public Response serviceCost(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
         try {
             return new ValueResponse(dossiersService.calculateServiceCost(priceCalculatorSheet));
@@ -153,7 +153,7 @@ public class DossierController {
         }
     }
 
-    @GetMapping("/recommendedPrice}")
+    @GetMapping("/recommendedPrice")
     public Response recommendedPrice(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
         try {
             return new ValueResponse(dossiersService.calculateRecommendedPrice(priceCalculatorSheet));
@@ -163,7 +163,7 @@ public class DossierController {
         }
     }
 
-    @GetMapping("/simulateFinancing}")
+    @GetMapping("/simulateFinancing")
     public Response simulateFinancing(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
         try {
             return new ValueResponse(dossiersService.simulateFinancing(priceCalculatorSheet));

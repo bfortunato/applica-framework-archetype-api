@@ -28,4 +28,5 @@ public class Filters {
     public static final String LAST_NAME = "lastname";
     public static final String FABRICATOR_ID = "fabricatorId";
     public static final String ACTIVE = "active";
+    public static final String ASSIGNATION_TYPE = "assignationType";
 }

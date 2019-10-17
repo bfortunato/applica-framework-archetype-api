@@ -8,11 +8,15 @@ import applica.framework.widgets.mapping.Attachment;
 @EntityId(EntityList.DOCUMENT_TYPE)
 public class DocumentType extends CodedEntity {
 
+    public static final String ASSIGN_TO_FABRICATOR = "to-fabricator";
+    public static final String ASSIGN_TO_DOSSIER = "to-dossier";
+
     private String description;
     private boolean required;
     private String information;
     private Attachment template;
     private boolean active;
+    private String assignationType;
 
     public String getDescription() {
         return description;
@@ -52,5 +56,13 @@ public class DocumentType extends CodedEntity {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getAssignationType() {
+        return assignationType;
+    }
+
+    public void setAssignationType(String assignationType) {
+        this.assignationType = assignationType;
     }
 }

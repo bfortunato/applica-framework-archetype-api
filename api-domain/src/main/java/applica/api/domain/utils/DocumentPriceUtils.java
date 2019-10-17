@@ -76,14 +76,14 @@ public class DocumentPriceUtils {
 
     }
 
-    public static RecommendedPrice generateServiceRecommendedPrice(PriceCalculatorSheet priceCalculatorSheet) {
+    public static RecommendedPrice generateRecommendedPrice(PriceCalculatorSheet priceCalculatorSheet) {
         BigDecimal bd = new BigDecimal(calculateTotalVatIncluded(priceCalculatorSheet));
         bd = bd.setScale(2, RoundingMode.HALF_EVEN);
         return new RecommendedPrice(bd.doubleValue());
     }
 
     public static ServiceCost generateServiceCost(PriceCalculatorSheet priceCalculatorSheet) {
-        RecommendedPrice recommendedPrice = generateServiceRecommendedPrice(priceCalculatorSheet);
+        RecommendedPrice recommendedPrice = generateRecommendedPrice(priceCalculatorSheet);
         double totalVATExcluded = calculateTotalVatExcluded(priceCalculatorSheet);
         double aggioTaxCredit = (recommendedPrice.getNetAmountToBePaid() * AGGIO_TAX_CREDIT)/100;
         double dimSolTaxCredit = (totalVATExcluded * DIM_SOL_TAX_CREDIT)/100;
@@ -96,7 +96,7 @@ public class DocumentPriceUtils {
     }
 
     public static SimulatedFinancing generateSimulatedFinancing(PriceCalculatorSheet priceCalculatorSheet) {
-        RecommendedPrice recommendedPrice = generateServiceRecommendedPrice(priceCalculatorSheet);
+        RecommendedPrice recommendedPrice = generateRecommendedPrice(priceCalculatorSheet);
         double total = recommendedPrice.getNetAmountToBePaid();
         double twelvePaymentFee = (total*(TWELVE_PAYMENT_FEE/100.0f));
         double twentyFourPaymentFee = (total*(TWENTY_FOUR_PAYMENT_FEE/100.0f));

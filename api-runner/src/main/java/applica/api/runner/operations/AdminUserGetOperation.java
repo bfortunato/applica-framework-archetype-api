@@ -1,7 +1,6 @@
 package applica.api.runner.operations;
 
 import applica.api.domain.model.users.AdminUser;
-import applica.api.domain.model.users.EndUser;
 import applica.api.domain.model.users.categories.AdminUserCategory;
 import applica.framework.Entity;
 import applica.framework.Repo;
@@ -18,7 +17,7 @@ public class AdminUserGetOperation extends BaseGetOperation {
 
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
-        node.putPOJO("_category", Repo.of(AdminUserCategory.class).get(((EndUser) entity).getCategoryId()).orElse(null));
+        node.putPOJO("_category", Repo.of(AdminUserCategory.class).get(((AdminUser) entity).getCategoryId()).orElse(null));
     }
 
     @Override

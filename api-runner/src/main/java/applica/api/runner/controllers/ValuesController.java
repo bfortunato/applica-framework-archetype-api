@@ -6,7 +6,7 @@ import applica.api.domain.model.Filters;
 import applica.api.domain.model.auth.Role;
 import applica.api.domain.model.auth.User;
 import applica.api.domain.model.geo.GeoCity;
-import applica.api.services.GeoCityService;
+import applica.api.services.*;
 import applica.framework.Disjunction;
 import applica.framework.Filter;
 import applica.framework.Query;
@@ -42,6 +42,21 @@ public class ValuesController {
 
     @Autowired
     private GeoCityService geoCityService;
+
+    @Autowired
+    private AdminUserCategoryService adminUserCategoryService;
+
+    @Autowired
+    private EndUserCategoryService endUserCategoryService;
+
+    @Autowired
+    private FabricatorCategoryService fabricatorCategoryService;
+
+    @Autowired
+    private CustomersService customersService;
+
+    @Autowired
+    private FabricatorService fabricatorService;
 
     @RequestMapping("/roles")
     public ValueResponse roles(String keyword) {
@@ -93,6 +108,31 @@ public class ValuesController {
         }
 
         return new ValueResponse(geoCityResult);
+    }
+
+    @RequestMapping("/adminUserCategories")
+    public Response adminUserCategories() {
+        return new ValueResponse(adminUserCategoryService.findAllActive());
+    }
+
+    @RequestMapping("/endUserCategories")
+    public Response endUserCategories() {
+        return new ValueResponse(endUserCategoryService.findAllActive());
+    }
+
+    @RequestMapping("/fabricatorCategories")
+    public Response fabricatorCategories() {
+        return new ValueResponse(fabricatorCategoryService.findAllActive());
+    }
+
+    @RequestMapping("/customers")
+    public Response customers() {
+        return new ValueResponse(customersService.findCustomerByQuery(Query.build().eq(Filters.ACTIVE, true)));
+    }
+
+    @RequestMapping("/fabricators")
+    public Response fabricators() {
+        return new ValueResponse(fabricatorService.findAllActive());
     }
 
 }

@@ -39,7 +39,7 @@ public class DossierServiceImpl implements DossiersService {
 
     @Override
     public RecommendedPrice calculateRecommendedPrice(PriceCalculatorSheet sheet) {
-        return DocumentPriceUtils.generateServiceRecommendedPrice(sheet);
+        return DocumentPriceUtils.generateRecommendedPrice(sheet);
     }
 
     @Override

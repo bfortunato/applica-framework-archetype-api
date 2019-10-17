@@ -1,8 +1,12 @@
 package applica.api.domain.model.users;
 
 import applica.api.domain.model.EntityList;
+import applica.api.domain.model.dossiers.Document;
 import applica.api.domain.model.geo.Address;
 import applica.framework.widgets.entities.EntityId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EntityId(EntityList.FABRICATOR)
 public class Fabricator extends Person {
@@ -11,6 +15,8 @@ public class Fabricator extends Person {
     private Address address = new Address();
     private String referent;
     private String phoneNumber;
+
+    private List<Document> documents = new ArrayList<>();
 
     public String getBusinessName() {
         return businessName;
@@ -42,5 +48,13 @@ public class Fabricator extends Person {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
     }
 }

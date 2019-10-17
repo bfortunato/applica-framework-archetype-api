@@ -2,6 +2,7 @@ package applica.api.runner.operations;
 
 import applica.api.domain.model.Filters;
 import applica.api.domain.model.users.Customer;
+import applica.api.domain.utils.FilterUtils;
 import applica.api.services.CustomersService;
 import applica.framework.*;
 import applica.framework.widgets.operations.BaseFindOperation;
@@ -23,9 +24,7 @@ public class CustomerFindOperation extends BaseFindOperation {
     @Override
     protected Result<? extends Entity> fetch(Query query) {
         if (query.hasFilter(Filters.ACTIVE)) {
-            Filter f = new Filter(Filters.ACTIVE, query.getFilterValue(Filters.ACTIVE).equals("true"), query.getFilterType(Filters.ACTIVE));
-            query.getFilters().removeIf(fi -> fi.getProperty().equals(Filters.ACTIVE));
-            query.getFilters().add(f);
+            FilterUtils.addActiveFilter(query);
         }
         if (query.hasFilter(Filters.NAME)){
             Disjunction disjunction = new Disjunction();

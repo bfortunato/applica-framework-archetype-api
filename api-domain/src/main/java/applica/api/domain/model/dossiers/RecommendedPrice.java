@@ -9,7 +9,7 @@ public class RecommendedPrice {
     public RecommendedPrice(double recommendedRetailPrice) {
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.discount = 50;
-        this.netAmountToBePaid = recommendedRetailPrice/this.discount;
+        this.netAmountToBePaid = recommendedRetailPrice - (recommendedRetailPrice*this.discount)/100;
     }
 
     public double getRecommendedRetailPrice() {
