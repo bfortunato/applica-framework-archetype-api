@@ -5,6 +5,7 @@ import applica.api.services.DocumentsService;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +26,7 @@ public class DocumentController {
         this.attachmentFacade = attachmentFacade;
     }
 
-    @GetMapping("/find")
+    @GetMapping("")
     public Response findAllDocumentTypes() {
         try {
             return new ValueResponse(documentsService.findAllDocumentTypes());
@@ -35,10 +36,10 @@ public class DocumentController {
         }
     }
 
-    @GetMapping("/generate")
-    public void generate(HttpServletResponse response, String documentTypeId, String dossierId) {
+    @GetMapping("/{dossierId}/generate")
+    public void generate(HttpServletResponse response, @PathVariable String dossierId, String documentTypeId) {
         try {
-            attachmentFacade.generateAndDownloadFromTemplate("5da705a013920e11b9f17d86", dossierId, response);
+            attachmentFacade.generateAndDownloadFromTemplate(documentTypeId, dossierId, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

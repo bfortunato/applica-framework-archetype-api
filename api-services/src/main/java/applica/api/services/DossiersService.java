@@ -48,24 +48,24 @@ public interface DossiersService {
     Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException;
 
 
-    void confirmQuotation(Dossier dossier) throws OperationException, WorkflowException;
+    void confirmQuotation(Object dossierId) throws OperationException, WorkflowException;
 
     /**
      * Da chiamare se tutt
-     * @param dossier
+     * @param dossierId
      */
-    void commit(Dossier dossier) throws OperationException, WorkflowException;
+    void commit(Object dossierId) throws OperationException, WorkflowException;
     /*
     altri metodi del workflow
      */
 
-    void candidate(Dossier dossier) throws OperationException, WorkflowException;
+    void candidate(Object dossierId) throws OperationException, WorkflowException;
 
-    void approve(Dossier dossier) throws OperationException, WorkflowException;
+    void approve(Object dossierId) throws OperationException, WorkflowException;
 
-    void refuse(Dossier dossier) throws OperationException, WorkflowException;
+    void refuse(Object dossierId) throws OperationException, WorkflowException;
 
-    void payOff(Dossier dossier) throws OperationException, WorkflowException;
+    void payOff(Object dossierId) throws OperationException, WorkflowException;
 
-    Dossier getById(String dossierId) throws OperationException;
+    Dossier getById(Object dossierId) throws OperationException;
 }

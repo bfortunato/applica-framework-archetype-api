@@ -101,49 +101,55 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void confirmQuotation(Dossier dossier) throws WorkflowException {
+    public void confirmQuotation(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.confirmQuotation();
         saveDossier(dossier);
     }
 
     @Override
-    public void commit(Dossier dossier) throws WorkflowException {
+    public void commit(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
     }
 
     @Override
-    public void candidate(Dossier dossier) throws WorkflowException {
+    public void candidate(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
     }
 
     @Override
-    public void approve(Dossier dossier) throws WorkflowException {
+    public void approve(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
     }
 
     @Override
-    public void refuse(Dossier dossier) throws WorkflowException {
+    public void refuse(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
     }
 
     @Override
-    public void payOff(Dossier dossier) throws WorkflowException {
+    public void payOff(Object dossierId) throws WorkflowException, OperationException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
     }
 
     @Override
-    public Dossier getById(String dossierId) throws OperationException {
+    public Dossier getById(Object dossierId) throws OperationException {
         return Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
     }
 }
