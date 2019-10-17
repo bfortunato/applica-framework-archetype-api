@@ -18,12 +18,12 @@ import static applica.framework.library.responses.Response.OK;
 
 @RestController
 @RequestMapping("/customers")
-public class CustomerController {
+public class CustomersController {
 
     private final CustomersService customersService;
 
     @Autowired
-    public CustomerController(CustomersService customersService) {
+    public CustomersController(CustomersService customersService) {
         this.customersService = customersService;
     }
 
