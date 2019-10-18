@@ -3,14 +3,19 @@ package applica.api.runner.operations;
 import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.CustomUtils;
+import applica.api.services.DocumentsService;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
 import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FabricatorSaveOperation extends EntityCodedBaseSaveOperation {
+
+    @Autowired
+    private DocumentsService documentsService;
 
     @Override
     public Class<? extends Entity> getEntityType() {
@@ -55,6 +60,7 @@ public class FabricatorSaveOperation extends EntityCodedBaseSaveOperation {
         } else {
             User user = CustomUtils.createUserFromPerson(node);
             ((Fabricator) entity).setUserId(user.getId());
+            ((Fabricator) entity).setDocuments(documentsService.generateFabricatorDocuments());
         }
     }
 

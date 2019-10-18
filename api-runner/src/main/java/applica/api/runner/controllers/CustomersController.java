@@ -5,12 +5,8 @@ import applica.api.services.CustomersService;
 import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 import static applica.framework.library.responses.Response.ERROR;
 import static applica.framework.library.responses.Response.OK;
@@ -40,7 +36,7 @@ public class CustomersController {
     @GetMapping("")
     public Response getByKeyword(String keyword) {
         try {
-            return new ValueResponse(customersService.findCustomerByKeyword(keyword));
+            return new ValueResponse(customersService.findCustomerByKeyword(keyword, false));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(ERROR);

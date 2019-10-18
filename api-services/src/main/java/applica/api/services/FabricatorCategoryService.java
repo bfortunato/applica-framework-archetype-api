@@ -1,11 +1,12 @@
 package applica.api.services;
 
 import applica.api.domain.model.users.categories.FabricatorCategory;
-
-import java.util.List;
+import applica.framework.Query;
+import applica.framework.Result;
 
 public interface FabricatorCategoryService {
 
-    List<FabricatorCategory> findAllActive();
+    Result<FabricatorCategory> findAllActive();
+    Result<FabricatorCategory> findActiveByQuery(Query query);
 
 }

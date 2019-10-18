@@ -13,11 +13,11 @@ import java.util.List;
 public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public List<DocumentType> findAllFabricatorDocumentsType() {
-        return Repo.of(DocumentType.class).find(Query.build().eq(Filters.ACTIVE, true).eq(Filters.ASSIGNATION_TYPE, DocumentType.ASSIGN_TO_FABRICATOR)).getRows();
+        return Repo.of(DocumentType.class).find(Query.build().eq(Filters.ACTIVE, true).eq(Filters.ASSIGNATION_TYPE, DocumentType.FABRICATOR_PROFILE)).getRows();
     }
 
     @Override
     public List<DocumentType> findAllDossierDocumentsType() {
-        return Repo.of(DocumentType.class).find(Query.build().eq(Filters.ACTIVE, true).eq(Filters.ASSIGNATION_TYPE, DocumentType.ASSIGN_TO_DOSSIER)).getRows();
+        return Repo.of(DocumentType.class).find(Query.build().eq(Filters.ACTIVE, true).ne(Filters.ASSIGNATION_TYPE, DocumentType.FABRICATOR_PROFILE)).getRows();
     }
 }

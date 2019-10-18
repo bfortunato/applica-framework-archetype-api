@@ -10,14 +10,14 @@ public class Document extends AEntity {
     private String file;
     private boolean valid;
     private Date uploadDate;
+    private Date refusedDate;
+
+    private transient DocumentType documentType;
 
     public Document() {}
 
-    public Document(Object documentTypeId, String file) {
+    public Document(Object documentTypeId) {
         this.documentTypeId = documentTypeId;
-        this.file = file;
-        this.valid = true;
-        this.uploadDate = new Date();
     }
 
     public Object getDocumentTypeId() {
@@ -50,5 +50,21 @@ public class Document extends AEntity {
 
     public void setUploadDate(Date uploadDate) {
         this.uploadDate = uploadDate;
+    }
+
+    public Date getRefusedDate() {
+        return refusedDate;
+    }
+
+    public void setRefusedDate(Date refusedDate) {
+        this.refusedDate = refusedDate;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
     }
 }

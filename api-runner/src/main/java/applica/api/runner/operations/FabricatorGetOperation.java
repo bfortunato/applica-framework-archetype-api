@@ -2,7 +2,7 @@ package applica.api.runner.operations;
 
 import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.model.users.categories.FabricatorCategory;
-import applica.api.services.DocumentTypeService;
+import applica.api.services.DocumentsService;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseGetOperation;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class FabricatorGetOperation extends BaseGetOperation {
 
     @Autowired
-    private DocumentTypeService documentTypeService;
+    private DocumentsService documentsService;
 
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
@@ -33,8 +33,8 @@ public class FabricatorGetOperation extends BaseGetOperation {
         node.put("_postalCode", fabricator.getAddress().getPostalCode());
         node.put("_address", fabricator.getAddress().getAddress());
         node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
+        documentsService.materializeDocumentTypes(fabricator.getDocuments());
 
-        node.putPOJO("_documentTypes", documentTypeService.findAllFabricatorDocumentsType());
     }
 
     @Override

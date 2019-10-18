@@ -8,6 +8,7 @@ import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static applica.framework.library.responses.Response.ERROR;
@@ -38,9 +39,9 @@ public class DossierController {
     }
 
     @PostMapping("/quotation")
-    public Response create(String customerId, double significantValue, double nonSignificantValue, double serviceValue) {
+    public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue) {
         try {
-            return new ValueResponse(dossiersService.create(fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
+            return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
         } catch (Exception e) {
             return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
         }

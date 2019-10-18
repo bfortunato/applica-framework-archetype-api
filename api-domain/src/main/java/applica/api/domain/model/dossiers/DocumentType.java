@@ -8,8 +8,14 @@ import applica.framework.widgets.mapping.Attachment;
 @EntityId(EntityList.DOCUMENT_TYPE)
 public class DocumentType extends CodedEntity {
 
-    public static final String ASSIGN_TO_FABRICATOR = "to-fabricator";
-    public static final String ASSIGN_TO_DOSSIER = "to-dossier";
+    public static final String FABRICATOR_PROFILE = "fabricator-profile";
+    public static final String PREPARATORY_DOCUMENTATION = "preparatory-documentation";
+    public static final String PRIVATE_CLOSING_DOCUMENTATION = "private-closing-documentation";
+    public static final String PUBLIC_CLOSING_DOCUMENTATION = "public-closing-documentation";
+
+    public static final String TYPOLOGY_NO_MODEL = "no-model";
+    public static final String TYPOLOGY_DOWNLOADABLE_TEMPLATE = "downloadable-template";
+    public static final String TYPOLOGY_SELF_COMPILED_DOWNLOADABLE_TEMPLATE = "self-compiled-downloadable-template";
 
     private String description;
     private boolean required;
@@ -17,6 +23,7 @@ public class DocumentType extends CodedEntity {
     private Attachment template;
     private boolean active;
     private String assignationType;
+    private String typology;
 
     public String getDescription() {
         return description;
@@ -64,5 +71,13 @@ public class DocumentType extends CodedEntity {
 
     public void setAssignationType(String assignationType) {
         this.assignationType = assignationType;
+    }
+
+    public String getTypology() {
+        return typology;
+    }
+
+    public void setTypology(String typology) {
+        this.typology = typology;
     }
 }

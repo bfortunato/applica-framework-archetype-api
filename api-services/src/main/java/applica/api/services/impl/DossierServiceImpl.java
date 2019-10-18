@@ -6,6 +6,7 @@ import applica.api.domain.model.dossiers.*;
 import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.DocumentPriceUtils;
+import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Filter;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,6 +28,9 @@ public class DossierServiceImpl implements DossiersService {
 
     @Autowired
     private FileServer fileServer;
+
+    @Autowired
+    private DocumentsService documentsService;
 
     @Override
     public List<Dossier> findDossiersByFabricator(Object fabricatorId) {
@@ -52,7 +57,10 @@ public class DossierServiceImpl implements DossiersService {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
         try {
             String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(attachmentName), new ByteArrayInputStream(attachmentData));
-            Document document = new Document(documentTypeId, file);
+            Document document = new Document(documentTypeId);
+            document.setFile(file);
+            document.setValid(true);
+            document.setUploadDate(new Date());
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
             dossierWorkflow.attachDocument(document);
             saveDossier(dossier);
@@ -82,6 +90,13 @@ public class DossierServiceImpl implements DossiersService {
 
     @Override
     public void saveDossier(Dossier dossier) {
+        if (dossier.getId() == null){
+            Dossier old = Repo.of(Dossier.class).find(Query.build().sort(Filters.CODE, true)).findFirst().orElse(null);
+            if (old != null)
+                dossier.setCode(old.getCode() + 1);
+            else
+                dossier.setCode(1);
+        }
         Repo.of(Dossier.class).save(dossier);
     }
 
@@ -96,6 +111,7 @@ public class DossierServiceImpl implements DossiersService {
                 priceCalculatorSheet
         );
         Dossier dossier = dossierWorkflow.get();
+        dossier.setDocuments(documentsService.generateDossierDocuments());
         saveDossier(dossier);
         return dossier;
     }

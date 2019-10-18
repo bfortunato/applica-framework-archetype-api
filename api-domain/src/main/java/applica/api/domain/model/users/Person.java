@@ -1,6 +1,7 @@
 package applica.api.domain.model.users;
 
 import applica.api.domain.model.CodedEntity;
+import applica.api.domain.model.auth.User;
 
 public class Person extends CodedEntity {
 
@@ -11,6 +12,8 @@ public class Person extends CodedEntity {
     private boolean active;
 
     private String notes;
+
+    private transient User user;
 
     public Object getUserId() {
         return userId;
@@ -50,5 +53,13 @@ public class Person extends CodedEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

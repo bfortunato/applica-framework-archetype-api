@@ -111,28 +111,33 @@ public class ValuesController {
     }
 
     @RequestMapping("/adminUserCategories")
-    public Response adminUserCategories() {
-        return new ValueResponse(adminUserCategoryService.findAllActive());
+    public Response adminUserCategories(HttpServletRequest request) {
+        Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+        return new ValueResponse(adminUserCategoryService.findActiveByQuery(query));
     }
 
     @RequestMapping("/endUserCategories")
-    public Response endUserCategories() {
-        return new ValueResponse(endUserCategoryService.findAllActive());
+    public Response endUserCategories(HttpServletRequest request) {
+        Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+        return new ValueResponse(endUserCategoryService.findActiveByQuery(query));
     }
 
     @RequestMapping("/fabricatorCategories")
-    public Response fabricatorCategories() {
-        return new ValueResponse(fabricatorCategoryService.findAllActive());
+    public Response fabricatorCategories(HttpServletRequest request) {
+        Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+        return new ValueResponse(fabricatorCategoryService.findActiveByQuery(query));
     }
 
     @RequestMapping("/customers")
-    public Response customers() {
-        return new ValueResponse(customersService.findCustomerByQuery(Query.build().eq(Filters.ACTIVE, true)));
+    public Response customers(HttpServletRequest request) {
+        Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+        return new ValueResponse(customersService.findActiveCustomerByQuery(query));
     }
 
     @RequestMapping("/fabricators")
-    public Response fabricators() {
-        return new ValueResponse(fabricatorService.findAllActive());
+    public Response fabricators(HttpServletRequest request) {
+        Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+        return new ValueResponse(fabricatorService.findActiveByQuery(query));
     }
 
 }

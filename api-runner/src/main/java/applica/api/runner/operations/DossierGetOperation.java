@@ -4,7 +4,7 @@ import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.DocumentPriceUtils;
-import applica.api.services.DocumentTypeService;
+import applica.api.services.DocumentsService;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseGetOperation;
@@ -22,7 +22,7 @@ import java.util.Date;
 public class DossierGetOperation extends BaseGetOperation {
 
     @Autowired
-    private DocumentTypeService documentTypeService;
+    private DocumentsService documentsService;
 
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
@@ -34,10 +34,11 @@ public class DossierGetOperation extends BaseGetOperation {
         node.putPOJO("_fabricator", Repo.of(Fabricator.class).get(dossier.getFabricatorId()).orElse(null));
         node.putPOJO("_serviceCost", DocumentPriceUtils.generateServiceCost(dossier.getPriceCalculatorSheet()));
         node.putPOJO("_recommendedPrice", DocumentPriceUtils.generateRecommendedPrice(dossier.getPriceCalculatorSheet()));
-        node.putPOJO("_documentTypes", documentTypeService.findAllDossierDocumentsType());
         node.put("_significantValue", dossier.getPriceCalculatorSheet().getSignificantValue());
         node.put("_nonSignificantValue", dossier.getPriceCalculatorSheet().getNonSignificantValue());
         node.put("_serviceValue", dossier.getPriceCalculatorSheet().getServiceValue());
+        documentsService.materializeDocumentTypes(dossier.getDocuments());
+        node.putPOJO("documents", dossier.getDocuments());
     }
 
     @Override

@@ -8,9 +8,13 @@ import java.util.List;
 
 public interface CustomersService {
 
-    List<Customer> findCustomerByKeyword(String keyword);
+    List<Customer> findCustomerByKeyword(String keyword, boolean includeUser);
     Result<Customer> findCustomerByQuery(Query query);
+    Result<Customer> findActiveCustomerByQuery(Query query);
     void saveCustomer(Customer customer);
     void deleteCustomer(Object customerId);
+    void materializeUser(Customer customer);
+
+
 
 }
