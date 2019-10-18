@@ -6,6 +6,7 @@ import applica.framework.widgets.entities.EntityId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.Date;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @EntityId(EntityList.CUSTOMER)
@@ -30,7 +31,7 @@ public class Customer extends Person {
     private String vatCode;
     private String fiscalCode;
     private String phoneNumber;
-    private transient String name;
+
 
     public Object getFabricatorId() {
         return fabricatorId;
@@ -137,7 +138,7 @@ public class Customer extends Person {
     }
 
     public String getName() {
-        if (this.subjectType.equals(SUBJECT_TYPE_PHYSICAL_PERSON)){
+        if (Objects.equals(subjectType, SUBJECT_TYPE_PHYSICAL_PERSON)) {
             return firstName + " " + lastName;
         } else {
             return socialReason;

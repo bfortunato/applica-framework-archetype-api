@@ -156,30 +156,30 @@ public class DossierController {
         }
     }
 
-    @GetMapping("/serviceCost")
-    public Response serviceCost(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
+    @GetMapping("/calculator/serviceCost")
+    public Response serviceCost(double significantValue, double nonSignificantValue, double serviceCost) {
         try {
-            return new ValueResponse(dossiersService.calculateServiceCost(priceCalculatorSheet));
+            return new ValueResponse(dossiersService.calculateServiceCost(new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceCost)));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(ERROR);
         }
     }
 
-    @GetMapping("/recommendedPrice")
-    public Response recommendedPrice(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
+    @GetMapping("/calculator/recommendedPrice")
+    public Response recommendedPrice(double significantValue, double nonSignificantValue, double serviceValue) {
         try {
-            return new ValueResponse(dossiersService.calculateRecommendedPrice(priceCalculatorSheet));
+            return new ValueResponse(dossiersService.calculateRecommendedPrice(new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(ERROR);
         }
     }
 
-    @GetMapping("/simulateFinancing")
-    public Response simulateFinancing(@RequestBody PriceCalculatorSheet priceCalculatorSheet) {
+    @GetMapping("/calculator/simulateFinancing")
+    public Response simulateFinancing(double significantValue, double nonSignificantValue, double serviceValue) {
         try {
-            return new ValueResponse(dossiersService.simulateFinancing(priceCalculatorSheet));
+            return new ValueResponse(dossiersService.simulateFinancing(new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(ERROR);

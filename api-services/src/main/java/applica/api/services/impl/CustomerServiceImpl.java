@@ -14,13 +14,13 @@ public class CustomerServiceImpl implements CustomersService {
 
     @Override
     public List<Customer> findCustomerByKeyword(String keyword) {
-        Query query = Query.build();
+        var query = Query.build();
         if (StringUtils.isNotEmpty(keyword)) {
-            Disjunction disjunction = new Disjunction();
-            disjunction.getChildren().add(new Filter(Filters.SOCIAL_REASON, keyword, Filter.LIKE));
-            disjunction.getChildren().add(new Filter(Filters.NAME, keyword, Filter.LIKE));
-            disjunction.getChildren().add(new Filter(Filters.LAST_NAME, keyword, Filter.LIKE));
-            query.getFilters().add(disjunction);
+            query.disjunction()
+                    .like(Filters.SOCIAL_REASON, keyword)
+                    .like(Filters.FIRST_NAME, keyword)
+                    .like(Filters.LAST_NAME, keyword)
+                    .finish();
         }
         return Repo.of(Customer.class).find(query).getRows();
     }

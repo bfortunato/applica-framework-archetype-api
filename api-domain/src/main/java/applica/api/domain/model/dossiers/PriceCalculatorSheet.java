@@ -12,6 +12,8 @@ public class PriceCalculatorSheet extends AEntity {
     private double serviceValue;
     private double total;
 
+    public PriceCalculatorSheet() {}
+
     public PriceCalculatorSheet(double significantValue, double nonSignificantValue, double serviceValue) {
         this.significantValue = significantValue;
         this.nonSignificantValue = nonSignificantValue;

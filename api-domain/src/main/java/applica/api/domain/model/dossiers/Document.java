@@ -11,6 +11,8 @@ public class Document extends AEntity {
     private boolean valid;
     private Date uploadDate;
 
+    public Document() {}
+
     public Document(Object documentTypeId, String file) {
         this.documentTypeId = documentTypeId;
         this.file = file;

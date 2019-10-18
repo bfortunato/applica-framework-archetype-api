@@ -7,6 +7,9 @@ import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.Fabricator;
 import applica.framework.Entity;
+import applica.framework.library.validation.ValidationException;
+import applica.framework.widgets.operations.OperationException;
+import applica.framework.widgets.serialization.DefaultEntitySerializer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -26,7 +29,6 @@ public class DossierSaveOperation extends EntityCodedBaseSaveOperation {
 
     @Override
     protected void finishEntity(ObjectNode node, Entity entity) {
-
         Dossier dossier = ((Dossier) entity);
         DossierWorkflow dossierWorkflow = new DossierWorkflow();
 
@@ -50,6 +52,8 @@ public class DossierSaveOperation extends EntityCodedBaseSaveOperation {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+
         try {
             dossierWorkflow.create(fabricator, customer, priceCalculatorSheet);
             Dossier d = dossierWorkflow.get();
@@ -64,5 +68,4 @@ public class DossierSaveOperation extends EntityCodedBaseSaveOperation {
         }
 
     }
-
 }
