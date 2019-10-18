@@ -3,6 +3,7 @@ package applica.api.runner.controllers;
 import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
+import applica.api.services.FabricatorService;
 import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
@@ -18,9 +19,12 @@ public class DossierController {
 
     private final DossiersService dossiersService;
 
+    private final FabricatorService fabricatorService;
+
     @Autowired
-    public DossierController(DossiersService dossiersService) {
+    public DossierController(DossiersService dossiersService, FabricatorService fabricatorService) {
         this.dossiersService = dossiersService;
+        this.fabricatorService = fabricatorService;
     }
 
     @PostMapping("")
@@ -28,6 +32,15 @@ public class DossierController {
         try {
             dossiersService.saveDossier(dossier);
             return new Response(Response.OK);
+        } catch (Exception e) {
+            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        }
+    }
+
+    @PostMapping("/quotation")
+    public Response create(String customerId, double significantValue, double nonSignificantValue, double serviceValue) {
+        try {
+            return new ValueResponse(dossiersService.create(fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
         } catch (Exception e) {
             return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
         }

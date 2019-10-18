@@ -1,5 +1,8 @@
 package applica.api.domain.model.dossiers;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class RecommendedPrice {
 
     private double recommendedRetailPrice;
@@ -9,7 +12,9 @@ public class RecommendedPrice {
     public RecommendedPrice(double recommendedRetailPrice) {
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.discount = 50;
-        this.netAmountToBePaid = recommendedRetailPrice - (recommendedRetailPrice*this.discount)/100;
+        BigDecimal bd = new BigDecimal(recommendedRetailPrice - (recommendedRetailPrice*this.discount)/100);
+        bd = bd.setScale(2, RoundingMode.HALF_EVEN);
+        this.netAmountToBePaid = bd.doubleValue();
     }
 
     public double getRecommendedRetailPrice() {

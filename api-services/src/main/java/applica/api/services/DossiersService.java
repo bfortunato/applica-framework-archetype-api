@@ -45,7 +45,7 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException;
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException;
 
 
     void confirmQuotation(Object dossierId) throws OperationException, WorkflowException;

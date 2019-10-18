@@ -86,7 +86,7 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException {
+    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException {
         Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_FABRICATOR_NOT_FOUND));
         Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_CUSTOMER_NOT_FOUND));
         DossierWorkflow dossierWorkflow = new DossierWorkflow();

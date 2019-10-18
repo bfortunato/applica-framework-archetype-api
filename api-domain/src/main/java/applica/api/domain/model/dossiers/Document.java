@@ -2,16 +2,20 @@ package applica.api.domain.model.dossiers;
 
 import applica.framework.AEntity;
 
+import java.util.Date;
+
 public class Document extends AEntity {
 
     private Object documentTypeId;
     private String file;
     private boolean valid;
+    private Date uploadDate;
 
     public Document(Object documentTypeId, String file) {
         this.documentTypeId = documentTypeId;
         this.file = file;
         this.valid = true;
+        this.uploadDate = new Date();
     }
 
     public Object getDocumentTypeId() {
@@ -36,5 +40,13 @@ public class Document extends AEntity {
 
     public void setValid(boolean valid) {
         this.valid = valid;
+    }
+
+    public Date getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(Date uploadDate) {
+        this.uploadDate = uploadDate;
     }
 }
