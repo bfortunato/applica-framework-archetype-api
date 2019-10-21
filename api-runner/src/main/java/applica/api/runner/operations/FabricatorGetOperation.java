@@ -34,6 +34,7 @@ public class FabricatorGetOperation extends BaseGetOperation {
         node.put("_address", fabricator.getAddress().getAddress());
         node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
         documentsService.materializeDocumentTypes(fabricator.getDocuments());
+        node.putPOJO("documents", fabricator.getDocuments());
 
     }
 
