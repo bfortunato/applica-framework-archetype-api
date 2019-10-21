@@ -98,10 +98,18 @@ public class DocumentPriceUtils {
     public static SimulatedFinancing generateSimulatedFinancing(PriceCalculatorSheet priceCalculatorSheet) {
         RecommendedPrice recommendedPrice = generateRecommendedPrice(priceCalculatorSheet);
         double total = recommendedPrice.getNetAmountToBePaid();
-        double twelvePaymentFee = (total*(TWELVE_PAYMENT_FEE/100.0f));
-        double twentyFourPaymentFee = (total*(TWENTY_FOUR_PAYMENT_FEE/100.0f));
-        double thirtySixPaymentFee = (total*(THIRTY_SIX_PAYMENT_FEE/100.0f));
-        double fourtyEightPaymentFee = (total*(FOURTY_EIGHT_PAYMENT_FEE/100.0f));
-        return new SimulatedFinancing(twelvePaymentFee, twentyFourPaymentFee, thirtySixPaymentFee, fourtyEightPaymentFee);
+        double twelvePaymentFee = (total + (total*(TWELVE_PAYMENT_FEE/100.0f))) / 12;
+        BigDecimal bdTwelve = new BigDecimal(twelvePaymentFee);
+        bdTwelve = bdTwelve.setScale(2, RoundingMode.HALF_EVEN);
+        double twentyFourPaymentFee = (total + (total*(TWENTY_FOUR_PAYMENT_FEE/100.0f))) / 24;
+        BigDecimal bdTwentyFour = new BigDecimal(twentyFourPaymentFee);
+        bdTwentyFour = bdTwentyFour.setScale(2, RoundingMode.HALF_EVEN);
+        double thirtySixPaymentFee = (total + (total*(THIRTY_SIX_PAYMENT_FEE/100.0f))) / 36;
+        BigDecimal bdThirtySix = new BigDecimal(thirtySixPaymentFee);
+        bdThirtySix = bdThirtySix.setScale(2, RoundingMode.HALF_EVEN);
+        double fourtyEightPaymentFee = (total + (total*(FOURTY_EIGHT_PAYMENT_FEE/100.0f))) / 48;
+        BigDecimal bdFourtyEight = new BigDecimal(fourtyEightPaymentFee);
+        bdFourtyEight = bdFourtyEight.setScale(2, RoundingMode.HALF_EVEN);
+        return new SimulatedFinancing(bdTwelve.doubleValue(), bdTwentyFour.doubleValue(), bdThirtySix.doubleValue(), bdFourtyEight.doubleValue());
     }
 }
