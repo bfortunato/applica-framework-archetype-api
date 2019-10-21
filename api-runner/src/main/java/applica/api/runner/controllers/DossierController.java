@@ -1,12 +1,17 @@
 package applica.api.runner.controllers;
 
+import applica.api.domain.exceptions.WorkflowException;
 import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
+import applica.api.services.exceptions.CustomerNotFoundException;
+import applica.api.services.responses.ErrorResponse;
+import applica.api.services.responses.ResponseCode;
 import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
+import applica.framework.widgets.operations.OperationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -42,9 +47,14 @@ public class DossierController {
     public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue) {
         try {
             return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (OperationException e) {
+            return new ErrorResponse(e.getErrorCode(), e.getData());
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
+        } catch (CustomerNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_CUSTOMER_NOT_FOUND, e.getCustomerId());
         }
+
     }
 
     @GetMapping("/{dossierId}")
@@ -158,9 +168,9 @@ public class DossierController {
     }
 
     @GetMapping("/calculator/serviceCost")
-    public Response serviceCost(double significantValue, double nonSignificantValue, double serviceCost) {
+    public Response serviceCost(double significantValue, double nonSignificantValue, double serviceValue) {
         try {
-            return new ValueResponse(dossiersService.calculateServiceCost(new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceCost)));
+            return new ValueResponse(dossiersService.calculateServiceCost(new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(ERROR);

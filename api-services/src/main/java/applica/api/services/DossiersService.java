@@ -2,6 +2,7 @@ package applica.api.services;
 
 import applica.api.domain.exceptions.WorkflowException;
 import applica.api.domain.model.dossiers.*;
+import applica.api.services.exceptions.CustomerNotFoundException;
 import applica.framework.widgets.operations.OperationException;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException;
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException, CustomerNotFoundException;
 
 
     void confirmQuotation(Object dossierId) throws OperationException, WorkflowException;

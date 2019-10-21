@@ -8,6 +8,7 @@ import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
+import applica.api.services.exceptions.CustomerNotFoundException;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Filter;
 import applica.framework.Query;
@@ -101,9 +102,9 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException {
+    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException, CustomerNotFoundException, OperationException {
         Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_FABRICATOR_NOT_FOUND));
-        Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_CUSTOMER_NOT_FOUND));
+        Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow();
         dossierWorkflow.create(
                 fabricator,
