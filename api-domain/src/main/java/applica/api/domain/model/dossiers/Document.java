@@ -11,6 +11,7 @@ public class Document extends AEntity {
     private boolean valid;
     private Date uploadDate;
     private Date refusedDate;
+    private String preview;
 
     private transient DocumentType documentType;
 
@@ -66,5 +67,13 @@ public class Document extends AEntity {
 
     public void setDocumentType(DocumentType documentType) {
         this.documentType = documentType;
+    }
+
+    public String getPreview() {
+        return preview;
+    }
+
+    public void setPreview(String preview) {
+        this.preview = preview;
     }
 }

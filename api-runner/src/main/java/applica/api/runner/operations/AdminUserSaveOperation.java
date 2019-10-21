@@ -37,7 +37,7 @@ public class AdminUserSaveOperation extends EntityCodedBaseSaveOperation {
         if (node.get("mail") == null || node.get("mail").isNull() || node.get("password") == null || node.get("password").isNull()){
             throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
         } else {
-            User user = CustomUtils.createUserFromPerson(node);
+            User user = CustomUtils.createUser(node.get("mail").asText(), node.get("password").asText(), ((AdminUser) entity).getName(), ((AdminUser) entity).getLastname());
             ((AdminUser) entity).setUserId(user.getId());
         }
     }

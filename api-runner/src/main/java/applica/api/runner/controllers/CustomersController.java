@@ -2,7 +2,9 @@ package applica.api.runner.controllers;
 
 import applica.api.domain.model.users.Customer;
 import applica.api.services.CustomersService;
-import applica.framework.library.i18n.LocalizationUtils;
+import applica.api.services.exceptions.UserAlreadyExistException;
+import applica.api.services.responses.ErrorResponse;
+import applica.api.services.responses.ResponseCode;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,12 @@ public class CustomersController {
     }
 
     @PostMapping("")
-    public Response save(@RequestBody Customer customer) {
+    public Response save(@RequestBody Customer customer, String mail, String password) {
         try {
-            customersService.saveCustomer(customer);
+            customersService.saveCustomer(customer, mail, password);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (UserAlreadyExistException e) {
+            return new ErrorResponse(ResponseCode.ERROR_MAIL_ALREADY_EXISTS, e.getMail());
         }
     }
 

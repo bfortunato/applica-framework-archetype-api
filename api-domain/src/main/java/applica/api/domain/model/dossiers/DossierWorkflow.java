@@ -18,20 +18,16 @@ public class DossierWorkflow {
         this.dossier = dossier;
     }
 
-    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException {
-        if (fabricator != null && customer != null && priceCalculatorSheet != null) {
-            var dossier = new Dossier();
+    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet) {
+        var dossier = new Dossier();
 
-            dossier.setCreationDate(new Date());
-            dossier.setFabricatorId(fabricator.getId());
-            dossier.setCustomerId(customer.getId());
-            dossier.setStatus(Dossier.STATUS_QUOTATION);
-            dossier.setPriceCalculatorSheet(priceCalculatorSheet);
+        dossier.setCreationDate(new Date());
+        dossier.setFabricatorId(fabricator.getId());
+        dossier.setCustomerId(customer.getId());
+        dossier.setStatus(Dossier.STATUS_QUOTATION);
+        dossier.setPriceCalculatorSheet(priceCalculatorSheet);
 
-            this.dossier = dossier;
-        } else {
-            throw new WorkflowException();
-        }
+        this.dossier = dossier;
     }
 
     public Dossier get(){
@@ -104,10 +100,16 @@ public class DossierWorkflow {
         }
     }
 
-    public void attachDocument(Document document) {
+    public void attachDocument(Object documentTypeId, String file, String preview) {
         Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
 
-        dossier.getDocuments().add(document);
+        dossier.getDocuments().stream().forEach(document -> {
+            if (Objects.equals(documentTypeId, document.getDocumentTypeId())){
+                document.setFile(file);
+                document.setValid(true);
+                document.setUploadDate(new Date());
+            }
+        });
     }
 
     public boolean clearDocumentAttachment(Object documentTypeId) {

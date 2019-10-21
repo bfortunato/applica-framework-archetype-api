@@ -6,6 +6,9 @@ import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
 import applica.api.services.exceptions.CustomerNotFoundException;
+import applica.api.services.exceptions.DocumentNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
+import applica.api.services.exceptions.FabricatorNotFoundException;
 import applica.api.services.responses.ErrorResponse;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.library.i18n.LocalizationUtils;
@@ -15,6 +18,8 @@ import applica.framework.widgets.operations.OperationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 import static applica.framework.library.responses.Response.ERROR;
 
@@ -53,6 +58,8 @@ public class DossierController {
             return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
         } catch (CustomerNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_CUSTOMER_NOT_FOUND, e.getCustomerId());
+        } catch (FabricatorNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_FABRICATOR_NOT_FOUND, e.getFabricatorId());
         }
 
     }
@@ -61,9 +68,8 @@ public class DossierController {
     public Response getById(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.getById(dossierId));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Response(ERROR);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
@@ -82,8 +88,20 @@ public class DossierController {
         try {
             dossiersService.attachDocument(dossierId, documentTypeId, attachmentData, attachmentName);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        }
+    }
+
+    @PostMapping("/{dossierId}/attachPath/{documentTypeId}")
+    public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, String path) {
+        try {
+            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path));
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
         }
     }
 
@@ -92,8 +110,10 @@ public class DossierController {
         try {
             dossiersService.clearDocumentAttachment(dossierId, documentTypeId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_NOT_FOUND, e.getDocumentId());
         }
     }
 
@@ -102,8 +122,8 @@ public class DossierController {
         try {
             dossiersService.refuseDocument(dossierId, documentTypeId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
@@ -112,8 +132,10 @@ public class DossierController {
         try {
             dossiersService.confirmQuotation(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
@@ -122,8 +144,10 @@ public class DossierController {
         try {
             dossiersService.commit(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
@@ -132,9 +156,12 @@ public class DossierController {
         try {
             dossiersService.candidate(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
+
     }
 
     @PostMapping("/{dossierId}/approve}")
@@ -142,9 +169,12 @@ public class DossierController {
         try {
             dossiersService.approve(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
+
     }
 
     @PostMapping("/{dossierId}/refuse}")
@@ -152,8 +182,10 @@ public class DossierController {
         try {
             dossiersService.refuse(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
@@ -162,8 +194,10 @@ public class DossierController {
         try {
             dossiersService.payOff(dossierId);
             return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 

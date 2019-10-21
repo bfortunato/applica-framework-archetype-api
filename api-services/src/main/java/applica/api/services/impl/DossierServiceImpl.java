@@ -9,19 +9,21 @@ import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
 import applica.api.services.exceptions.CustomerNotFoundException;
-import applica.api.services.responses.ResponseCode;
+import applica.api.services.exceptions.DocumentNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
+import applica.api.services.exceptions.FabricatorNotFoundException;
 import applica.framework.Filter;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
-import applica.framework.widgets.operations.OperationException;
+import applica.framework.library.options.OptionsManager;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.ooxml.POIXMLProperties;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Date;
+import java.io.*;
 import java.util.List;
 
 @Service
@@ -32,6 +34,9 @@ public class DossierServiceImpl implements DossiersService {
 
     @Autowired
     private DocumentsService documentsService;
+
+    @Autowired
+    private OptionsManager optionsManager;
 
     @Override
     public List<Dossier> findDossiersByFabricator(Object fabricatorId) {
@@ -54,36 +59,53 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public List<Document> attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         try {
             String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(attachmentName), new ByteArrayInputStream(attachmentData));
-            Document document = new Document(documentTypeId);
-            document.setFile(file);
-            document.setValid(true);
-            document.setUploadDate(new Date());
+            String fileserverPath = optionsManager.get("applica.framework.fileserver.basePath") + "\\";
+            XWPFDocument wordDocument = new XWPFDocument(new FileInputStream(fileserverPath + file));
+            POIXMLProperties props = wordDocument.getProperties();
+
+            String thumbnail = props.getThumbnailFilename();
+            String preview = null;
+            if (thumbnail == null) {
+                // No thumbnail
+            } else {
+                preview = fileServer.saveFile("/", ", ", props.getThumbnailImage());
+            }
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
-            dossierWorkflow.attachDocument(document);
+            dossierWorkflow.attachDocument(documentTypeId, file, preview);
             saveDossier(dossier);
+            documentsService.materializeDocumentTypes(dossier.getDocuments());
+            return dossier.getDocuments();
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
     @Override
-    public void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException {
+        InputStream is = fileServer.getFile(path);
+        File file = new File(path);
+        return attachDocument(dossierId, documentTypeId, is.readAllBytes(), file.getName());
+    }
+
+    @Override
+    public void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         boolean removed = dossierWorkflow.clearDocumentAttachment(documentTypeId);
         if (removed)
             saveDossier(dossier);
         else
-            throw new OperationException(ResponseCode.ERROR_DOCUMENT_NOT_FOUND);
+            throw new DocumentNotFoundException(documentTypeId);
     }
 
     @Override
-    public void refuseDocument(Object dossierId, Object documentTypeId) throws OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void refuseDocument(Object dossierId, Object documentTypeId) throws DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuseDocument(documentTypeId);
         saveDossier(dossier);
@@ -102,8 +124,8 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException, CustomerNotFoundException, OperationException {
-        Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_FABRICATOR_NOT_FOUND));
+    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws CustomerNotFoundException, FabricatorNotFoundException {
+        Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new FabricatorNotFoundException(fabricatorId));
         Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow();
         dossierWorkflow.create(
@@ -118,55 +140,55 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void confirmQuotation(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.confirmQuotation();
         saveDossier(dossier);
     }
 
     @Override
-    public void commit(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void commit(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
     }
 
     @Override
-    public void candidate(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void candidate(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
     }
 
     @Override
-    public void approve(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void approve(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
     }
 
     @Override
-    public void refuse(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void refuse(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
     }
 
     @Override
-    public void payOff(Object dossierId) throws WorkflowException, OperationException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public void payOff(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
     }
 
     @Override
-    public Dossier getById(Object dossierId) throws OperationException {
-        return Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
+    public Dossier getById(Object dossierId) throws DossierNotFoundException {
+        return Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new DossierNotFoundException(dossierId));
     }
 }

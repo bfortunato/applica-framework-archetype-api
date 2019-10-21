@@ -3,8 +3,11 @@ package applica.api.services;
 import applica.api.domain.exceptions.WorkflowException;
 import applica.api.domain.model.dossiers.*;
 import applica.api.services.exceptions.CustomerNotFoundException;
-import applica.framework.widgets.operations.OperationException;
+import applica.api.services.exceptions.DocumentNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
+import applica.api.services.exceptions.FabricatorNotFoundException;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface DossiersService {
@@ -22,17 +25,19 @@ public interface DossiersService {
      * @param documentTypeId
      * @param attachmentData
      */
-    void attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws OperationException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    List<Document> attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+
+    List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
     /**
      * Solitamente chiamato da app, per rimuovere un documento gia allegato
      * @param dossierId
      * @param documentTypeId
      */
-    void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws OperationException;
+    void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException;
 
 
-    void refuseDocument(Object dossierId, Object documentTypeId) throws OperationException;
+    void refuseDocument(Object dossierId, Object documentTypeId) throws DossierNotFoundException;
 
 
     void saveDossier(Dossier dossier);
@@ -46,27 +51,27 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws OperationException, WorkflowException, CustomerNotFoundException;
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
 
 
-    void confirmQuotation(Object dossierId) throws OperationException, WorkflowException;
+    void confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
     /**
      * Da chiamare se tutt
      * @param dossierId
      */
-    void commit(Object dossierId) throws OperationException, WorkflowException;
+    void commit(Object dossierId) throws WorkflowException, DossierNotFoundException;
     /*
     altri metodi del workflow
      */
 
-    void candidate(Object dossierId) throws OperationException, WorkflowException;
+    void candidate(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void approve(Object dossierId) throws OperationException, WorkflowException;
+    void approve(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void refuse(Object dossierId) throws OperationException, WorkflowException;
+    void refuse(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void payOff(Object dossierId) throws OperationException, WorkflowException;
+    void payOff(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    Dossier getById(Object dossierId) throws OperationException;
+    Dossier getById(Object dossierId) throws DossierNotFoundException;
 }

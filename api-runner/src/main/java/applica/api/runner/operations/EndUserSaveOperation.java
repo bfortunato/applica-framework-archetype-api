@@ -38,7 +38,7 @@ public class EndUserSaveOperation extends EntityCodedBaseSaveOperation {
         if (node.get("mail") == null || node.get("mail").isNull() || node.get("password") == null || node.get("password").isNull()){
             throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
         } else {
-            User user = CustomUtils.createUserFromPerson(node);
+            User user = CustomUtils.createUser(node.get("mail").asText(), node.get("password").asText(), ((EndUser) entity).getName(), ((EndUser) entity).getLastname());
             ((EndUser) entity).setUserId(user.getId());
         }
     }
