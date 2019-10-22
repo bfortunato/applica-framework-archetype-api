@@ -28,8 +28,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 
@@ -57,7 +57,9 @@ public class DossierServiceImpl implements DossiersService {
 
     }
 
-    Dossier materializeCustomer(Dossier dossier) {
+
+
+    public Dossier materializeCustomer(Dossier dossier) {
         if (dossier.getCustomerId() != null && dossier.getCustomer() == null) {
             Repo.of(Customer.class).get(dossier.getCustomerId()).ifPresent(dossier::setCustomer);
         }
@@ -208,8 +210,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
-        materializeCustomer(dossier);
-        return dossier;
+        return materializeCustomer(dossier);
     }
 
     @Override
@@ -218,8 +219,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
-        materializeCustomer(dossier);
-        return dossier;
+        return materializeCustomer(dossier);
     }
 
     @Override
@@ -228,8 +228,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
-        materializeCustomer(dossier);
-        return dossier;
+        return materializeCustomer(dossier);
     }
 
     @Override
@@ -238,8 +237,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
-        materializeCustomer(dossier);
-        return dossier;
+        return materializeCustomer(dossier);
     }
 
     @Override
@@ -248,8 +246,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
-        materializeCustomer(dossier);
-        return dossier;
+        return materializeCustomer(dossier);
     }
 
     @Override
@@ -306,21 +303,5 @@ public class DossierServiceImpl implements DossiersService {
 
     public boolean isImage(String extension) {
         return extension.toLowerCase().equals("png") || extension.toLowerCase().equals("jpg") || extension.toLowerCase().equals("jpeg") || extension.toLowerCase().equals("bmp");
-    }
-
-    @Override
-    public void materializeCustomer(Dossier dossier) {
-        dossier.setCustomer(Repo.of(Customer.class).get(dossier.getCustomerId()).orElse(null));
-    }
-
-    @Override
-    public void materializeFabricator(Dossier dossier) {
-        dossier.setFabricator(Repo.of(Fabricator.class).get(dossier.getFabricatorId()).orElse(null));
-    }
-
-    @Override
-    public void materializeAll(Dossier dossier) {
-        materializeCustomer(dossier);
-        materializeFabricator(dossier);
     }
 }

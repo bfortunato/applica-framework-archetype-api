@@ -72,7 +72,5 @@ public interface DossiersService {
 
     Dossier getById(Object dossierId) throws DossierNotFoundException;
 
-    void materializeCustomer(Dossier dossier);
-    void materializeFabricator(Dossier dossier);
-    void materializeAll(Dossier dossier);
+    Dossier materializeCustomer(Dossier dossier);
 }
