@@ -11,6 +11,9 @@ public class RecommendedPrice extends AEntity {
     private double discount;
     private double netAmountToBePaid;
 
+    public RecommendedPrice() {
+    }
+
     public RecommendedPrice(double recommendedRetailPrice) {
         this.recommendedRetailPrice = recommendedRetailPrice;
         this.discount = 50;

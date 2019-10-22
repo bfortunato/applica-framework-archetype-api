@@ -71,4 +71,8 @@ public interface DossiersService {
     Dossier payOff(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
     Dossier getById(Object dossierId) throws DossierNotFoundException;
+
+    void materializeCustomer(Dossier dossier);
+    void materializeFabricator(Dossier dossier);
+    void materializeAll(Dossier dossier);
 }

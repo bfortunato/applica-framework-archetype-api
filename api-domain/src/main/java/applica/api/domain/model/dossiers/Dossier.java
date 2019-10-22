@@ -2,6 +2,8 @@ package applica.api.domain.model.dossiers;
 
 import applica.api.domain.model.CodedEntity;
 import applica.api.domain.model.EntityList;
+import applica.api.domain.model.users.Customer;
+import applica.api.domain.model.users.Fabricator;
 import applica.framework.widgets.entities.EntityId;
 
 import java.util.ArrayList;
@@ -21,6 +23,9 @@ public class Dossier extends CodedEntity {
 
     private Object customerId;
     private Object fabricatorId;
+
+    private transient Customer customer;
+    private transient Fabricator fabricator;
 
     private Date creationDate;
     private String status;
@@ -101,5 +106,21 @@ public class Dossier extends CodedEntity {
 
     public void setSimulatedFinancing(SimulatedFinancing simulatedFinancing) {
         this.simulatedFinancing = simulatedFinancing;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Fabricator getFabricator() {
+        return fabricator;
+    }
+
+    public void setFabricator(Fabricator fabricator) {
+        this.fabricator = fabricator;
     }
 }

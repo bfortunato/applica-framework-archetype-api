@@ -11,6 +11,9 @@ public class ServiceCost extends AEntity {
     private double initiativeCost;
     private double fabricatorPayOff;
 
+    public ServiceCost() {
+    }
+
     public ServiceCost(double customerDeduction, double initiativeCost) {
         this.customerDeduction = customerDeduction;
         this.initiativeCost = initiativeCost;

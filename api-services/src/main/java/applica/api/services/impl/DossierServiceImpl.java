@@ -172,6 +172,7 @@ public class DossierServiceImpl implements DossiersService {
         Dossier dossier = dossierWorkflow.get();
         dossier.setDocuments(documentsService.generateDossierDocuments());
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -181,6 +182,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.confirmQuotation();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -190,6 +192,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -199,6 +202,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -208,6 +212,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -217,6 +222,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -226,6 +232,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 
@@ -283,5 +290,21 @@ public class DossierServiceImpl implements DossiersService {
 
     public boolean isImage(String extension) {
         return extension.toLowerCase().equals("png") || extension.toLowerCase().equals("jpg") || extension.toLowerCase().equals("jpeg") || extension.toLowerCase().equals("bmp");
+    }
+
+    @Override
+    public void materializeCustomer(Dossier dossier) {
+        dossier.setCustomer(Repo.of(Customer.class).get(dossier.getCustomerId()).orElse(null));
+    }
+
+    @Override
+    public void materializeFabricator(Dossier dossier) {
+        dossier.setFabricator(Repo.of(Fabricator.class).get(dossier.getFabricatorId()).orElse(null));
+    }
+
+    @Override
+    public void materializeAll(Dossier dossier) {
+        materializeCustomer(dossier);
+        materializeFabricator(dossier);
     }
 }

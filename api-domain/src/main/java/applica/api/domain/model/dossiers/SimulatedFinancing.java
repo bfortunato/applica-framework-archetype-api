@@ -8,6 +8,9 @@ public class SimulatedFinancing extends AEntity {
     private double thirtySixPaymentFee;
     private double fourtyEightPaymentFee;
 
+    public SimulatedFinancing() {
+    }
+
     public SimulatedFinancing(double twelvePaymentFee, double twentyFourPaymentFee, double thirtySixPaymentFee, double fourtyEightPaymentFee) {
         this.twelvePaymentFee = twelvePaymentFee;
         this.twentyFourPaymentFee = twentyFourPaymentFee;
