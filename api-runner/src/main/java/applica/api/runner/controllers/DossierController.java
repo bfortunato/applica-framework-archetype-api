@@ -125,7 +125,7 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/confirmQuotation}")
+    @PostMapping("/{dossierId}/confirmQuotation")
     public Response confirmQuotation(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.confirmQuotation(dossierId));
