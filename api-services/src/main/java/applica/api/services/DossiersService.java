@@ -31,7 +31,7 @@ public interface DossiersService {
      * @param dossierId
      * @param documentTypeId
      */
-    void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException;
+    List<Document> clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException;
 
 
     List<Document> refuseDocument(Object dossierId, Object documentTypeId, String refuseReason) throws DossierNotFoundException, DocumentTypeNotFoundException;

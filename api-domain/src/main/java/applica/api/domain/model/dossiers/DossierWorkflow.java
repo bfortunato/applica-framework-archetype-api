@@ -109,6 +109,9 @@ public class DossierWorkflow {
                 document.setValid(true);
                 document.setUploadDate(new Date());
                 document.setStatus(Document.UPLOADED);
+                document.setPreview(preview);
+                document.setRefuseReason(null);
+                document.setRefusedDate(null);
             }
         });
     }
@@ -117,6 +120,8 @@ public class DossierWorkflow {
         dossier.getDocuments().forEach(document -> {
             if (document.getDocumentTypeId().equals(documentTypeId)) {
                 document.setFile(null);
+                document.setUploadDate(null);
+                document.setStatus(Document.TO_BE_UPLOAD);
             }
         });
     }

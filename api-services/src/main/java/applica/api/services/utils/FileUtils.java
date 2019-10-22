@@ -5,8 +5,11 @@ import applica.framework.fileserver.FileServer;
 import applica.framework.fileserver.MimeUtils;
 import applica.framework.library.options.OptionsManager;
 import applica.framework.widgets.mapping.Attachment;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.tika.Tika;
 import org.bson.internal.Base64;
 import org.springframework.core.io.ClassPathResource;
@@ -53,18 +56,18 @@ public class FileUtils {
     }
 
     public static void convertToPDF(InputStream doc, File pdfPath) {
-//        try {
-//            XWPFDocument document = new XWPFDocument(doc);
-//            PdfOptions options = PdfOptions.create();
-//            OutputStream out = new FileOutputStream(pdfPath);
-//            PdfConverter.getInstance().convert(document, out, options);
-//            System.out.println("Done");
-//        } catch (FileNotFoundException ex) {
-//            System.out.println(ex.getMessage());
-//        } catch (IOException ex) {
-//
-//            System.out.println(ex.getMessage());
-//        }
+        try {
+            XWPFDocument document = new XWPFDocument(doc);
+            PdfOptions options = PdfOptions.create();
+            OutputStream out = new FileOutputStream(pdfPath);
+            PdfConverter.getInstance().convert(document, out, options);
+            System.out.println("Done");
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+
+            System.out.println(ex.getMessage());
+        }
     }
 
     public static String getMimeType(String path) {
@@ -178,6 +181,13 @@ public class FileUtils {
             return null;
         OptionsManager optionsManager = ApplicationContextProvider.provide().getBean(OptionsManager.class);
         return String.format("%s?path=%s", optionsManager.get("fileserver.base"), path );
+    }
+
+    public static String getImageFullUrl(String path) {
+        if (path == null)
+            return null;
+        OptionsManager optionsManager = ApplicationContextProvider.provide().getBean(OptionsManager.class);
+        return String.format("%s%s", optionsManager.get("fileserver.base"), path );
     }
 
     public static String generateTempPath(String report) {

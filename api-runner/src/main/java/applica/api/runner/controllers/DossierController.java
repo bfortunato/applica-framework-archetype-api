@@ -105,8 +105,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/clear/{documentTypeId}")
     public Response save(@PathVariable String dossierId, @PathVariable String documentTypeId) {
         try {
-            dossiersService.clearDocumentAttachment(dossierId, documentTypeId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.clearDocumentAttachment(dossierId, documentTypeId));
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         } catch (DocumentNotFoundException e) {

@@ -7,6 +7,9 @@ import applica.api.domain.model.dossiers.Dossier;
 import applica.api.services.DocumentTypeService;
 import applica.api.services.DocumentsService;
 import applica.api.services.ReportsService;
+import applica.api.services.exceptions.DocumentTypeNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
+import applica.api.services.utils.FileUtils;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
@@ -14,11 +17,14 @@ import applica.framework.library.options.OptionsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static applica.api.services.utils.FileUtils.TEMP_DIR_PATH;
 import static applica.api.services.utils.FileUtils.generatePrefix;
@@ -37,6 +43,9 @@ public class DocumentsServiceImpl implements DocumentsService {
 
     @Autowired
     private DocumentTypeService documentTypeService;
+
+    @Autowired
+    private DocumentsService documentsService;
 
     @Override
     public List<DocumentType> findAllDocumentTypes() {
@@ -91,5 +100,18 @@ public class DocumentsServiceImpl implements DocumentsService {
             documents.add(new Document(d.getId()));
         }
         return documents;
+    }
+
+    @Override
+    public void downloadTemplate(String documentTypeId, String dossierId, HttpServletResponse response) throws DocumentTypeNotFoundException, DossierNotFoundException, IOException {
+        DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(()-> new DocumentTypeNotFoundException(documentTypeId));
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new DossierNotFoundException(dossierId));
+        Document document = dossier.getDocuments().stream().filter(d-> Objects.equals(d.getDocumentTypeId(), documentTypeId)).findFirst().orElse(null);
+        String path = null;
+        if (document != null){
+            documentsService.materializeDocumentType(document);
+            path = document.getDocumentType().getTemplate().getPath();
+        }
+        FileUtils.downloadAndRenameFile(documentType.getDescription() + ".docx", path, response);
     }
 }

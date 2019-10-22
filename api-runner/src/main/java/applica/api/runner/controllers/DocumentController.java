@@ -2,6 +2,8 @@ package applica.api.runner.controllers;
 
 import applica.api.runner.facade.AttachmentFacade;
 import applica.api.services.DocumentsService;
+import applica.api.services.exceptions.DocumentTypeNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import static applica.framework.library.responses.Response.ERROR;
 
@@ -40,7 +43,24 @@ public class DocumentController {
     public void generate(HttpServletResponse response, @PathVariable String dossierId, String documentTypeId) {
         try {
             attachmentFacade.generateAndDownloadFromTemplate(documentTypeId, dossierId, response);
-        } catch (Exception e) {
+        } catch (DocumentTypeNotFoundException e) {
+            e.printStackTrace();
+        } catch (DossierNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @GetMapping("/{dossierId}/template")
+    public void template(HttpServletResponse response, @PathVariable String dossierId, String documentTypeId) {
+        try {
+            documentsService.downloadTemplate(documentTypeId, dossierId, response);
+        } catch (DocumentTypeNotFoundException e) {
+            e.printStackTrace();
+        } catch (DossierNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

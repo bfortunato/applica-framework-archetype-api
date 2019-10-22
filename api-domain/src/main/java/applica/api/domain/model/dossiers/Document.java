@@ -26,6 +26,7 @@ public class Document extends AEntity {
     public Document(Object documentTypeId) {
         this.documentTypeId = documentTypeId;
         this.status = TO_BE_UPLOAD;
+        this.valid = true;
     }
 
     public Object getDocumentTypeId() {

@@ -4,13 +4,13 @@ import applica.api.domain.model.NewAttachmentData;
 import applica.api.domain.model.dossiers.DocumentType;
 import applica.api.domain.model.dossiers.Dossier;
 import applica.api.services.DocumentsService;
-import applica.api.services.responses.ResponseCode;
+import applica.api.services.exceptions.DocumentTypeNotFoundException;
+import applica.api.services.exceptions.DossierNotFoundException;
 import applica.api.services.utils.FileUtils;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
 import applica.framework.widgets.mapping.Attachment;
-import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Objects;
 
 @Component
@@ -97,10 +98,15 @@ public class AttachmentFacade {
         }
     }
 
-    public void generateAndDownloadFromTemplate(Object documentTypeId, Object dossierId, HttpServletResponse response) throws Exception {
-        DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(()-> new OperationException(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND));
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new OperationException(ResponseCode.ERROR_DOSSIER_NOT_FOUND));
-        String path = documentsService.generateFromTemplate(documentType, dossier);
+    public void generateAndDownloadFromTemplate(Object documentTypeId, Object dossierId, HttpServletResponse response) throws DocumentTypeNotFoundException, DossierNotFoundException, IOException {
+        DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(()-> new DocumentTypeNotFoundException(documentTypeId));
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new DossierNotFoundException(dossierId));
+        String path = null;
+        try {
+            path = documentsService.generateFromTemplate(documentType, dossier);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         FileUtils.downloadAndRenameFile(documentType.getDescription() + ".docx", path, response);
     }
 }
