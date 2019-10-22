@@ -1,6 +1,8 @@
 package applica.api.domain.model.dossiers;
 
 import applica.api.domain.exceptions.WorkflowException;
+import applica.api.domain.model.users.Customer;
+import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.model.users.Person;
 
 import java.util.Date;
@@ -18,7 +20,7 @@ public class DossierWorkflow {
         this.dossier = dossier;
     }
 
-    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet) {
+    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet, String notes) {
         var dossier = new Dossier();
 
         dossier.setCreationDate(new Date());
@@ -26,8 +28,21 @@ public class DossierWorkflow {
         dossier.setCustomerId(customer.getId());
         dossier.setStatus(Dossier.STATUS_QUOTATION);
         dossier.setPriceCalculatorSheet(priceCalculatorSheet);
+        dossier.setNotes(notes);
 
         this.dossier = dossier;
+    }
+
+
+
+    public void edit(Fabricator fabricator, Customer customer, PriceCalculatorSheet priceCalculatorSheet, String notes) {
+        Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
+
+        dossier.setFabricatorId(fabricator.getId());
+        dossier.setCustomerId(customer.getId());
+        dossier.setPriceCalculatorSheet(priceCalculatorSheet);
+        dossier.setNotes(notes);
+
     }
 
     public Dossier get(){

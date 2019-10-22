@@ -1,14 +1,12 @@
 package applica.api.runner.controllers;
 
 import applica.api.domain.exceptions.WorkflowException;
-import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
 import applica.api.services.exceptions.*;
 import applica.api.services.responses.ErrorResponse;
 import applica.api.services.responses.ResponseCode;
-import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import applica.framework.widgets.operations.OperationException;
@@ -35,20 +33,23 @@ public class DossierController {
         this.fabricatorService = fabricatorService;
     }
 
-    @PostMapping("")
-    public Response save(@RequestBody Dossier dossier) {
+    @PostMapping("{dossierId}/edit")
+    public Response save(@PathVariable String dossierId, String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes) {
         try {
-            dossiersService.saveDossier(dossier);
-            return new Response(Response.OK);
-        } catch (Exception e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+            return new ValueResponse(dossiersService.edit(dossierId, fabricatorId, customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes));
+        } catch (FabricatorNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_FABRICATOR_NOT_FOUND, e.getFabricatorId());
+        } catch (CustomerNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_CUSTOMER_NOT_FOUND, e.getCustomerId());
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         }
     }
 
     @PostMapping("/quotation")
-    public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue) {
+    public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes) {
         try {
-            return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue)));
+            return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes));
         } catch (OperationException e) {
             return new ErrorResponse(e.getErrorCode(), e.getData());
         } catch (WorkflowException e) {

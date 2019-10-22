@@ -171,15 +171,21 @@ public class DossierServiceImpl implements DossiersService {
     public void saveDossier(Dossier dossier) {
         boolean needToCalculateCost = true;
         if (dossier.getId() == null){
-            Dossier old = Repo.of(Dossier.class).find(Query.build().sort(Filters.CODE, true)).findFirst().orElse(null);
-            if (old != null) {
-                dossier.setCode(old.getCode() + 1);
-                if (Objects.equals(dossier.getPriceCalculatorSheet(), old.getPriceCalculatorSheet())){
-                    needToCalculateCost = false;
-                }
+            Dossier previous = Repo.of(Dossier.class).find(Query.build().sort(Filters.CODE, true)).findFirst().orElse(null);
+            if (previous != null) {
+                dossier.setCode(previous.getCode() + 1);
             }
             else
                 dossier.setCode(1);
+        } else {
+            Dossier old = Repo.of(Dossier.class).get(dossier.getId()).orElse(null);
+            if (old != null){
+                if (Objects.equals(dossier.getPriceCalculatorSheet().getSignificantValue(), old.getPriceCalculatorSheet().getSignificantValue())
+                        && Objects.equals(dossier.getPriceCalculatorSheet().getNonSignificantValue(), old.getPriceCalculatorSheet().getNonSignificantValue())
+                        && Objects.equals(dossier.getPriceCalculatorSheet().getServiceValue(), old.getPriceCalculatorSheet().getServiceValue())){
+                    needToCalculateCost = false;
+                }
+            }
         }
         if (needToCalculateCost) {
             dossier.setServiceCost(calculateServiceCost(dossier.getPriceCalculatorSheet()));
@@ -190,19 +196,31 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws CustomerNotFoundException, FabricatorNotFoundException {
+    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws CustomerNotFoundException, FabricatorNotFoundException {
         Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new FabricatorNotFoundException(fabricatorId));
         Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow();
         dossierWorkflow.create(
                 fabricator,
                 customer,
-                priceCalculatorSheet
+                priceCalculatorSheet,
+                notes
         );
         Dossier dossier = dossierWorkflow.get();
         dossier.setDocuments(documentsService.generateDossierDocuments());
         saveDossier(dossier);
         materializeCustomer(dossier);
+        return dossier;
+    }
+
+    @Override
+    public Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException {
+        Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new FabricatorNotFoundException(fabricatorId));
+        Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
+        DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
+        dossierWorkflow.edit(fabricator, customer, priceCalculatorSheet, notes);
+        saveDossier(dossier);
         return dossier;
     }
 

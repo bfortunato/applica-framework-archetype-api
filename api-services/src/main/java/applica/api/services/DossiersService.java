@@ -48,8 +48,9 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
 
+    Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException;
 
     Dossier confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 

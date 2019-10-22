@@ -34,6 +34,8 @@ public class Dossier extends CodedEntity {
     private RecommendedPrice recommendedPrice;
     private SimulatedFinancing simulatedFinancing;
 
+    private String notes;
+
     public Object getCustomerId() {
         return customerId;
     }
@@ -114,4 +116,12 @@ public class Dossier extends CodedEntity {
         this.customer = customer;
     }
 
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 }
