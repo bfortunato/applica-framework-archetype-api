@@ -125,7 +125,7 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/confirmQuotation}")
+    @PostMapping("/{dossierId}/confirmQuotation")
     public Response confirmQuotation(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.confirmQuotation(dossierId));
@@ -136,7 +136,7 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/commit}")
+    @PostMapping("/{dossierId}/commit")
     public Response commit(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.commit(dossierId));
@@ -147,7 +147,7 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/candidate}")
+    @PostMapping("/{dossierId}/candidate")
     public Response candidate(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.candidate(dossierId));
@@ -159,7 +159,7 @@ public class DossierController {
 
     }
 
-    @PostMapping("/{dossierId}/approve}")
+    @PostMapping("/{dossierId}/approve")
     public Response approve(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.approve(dossierId));
@@ -171,7 +171,7 @@ public class DossierController {
 
     }
 
-    @PostMapping("/{dossierId}/refuse}")
+    @PostMapping("/{dossierId}/refuse")
     public Response refuse(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.refuse(dossierId));
@@ -182,7 +182,7 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/payOff}")
+    @PostMapping("/{dossierId}/payOff")
     public Response payOff(@PathVariable String dossierId) {
         try {
             return new ValueResponse(dossiersService.payOff(dossierId));

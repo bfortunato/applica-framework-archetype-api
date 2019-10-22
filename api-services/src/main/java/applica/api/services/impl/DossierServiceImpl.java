@@ -28,6 +28,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Objects;
 
 import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
@@ -46,7 +47,22 @@ public class DossierServiceImpl implements DossiersService {
 
     @Override
     public List<Dossier> findDossiersByFabricator(Object fabricatorId) {
-        return Repo.of(Dossier.class).find(Query.build().filter(Filters.FABRICATOR_ID, fabricatorId, Filter.EQ).sort(Filters.CREATION_DATE, false)).getRows();
+        return Repo.of(Dossier.class)
+                .find(Query.build().filter(Filters.FABRICATOR_ID, fabricatorId, Filter.EQ)
+                .sort(Filters.CREATION_DATE, false))
+                .getRows()
+                .stream()
+                .map(this::materializeCustomer)
+                .collect(Collectors.toList());
+
+    }
+
+    Dossier materializeCustomer(Dossier dossier) {
+        if (dossier.getCustomerId() != null && dossier.getCustomer() == null) {
+            Repo.of(Customer.class).get(dossier.getCustomerId()).ifPresent(dossier::setCustomer);
+        }
+
+        return dossier;
     }
 
     @Override
