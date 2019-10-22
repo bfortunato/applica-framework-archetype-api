@@ -53,6 +53,7 @@ public class DossierServiceImpl implements DossiersService {
                 .getRows()
                 .stream()
                 .map(this::materializeCustomer)
+                .map(this::materializeDocumentWithDocumentTypes)
                 .collect(Collectors.toList());
 
     }
@@ -62,6 +63,15 @@ public class DossierServiceImpl implements DossiersService {
     public Dossier materializeCustomer(Dossier dossier) {
         if (dossier.getCustomerId() != null && dossier.getCustomer() == null) {
             Repo.of(Customer.class).get(dossier.getCustomerId()).ifPresent(dossier::setCustomer);
+        }
+
+        return dossier;
+    }
+
+    public Dossier materializeDocumentWithDocumentTypes(Dossier dossier) {
+        for (Document d: dossier.getDocuments()
+             ) {
+            Repo.of(DocumentType.class).get(d.getDocumentTypeId()).ifPresent(d::setDocumentType);
         }
 
         return dossier;
@@ -116,7 +126,7 @@ public class DossierServiceImpl implements DossiersService {
                 preview = file;
             }
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
-            dossierWorkflow.attachDocument(documentTypeId, file, preview);
+            dossierWorkflow.attachDocument(documentTypeId, file, preview != null ? FileUtils.getImageFullUrl(preview.replaceFirst("/", "")) : null);
             saveDossier(dossier);
             documentsService.materializeDocumentTypes(dossier.getDocuments());
             return dossier.getDocuments();
@@ -134,11 +144,13 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException {
+    public List<Document> clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.clearDocumentAttachment(documentTypeId);
         saveDossier(dossier);
+        documentsService.materializeDocumentTypes(dossier.getDocuments());
+        return dossier.getDocuments();
     }
 
     @Override
