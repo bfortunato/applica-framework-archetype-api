@@ -1,9 +1,11 @@
 package applica.api.domain.model.dossiers;
 
+import applica.framework.AEntity;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class RecommendedPrice {
+public class RecommendedPrice extends AEntity {
 
     private double recommendedRetailPrice;
     private double discount;

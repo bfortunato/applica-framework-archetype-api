@@ -1,6 +1,8 @@
 package applica.api.domain.model.dossiers;
 
-public class SimulatedFinancing {
+import applica.framework.AEntity;
+
+public class SimulatedFinancing extends AEntity {
     private double twelvePaymentFee;
     private double twentyFourPaymentFee;
     private double thirtySixPaymentFee;

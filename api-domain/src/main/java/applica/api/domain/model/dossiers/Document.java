@@ -6,12 +6,18 @@ import java.util.Date;
 
 public class Document extends AEntity {
 
+    public static final String TO_BE_UPLOAD = "to-be-upload";
+    public static final String UPLOADED = "uploaded";
+    public static final String TO_RECHARGE = "to-recharge";
+
     private Object documentTypeId;
     private String file;
     private boolean valid;
     private Date uploadDate;
     private Date refusedDate;
+    private String refuseReason;
     private String preview;
+    private String status;
 
     private transient DocumentType documentType;
 
@@ -19,6 +25,7 @@ public class Document extends AEntity {
 
     public Document(Object documentTypeId) {
         this.documentTypeId = documentTypeId;
+        this.status = TO_BE_UPLOAD;
     }
 
     public Object getDocumentTypeId() {
@@ -69,11 +76,27 @@ public class Document extends AEntity {
         this.documentType = documentType;
     }
 
+    public String getRefuseReason() {
+        return refuseReason;
+    }
+
+    public void setRefuseReason(String refuseReason) {
+        this.refuseReason = refuseReason;
+    }
+
     public String getPreview() {
         return preview;
     }
 
     public void setPreview(String preview) {
         this.preview = preview;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

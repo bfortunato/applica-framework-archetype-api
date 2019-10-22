@@ -9,22 +9,28 @@ import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
 import applica.api.services.exceptions.CustomerNotFoundException;
-import applica.api.services.exceptions.DocumentNotFoundException;
+import applica.api.services.exceptions.DocumentTypeNotFoundException;
 import applica.api.services.exceptions.DossierNotFoundException;
 import applica.api.services.exceptions.FabricatorNotFoundException;
+import applica.api.services.utils.FileUtils;
 import applica.framework.Filter;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
 import applica.framework.library.options.OptionsManager;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ooxml.POIXMLProperties;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.List;
+import java.util.Objects;
+
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 
 @Service
 public class DossierServiceImpl implements DossiersService {
@@ -62,17 +68,34 @@ public class DossierServiceImpl implements DossiersService {
     public List<Document> attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         try {
+            String extension = FilenameUtils.getExtension(attachmentName);
             String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(attachmentName), new ByteArrayInputStream(attachmentData));
-            String fileserverPath = optionsManager.get("applica.framework.fileserver.basePath") + "\\";
-            XWPFDocument wordDocument = new XWPFDocument(new FileInputStream(fileserverPath + file));
-            POIXMLProperties props = wordDocument.getProperties();
-
-            String thumbnail = props.getThumbnailFilename();
             String preview = null;
-            if (thumbnail == null) {
-                // No thumbnail
-            } else {
-                preview = fileServer.saveFile("/", ", ", props.getThumbnailImage());
+            if (haveToGeneratePreview(extension)) {
+                File convertedPdfFile = null;
+
+                try {
+                    InputStream fileStream = fileServer.getFile(file);
+                    if (extension.equals("doc") || extension.equals("docx")) {
+                        //trasformo il doc/x in pdf ed ottengo l'anterpima come per il caso pdf
+                        convertedPdfFile = createVoidTempFile();
+                        FileUtils.convertToPDF(new ByteArrayInputStream(attachmentData), convertedPdfFile);
+                        fileStream = new FileInputStream(convertedPdfFile);
+                    }
+                    preview = createThumbnailFromPdf(fileStream, "/files/documents");
+
+                } catch (Exception e ) {
+                    e.printStackTrace();
+                }
+
+                File finalConvertedPdfFile = convertedPdfFile;
+                new Thread(()-> {
+                    if (finalConvertedPdfFile != null)
+                        finalConvertedPdfFile.delete();
+                }).start();
+
+            } else if (isImage(extension)){
+                preview = file;
             }
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
             dossierWorkflow.attachDocument(documentTypeId, file, preview);
@@ -93,32 +116,45 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException {
+    public void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
-        boolean removed = dossierWorkflow.clearDocumentAttachment(documentTypeId);
-        if (removed)
-            saveDossier(dossier);
-        else
-            throw new DocumentNotFoundException(documentTypeId);
-    }
-
-    @Override
-    public void refuseDocument(Object dossierId, Object documentTypeId) throws DossierNotFoundException {
-        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
-        DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
-        dossierWorkflow.refuseDocument(documentTypeId);
+        dossierWorkflow.clearDocumentAttachment(documentTypeId);
         saveDossier(dossier);
     }
 
     @Override
+    public List<Document> refuseDocument(Object dossierId, Object documentTypeId, String refuseReason) throws DossierNotFoundException, DocumentTypeNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
+        DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(()->new DocumentTypeNotFoundException(documentTypeId));
+        DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
+        dossierWorkflow.refuseDocument(documentTypeId, refuseReason);
+        saveDossier(dossier);
+        if (Objects.equals(documentType.getAssignationType(), DocumentType.FABRICATOR_PROFILE) || Objects.equals(documentType.getAssignationType(), DocumentType.PREPARATORY_DOCUMENTATION)) {
+            //TODO: Mandare mail al serramentista
+        }
+        documentsService.materializeDocumentTypes(dossier.getDocuments());
+        return dossier.getDocuments();
+    }
+
+    @Override
     public void saveDossier(Dossier dossier) {
+        boolean needToCalculateCost = true;
         if (dossier.getId() == null){
             Dossier old = Repo.of(Dossier.class).find(Query.build().sort(Filters.CODE, true)).findFirst().orElse(null);
-            if (old != null)
+            if (old != null) {
                 dossier.setCode(old.getCode() + 1);
+                if (Objects.equals(dossier.getPriceCalculatorSheet(), old.getPriceCalculatorSheet())){
+                    needToCalculateCost = false;
+                }
+            }
             else
                 dossier.setCode(1);
+        }
+        if (needToCalculateCost) {
+            dossier.setServiceCost(calculateServiceCost(dossier.getPriceCalculatorSheet()));
+            dossier.setRecommendedPrice(calculateRecommendedPrice(dossier.getPriceCalculatorSheet()));
+            dossier.setSimulatedFinancing(simulateFinancing(dossier.getPriceCalculatorSheet()));
         }
         Repo.of(Dossier.class).save(dossier);
     }
@@ -140,55 +176,112 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public void confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.confirmQuotation();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
-    public void commit(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier commit(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
-    public void candidate(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier candidate(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
-    public void approve(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier approve(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
-    public void refuse(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier refuse(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
-    public void payOff(Object dossierId) throws WorkflowException, DossierNotFoundException {
+    public Dossier payOff(Object dossierId) throws WorkflowException, DossierNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
+        return dossier;
     }
 
     @Override
     public Dossier getById(Object dossierId) throws DossierNotFoundException {
         return Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new DossierNotFoundException(dossierId));
+    }
+
+    private boolean haveToGeneratePreview(String extension) {
+        return extension.equals("pdf") || extension.equals("doc") || extension.equals("docx");
+    }
+
+    public String createThumbnailFromPdf(InputStream i, String fileServerPath) throws Exception {
+        //lo salvo in una directory temporanea
+        String absolutePath = createTempFile(i);
+
+        //lo carico nell'oggetto PDDocument
+        PDDocument document = loadPdfDocumentFromFile(absolutePath);
+
+        //acquisisco la prima pagina del documento e creo una BufferedImage
+        java.util.List pages = document.getDocumentCatalog().getAllPages();
+        PDPage page = (PDPage) pages.get(0);
+        BufferedImage image = page.convertToImage();
+        File outputfile = new File(absolutePath + "preview" +"_"+ 0 +".png");
+        System.out.println("Image Created -> " + outputfile.getName());
+        ImageIO.write(image, "jpg", outputfile);
+
+
+        InputStream is = new FileInputStream(outputfile);
+
+        //con l'inputstream salvo nel fileserver l'anteprima e mi ritorno il suo path
+        return fileServer.saveFile(fileServerPath, "jpg", is);
+
+    }
+
+
+    public String createTempFile(InputStream i) throws Exception {
+
+        File dir = createVoidTempFile();
+
+        copyInputStreamToFile(i, dir);
+
+        return dir.getAbsolutePath();
+
+    }
+
+    private File createVoidTempFile() throws Exception {
+
+        return File.createTempFile("temp", "");
+    }
+
+    private static PDDocument loadPdfDocumentFromFile(String fileName) throws IOException {
+        return PDDocument.load(fileName);
+    }
+
+    public boolean isImage(String extension) {
+        return extension.toLowerCase().equals("png") || extension.toLowerCase().equals("jpg") || extension.toLowerCase().equals("jpeg") || extension.toLowerCase().equals("bmp");
     }
 }

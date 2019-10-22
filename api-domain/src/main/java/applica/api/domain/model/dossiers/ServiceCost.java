@@ -1,6 +1,11 @@
 package applica.api.domain.model.dossiers;
 
-public class ServiceCost {
+import applica.framework.AEntity;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class ServiceCost extends AEntity {
 
     private double customerDeduction;
     private double initiativeCost;
@@ -9,7 +14,9 @@ public class ServiceCost {
     public ServiceCost(double customerDeduction, double initiativeCost) {
         this.customerDeduction = customerDeduction;
         this.initiativeCost = initiativeCost;
-        this.fabricatorPayOff = customerDeduction - initiativeCost;
+        BigDecimal bd = new BigDecimal(customerDeduction - initiativeCost);
+        bd = bd.setScale(2, RoundingMode.HALF_EVEN);
+        this.fabricatorPayOff = bd.doubleValue();
     }
 
     public double getCustomerDeduction() {

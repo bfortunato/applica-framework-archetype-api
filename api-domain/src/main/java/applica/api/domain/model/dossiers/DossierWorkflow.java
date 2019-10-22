@@ -108,18 +108,27 @@ public class DossierWorkflow {
                 document.setFile(file);
                 document.setValid(true);
                 document.setUploadDate(new Date());
+                document.setStatus(Document.UPLOADED);
             }
         });
     }
 
-    public boolean clearDocumentAttachment(Object documentTypeId) {
-        return dossier.getDocuments().removeIf(document -> document.getDocumentTypeId().equals(documentTypeId));
+    public void clearDocumentAttachment(Object documentTypeId) {
+        dossier.getDocuments().forEach(document -> {
+            if (document.getDocumentTypeId().equals(documentTypeId)) {
+                document.setFile(null);
+            }
+        });
     }
 
-    public void refuseDocument(Object documentTypeId) {
+    public void refuseDocument(Object documentTypeId, String refuseReason) {
         dossier.getDocuments().forEach(document -> {
-            if (document.getDocumentTypeId().equals(documentTypeId))
+            if (document.getDocumentTypeId().equals(documentTypeId)) {
                 document.setValid(false);
+                document.setRefusedDate(new Date());
+                document.setRefuseReason(refuseReason);
+                document.setStatus(Document.TO_RECHARGE);
+            }
         });
     }
 }

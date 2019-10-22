@@ -5,10 +5,7 @@ import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
-import applica.api.services.exceptions.CustomerNotFoundException;
-import applica.api.services.exceptions.DocumentNotFoundException;
-import applica.api.services.exceptions.DossierNotFoundException;
-import applica.api.services.exceptions.FabricatorNotFoundException;
+import applica.api.services.exceptions.*;
 import applica.api.services.responses.ErrorResponse;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.library.i18n.LocalizationUtils;
@@ -118,20 +115,20 @@ public class DossierController {
     }
 
     @PostMapping("/{dossierId}/refuse/{documentTypeId}")
-    public Response refuse(@PathVariable String dossierId, @PathVariable String documentTypeId) {
+    public Response refuse(@PathVariable String dossierId, @PathVariable String documentTypeId, String refuseReason) {
         try {
-            dossiersService.refuseDocument(dossierId, documentTypeId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.refuseDocument(dossierId, documentTypeId, refuseReason));
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentTypeNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND, e.getDocumentTypeId());
         }
     }
 
     @PostMapping("/{dossierId}/confirmQuotation}")
     public Response confirmQuotation(@PathVariable String dossierId) {
         try {
-            dossiersService.confirmQuotation(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.confirmQuotation(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
         } catch (DossierNotFoundException e) {
@@ -142,8 +139,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/commit}")
     public Response commit(@PathVariable String dossierId) {
         try {
-            dossiersService.commit(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.commit(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
         } catch (DossierNotFoundException e) {
@@ -154,8 +150,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/candidate}")
     public Response candidate(@PathVariable String dossierId) {
         try {
-            dossiersService.candidate(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.candidate(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
         } catch (DossierNotFoundException e) {
@@ -167,8 +162,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/approve}")
     public Response approve(@PathVariable String dossierId) {
         try {
-            dossiersService.approve(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.approve(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
         } catch (DossierNotFoundException e) {
@@ -180,8 +174,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/refuse}")
     public Response refuse(@PathVariable String dossierId) {
         try {
-            dossiersService.refuse(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.refuse(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
         } catch (DossierNotFoundException e) {
@@ -192,8 +185,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/payOff}")
     public Response payOff(@PathVariable String dossierId) {
         try {
-            dossiersService.payOff(dossierId);
-            return new Response(Response.OK);
+            return new ValueResponse(dossiersService.payOff(dossierId));
         } catch (WorkflowException e) {
             return new ErrorResponse(ResponseCode.ERROR_WORKFLOW, null);
         } catch (DossierNotFoundException e) {

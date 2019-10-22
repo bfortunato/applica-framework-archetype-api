@@ -2,10 +2,7 @@ package applica.api.services;
 
 import applica.api.domain.exceptions.WorkflowException;
 import applica.api.domain.model.dossiers.*;
-import applica.api.services.exceptions.CustomerNotFoundException;
-import applica.api.services.exceptions.DocumentNotFoundException;
-import applica.api.services.exceptions.DossierNotFoundException;
-import applica.api.services.exceptions.FabricatorNotFoundException;
+import applica.api.services.exceptions.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +34,7 @@ public interface DossiersService {
     void clearDocumentAttachment(Object dossierId, Object documentTypeId) throws DossierNotFoundException, DocumentNotFoundException;
 
 
-    void refuseDocument(Object dossierId, Object documentTypeId) throws DossierNotFoundException;
+    List<Document> refuseDocument(Object dossierId, Object documentTypeId, String refuseReason) throws DossierNotFoundException, DocumentTypeNotFoundException;
 
 
     void saveDossier(Dossier dossier);
@@ -54,24 +51,24 @@ public interface DossiersService {
     Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
 
 
-    void confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
     /**
      * Da chiamare se tutt
      * @param dossierId
      */
-    void commit(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier commit(Object dossierId) throws WorkflowException, DossierNotFoundException;
     /*
     altri metodi del workflow
      */
 
-    void candidate(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier candidate(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void approve(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier approve(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void refuse(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier refuse(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
-    void payOff(Object dossierId) throws WorkflowException, DossierNotFoundException;
+    Dossier payOff(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
     Dossier getById(Object dossierId) throws DossierNotFoundException;
 }

@@ -27,6 +27,9 @@ public class Dossier extends CodedEntity {
 
     private List<Document> documents = new ArrayList<>();
     private PriceCalculatorSheet priceCalculatorSheet = new PriceCalculatorSheet();
+    private ServiceCost serviceCost;
+    private RecommendedPrice recommendedPrice;
+    private SimulatedFinancing simulatedFinancing;
 
     public Object getCustomerId() {
         return customerId;
@@ -74,5 +77,29 @@ public class Dossier extends CodedEntity {
 
     public void setPriceCalculatorSheet(PriceCalculatorSheet priceCalculatorSheet) {
         this.priceCalculatorSheet = priceCalculatorSheet;
+    }
+
+    public ServiceCost getServiceCost() {
+        return serviceCost;
+    }
+
+    public void setServiceCost(ServiceCost serviceCost) {
+        this.serviceCost = serviceCost;
+    }
+
+    public RecommendedPrice getRecommendedPrice() {
+        return recommendedPrice;
+    }
+
+    public void setRecommendedPrice(RecommendedPrice recommendedPrice) {
+        this.recommendedPrice = recommendedPrice;
+    }
+
+    public SimulatedFinancing getSimulatedFinancing() {
+        return simulatedFinancing;
+    }
+
+    public void setSimulatedFinancing(SimulatedFinancing simulatedFinancing) {
+        this.simulatedFinancing = simulatedFinancing;
     }
 }
