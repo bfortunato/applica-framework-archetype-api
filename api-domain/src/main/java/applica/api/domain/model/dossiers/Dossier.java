@@ -2,6 +2,7 @@ package applica.api.domain.model.dossiers;
 
 import applica.api.domain.model.CodedEntity;
 import applica.api.domain.model.EntityList;
+import applica.api.domain.model.users.Customer;
 import applica.framework.widgets.entities.EntityId;
 
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class Dossier extends CodedEntity {
     private ServiceCost serviceCost;
     private RecommendedPrice recommendedPrice;
     private SimulatedFinancing simulatedFinancing;
+
+    private transient Customer customer;
 
     public Object getCustomerId() {
         return customerId;
@@ -77,6 +80,14 @@ public class Dossier extends CodedEntity {
 
     public void setPriceCalculatorSheet(PriceCalculatorSheet priceCalculatorSheet) {
         this.priceCalculatorSheet = priceCalculatorSheet;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public ServiceCost getServiceCost() {
