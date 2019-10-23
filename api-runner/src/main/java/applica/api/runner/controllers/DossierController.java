@@ -125,6 +125,17 @@ public class DossierController {
         }
     }
 
+    @PostMapping("/{dossierId}/quotation")
+    public Response quotation(@PathVariable String dossierId) {
+        try {
+            return new ValueResponse(dossiersService.quotation(dossierId));
+        } catch (WorkflowException e) {
+            return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);
+        } catch (DossierNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        }
+    }
+
     @PostMapping("/{dossierId}/confirmQuotation")
     public Response confirmQuotation(@PathVariable String dossierId) {
         try {

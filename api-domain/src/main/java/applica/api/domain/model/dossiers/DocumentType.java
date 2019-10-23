@@ -18,7 +18,6 @@ public class DocumentType extends CodedEntity {
     public static final String TYPOLOGY_SELF_COMPILED_DOWNLOADABLE_TEMPLATE = "self-compiled-downloadable-template";
 
     private String description;
-    private boolean required;
     private String information;
     private Attachment template;
     private boolean active;
@@ -31,14 +30,6 @@ public class DocumentType extends CodedEntity {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-
-    public void setRequired(boolean required) {
-        this.required = required;
     }
 
     public String getInformation() {

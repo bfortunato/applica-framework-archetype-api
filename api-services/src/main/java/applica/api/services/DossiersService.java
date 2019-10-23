@@ -10,6 +10,7 @@ import java.util.List;
 public interface DossiersService {
 
     List<Dossier> findDossiersByFabricator(Object fabricatorId);
+    List<Dossier> findDossiersByCustomer(Object fabricatorId);
 
     ServiceCost calculateServiceCost(PriceCalculatorSheet sheet);
     RecommendedPrice calculateRecommendedPrice(PriceCalculatorSheet sheet);
@@ -51,6 +52,8 @@ public interface DossiersService {
     Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
 
     Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException;
+
+    Dossier quotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 
     Dossier confirmQuotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 

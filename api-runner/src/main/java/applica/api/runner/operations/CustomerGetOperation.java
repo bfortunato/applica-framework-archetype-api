@@ -1,5 +1,6 @@
 package applica.api.runner.operations;
 
+import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.categories.FabricatorCategory;
 import applica.framework.Entity;
@@ -28,6 +29,11 @@ public class CustomerGetOperation extends BaseGetOperation {
         node.put("_postalCode", customer.getAddress().getPostalCode());
         node.put("_address", customer.getAddress().getAddress());
         node.put("_streetNumber", customer.getAddress().getStreetNumber());
+
+        User user = Repo.of(User.class).get(customer.getUserId()).orElse(null);
+        if (user != null) {
+            node.put("mail", user.getMail());
+        }
     }
 
     @Override

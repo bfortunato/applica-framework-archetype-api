@@ -1,5 +1,6 @@
 package applica.api.runner.operations;
 
+import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.EndUser;
 import applica.api.domain.model.users.categories.EndUserCategory;
 import applica.framework.Entity;
@@ -19,6 +20,11 @@ public class EndUserGetOperation extends BaseGetOperation {
     protected void finishNode(Entity entity, ObjectNode node) {
         map().imageToDataUrl(entity, node, "avatar", "_avatar", "150x*");
         node.putPOJO("_category", Repo.of(EndUserCategory.class).get(((EndUser) entity).getCategoryId()).orElse(null));
+
+        User user = Repo.of(User.class).get(((EndUser) entity).getUserId()).orElse(null);
+        if (user != null){
+            node.put("mail", user.getMail());
+        }
     }
 
     @Override

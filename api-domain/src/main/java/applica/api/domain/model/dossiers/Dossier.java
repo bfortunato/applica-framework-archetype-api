@@ -36,6 +36,8 @@ public class Dossier extends CodedEntity {
 
     private String notes;
 
+    private boolean serviceFeeInvoiced;
+
     public Object getCustomerId() {
         return customerId;
     }
@@ -123,5 +125,13 @@ public class Dossier extends CodedEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isServiceFeeInvoiced() {
+        return serviceFeeInvoiced;
+    }
+
+    public void setServiceFeeInvoiced(boolean serviceFeeInvoiced) {
+        this.serviceFeeInvoiced = serviceFeeInvoiced;
     }
 }

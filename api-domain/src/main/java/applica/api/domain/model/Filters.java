@@ -30,4 +30,5 @@ public class Filters {
     public static final String ACTIVE = "active";
     public static final String ASSIGNATION_TYPE = "assignationType";
     public static final String BUSINESS_NAME = "businessName";
+    public static final String CUSTOMER_ID = "customerId";
 }

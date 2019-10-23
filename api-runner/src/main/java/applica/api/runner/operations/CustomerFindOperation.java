@@ -21,6 +21,8 @@ public class CustomerFindOperation extends BaseFindOperation {
         return Customer.class;
     }
 
+
+
     @Override
     protected Result<? extends Entity> fetch(Query query) {
         if (query.hasFilter(Filters.ACTIVE)) {
