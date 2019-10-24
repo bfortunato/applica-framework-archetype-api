@@ -18,12 +18,16 @@ import applica.framework.library.utils.ErrorsUtils;
 import applica.framework.library.velocity.BaseVelocityBuilder;
 import applica.framework.library.velocity.VelocityBuilder;
 import applica.framework.library.velocity.VelocityBuilderProvider;
+import applica.framework.notifications.NotificationService;
+import applica.framework.notifications.NotificationsController;
+import applica.framework.notifications.firebase.FirebaseNotificationService;
 import applica.framework.widgets.factory.DefaultOperationsFactory;
 import applica.framework.widgets.factory.OperationsFactory;
 import applica.framework.widgets.mapping.EntityMapper;
 import applica.framework.widgets.operations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.MessageSource;
@@ -32,6 +36,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -195,41 +200,14 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
         return factory.createMultipartConfig();
     }
 
-    /*
-    @Conditional(SchedulerCondition.class)
-    @Bean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
-        return new ScheduledAnnotationBeanPostProcessor();
-    }
-    */
-
-    /*
-    //Start Revision beans
     @Bean
-    public RevisionTrackingCrudStrategy revisionStrategy() {
-        RevisionTrackingCrudStrategy strategy = new RevisionTrackingCrudStrategy();
-        strategy.setParent(mongoCrudStrategy());
-        return strategy;
+    public NotificationService notificationService(ResourceLoader resourceLoader) {
+        return new FirebaseNotificationService(optionsManager(), resourceLoader);
     }
 
     @Bean
-    public EntityRevisionSettingsGetOperation revisionSettingsGetOperation() {
-        return new EntityRevisionSettingsGetOperation();
+    public NotificationsController notificationsController(ResourceLoader resourceLoader) {
+        return new NotificationsController(notificationService(resourceLoader));
     }
 
-
-    @Bean
-    public RevisionController revisionController() {
-        return new RevisionController();
-    }
-
-
-    @Bean
-    public RevisionService revisionService() {
-        return new BaseRevisionService();
-    }
-
-    //end revision beans
-    */
 }
