@@ -139,8 +139,12 @@ public class DossierWorkflow {
             }
         });
 
-        if (dossier.getDocuments().stream().filter(d->Objects.equals(d.getDocumentType().getAssignationType(), DocumentType.PREPARATORY_DOCUMENTATION) && d.getFile() == null || (d.getFile() != null && !d.isValid())).collect(Collectors.toList()).size() == 0) {
-            dossier.setStatus(Dossier.STATUS_TO_CANDIDATE);
+        if (Objects.equals(dossier.getStatus(), Dossier.STATUS_DRAFT) && dossier.getDocuments().stream().filter(d->Objects.equals(d.getDocumentType().getAssignationType(), DocumentType.PREPARATORY_DOCUMENTATION) && d.getFile() == null || (d.getFile() != null && !d.isValid())).collect(Collectors.toList()).size() == 0) {
+            try {
+                commit();
+            } catch (WorkflowException e) {
+                e.printStackTrace();
+            }
         }
     }
 

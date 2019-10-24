@@ -77,4 +77,10 @@ public interface DossiersService {
     Dossier getById(Object dossierId) throws DossierNotFoundException;
 
     Dossier materializeCustomer(Dossier dossier);
+
+    Dossier materializeFabricator(Dossier dossier);
+
+    DossierCount count();
+
+    void delete(String id) throws DossierNotFoundException, IOException;
 }

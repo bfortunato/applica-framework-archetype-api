@@ -23,6 +23,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -74,6 +75,15 @@ public class DossierServiceImpl implements DossiersService {
     public Dossier materializeCustomer(Dossier dossier) {
         if (dossier.getCustomerId() != null && dossier.getCustomer() == null) {
             Repo.of(Customer.class).get(dossier.getCustomerId()).ifPresent(dossier::setCustomer);
+        }
+
+        return dossier;
+    }
+
+    @Override
+    public Dossier materializeFabricator(Dossier dossier) {
+        if (dossier.getFabricatorId() != null && dossier.getFabricator() == null) {
+            Repo.of(Fabricator.class).get(dossier.getFabricatorId()).ifPresent(dossier::setFabricator);
         }
 
         return dossier;
@@ -136,10 +146,10 @@ public class DossierServiceImpl implements DossiersService {
             } else if (isImage(extension)){
                 preview = file;
             }
+            documentsService.materializeDocumentTypes(dossier.getDocuments());
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
             dossierWorkflow.attachDocument(documentTypeId, file, preview != null ? FileUtils.getImageFullUrl(preview.replaceFirst("/", "")) : null);
             saveDossier(dossier);
-            documentsService.materializeDocumentTypes(dossier.getDocuments());
             return dossier.getDocuments();
         } catch (IOException e) {
             e.printStackTrace();
@@ -301,6 +311,37 @@ public class DossierServiceImpl implements DossiersService {
     @Override
     public Dossier getById(Object dossierId) throws DossierNotFoundException {
         return Repo.of(Dossier.class).get(dossierId).orElseThrow(()-> new DossierNotFoundException(dossierId));
+    }
+
+    @Override
+    public DossierCount count() {
+        DossierCount count = new DossierCount();
+
+        List<Dossier> dossiers = Repo.of(Dossier.class).find(null).getRows();
+
+        count.setAll(dossiers.size());
+        count.setQuotation(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_QUOTATION)).count());
+        count.setDraft(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_DRAFT)).count());
+        count.setTocandidate(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_TO_CANDIDATE)).count());
+        count.setCandidated(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_CANDIDATED)).count());
+        count.setApproved(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_APPROVED)).count());
+        count.setPayoff(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_PAY_OFF)).count());
+        count.setRefused(dossiers.stream().filter(d->Objects.equals(d.getStatus(), Dossier.STATUS_REFUSED)).count());
+
+        return count;
+    }
+
+    @Override
+    public void delete(String dossierId) throws DossierNotFoundException, IOException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
+        for (Document d: dossier.getDocuments()
+             ) {
+            if (StringUtils.hasLength(d.getFile()))
+                fileServer.deleteFile(d.getFile());
+            if (StringUtils.hasLength(d.getPreview()))
+                fileServer.deleteFile(d.getPreview());
+        }
+        Repo.of(Dossier.class).delete(dossierId);
     }
 
     private boolean haveToGeneratePreview(String extension) {

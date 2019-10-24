@@ -3,8 +3,8 @@ package applica.api.services;
 import applica.api.domain.model.auth.PasswordRecoveryCode;
 import applica.api.domain.model.auth.User;
 import applica.api.services.exceptions.*;
-import applica.framework.library.validation.ValidationException;
 import applica.framework.library.base64.URLData;
+import applica.framework.library.validation.ValidationException;
 
 import java.io.IOException;
 
@@ -46,7 +46,7 @@ public interface AccountService {
      */
     URLData getProfileImage(Object userId, String size) throws UserNotFoundException, IOException;
 
-    void changePassword(User user, String password, String passwordConfirm) throws ValidationException, MailNotFoundException;
+    void changePassword(User user, String currentEncodedPassword, String password, String passwordConfirm) throws ValidationException, MailNotFoundException;
 
     String encryptAndGetPassword(String password);
 
@@ -64,7 +64,9 @@ public interface AccountService {
 
     void savePasswordRecoveryCode(PasswordRecoveryCode passwordRecoveryCode);
 
-    void validateRecoveryCode(String mail, String code, boolean deleteRecord) throws MailNotFoundException, CodeNotValidException;
+    void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException;
 
     void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException;
+
+    String generateOneTimePassword();
 }

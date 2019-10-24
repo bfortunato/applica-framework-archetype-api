@@ -69,14 +69,14 @@ public class CustomerServiceImpl implements CustomersService {
     }
 
     @Override
-    public void saveCustomer(Customer customer, String mail, String password, boolean active) throws UserAlreadyExistException {
+    public void saveCustomer(Customer customer, String mail, boolean active) throws UserAlreadyExistException {
         if (customer.getId() == null){
-            User user = userService.createUser(mail, password, Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getName(), customer.getLastName());
+            User user = userService.createUser(mail, Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getName(), customer.getLastName());
             customer.setUserId(user.getId());
         } else {
             User user = Repo.of(User.class).get(customer.getUserId()).orElse(null);
             if (user != null){
-                userService.updateUserIfNecessary(user, mail, password, active);
+                userService.updateUserIfNecessary(user, mail, active);
             }
         }
         Repo.of(Customer.class).save(customer);

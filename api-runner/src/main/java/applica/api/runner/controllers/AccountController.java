@@ -1,28 +1,37 @@
 package applica.api.runner.controllers;
 
+import applica.api.domain.model.UserChangePasswordAttempt;
+import applica.api.domain.utils.CustomDateUtils;
+import applica.api.domain.utils.CustomErrorUtils;
+import applica.api.domain.utils.CustomLocalizationUtils;
+import applica.api.domain.utils.SecurityUtils;
 import applica.api.runner.facade.AccountFacade;
 import applica.api.runner.viewmodels.UIUserWithToken;
-import applica.api.domain.utils.CustomErrorUtils;
-import applica.api.services.AuthService;
-import applica.api.services.responses.ResponseCode;
-import applica.api.services.exceptions.*;
 import applica.api.services.AccountService;
-import applica.framework.library.i18n.LocalizationUtils;
-import applica.framework.library.utils.ErrorsUtils;
-import applica.framework.library.validation.ValidationException;
+import applica.api.services.AuthService;
+import applica.api.services.UserService;
+import applica.api.services.exceptions.*;
+import applica.api.services.responses.ResponseCode;
 import applica.framework.library.base64.URLData;
+import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
+import applica.framework.library.validation.ValidationException;
 import applica.framework.security.Security;
 import applica.framework.security.User;
+import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.security.token.TokenGenerationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import java.io.IOException;
 
+import java.io.IOException;
+import java.util.Date;
+
+import static applica.api.domain.model.UserAttempt.WAITING_TIME_IN_SECONDS;
+import static applica.api.services.responses.ResponseCode.*;
 import static applica.framework.library.responses.Response.ERROR;
 import static applica.framework.library.responses.Response.OK;
-import static applica.api.services.responses.ResponseCode.*;
 
 /**
  * Applica (www.applicadoit.com)
@@ -40,9 +49,11 @@ public class AccountController {
     @Autowired
     private AccountFacade accountFacade;
 
-
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
     public Response register(String name, String mail, String password) {
@@ -110,18 +121,26 @@ public class AccountController {
 
     @RequestMapping("/changePassword")
     public @ResponseBody
-    Response resetPassword(String password, String passwordConfirm) throws TokenGenerationException, BadCredentialsException {
+    Response resetPassword(String currentPassword, String password, String passwordConfirm) {
+
         try {
-            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), password, passwordConfirm);
+            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), StringUtils.hasLength(currentPassword) ? SecurityUtils.encodePassword(currentPassword) : null, password, passwordConfirm);
         } catch (ValidationException e) {
             e.getValidationResult().getErrors();
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
-        }
-        catch (Exception e) {
-            return new Response(Response.ERROR, e.getMessage());
+        } catch (MailNotFoundException e) {
+            return new Response(ERROR, e.getMessage());
+        } catch (Exception e) {
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
         User user = Security.withMe().getLoggedUser();
-        return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.auth.User) user).getMail(), password)));
+        String token = null;
+        try {
+            token = authService.token(((applica.api.domain.model.auth.User) user).getMail(), password);
+        } catch (BadCredentialsException | TokenGenerationException | UserLoginMaxAttemptsException e) {
+            e.printStackTrace();
+        }
+        return new ValueResponse(new UIUserWithToken(user, token));
 
     }
 
@@ -138,27 +157,31 @@ public class AccountController {
                 User user = Security.withMe().getLoggedUser();
                 return new ValueResponse(new UIUserWithToken(user, authService.token(((applica.api.domain.model.auth.User) user).getMail(), newPassword)));
             }
-        } catch (BadCredentialsException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+        } catch (BadCredentialsException | AuthorizationException | TokenGenerationException e) {
             return new Response(ERROR, e.getMessage());
+        } catch (Exception e) {
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
         return new Response(Response.OK);
     }
     @PostMapping("/resetPassword")
     public @ResponseBody
     Response reset(String mail, String code, String password, String passwordConfirm) {
-        try {
 
+        UserChangePasswordAttempt attempt = userService.getUserPasswordChangeAttempts(mail);
+        if (attempt.isLocked())
+            return new Response(Response.ERROR, CustomLocalizationUtils.getInstance().getMessage("error.maxLoginAttempts", String.valueOf(Math.abs(WAITING_TIME_IN_SECONDS - CustomDateUtils.getDifferenceInSeconds(attempt.getLastModified(), new Date())))));
+
+        try {
             accountService.resetPassword(mail, code, password, passwordConfirm);
-        } catch (MailNotFoundException e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("error.mail.not.found"));
-        } catch (ValidationException e) {
+            userService.resetPasswordChangeFailAttempts(attempt);
+        }  catch (ValidationException e) {
             e.getValidationResult().getErrors();
-            return new Response(Response.ERROR, ErrorsUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
-        } catch (CodeNotValidException e) {
-            e.printStackTrace();
-            return new Response(ERROR, LocalizationUtils.getInstance().getMessage("error.code.not.valid"));
+            userService.updatePasswordChangeFailAttempts(userService.getUserPasswordChangeAttempts(mail));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
+        }  catch (Exception e) {
+            userService.updatePasswordChangeFailAttempts(attempt);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
         return new Response(Response.OK);
     }
@@ -181,15 +204,17 @@ public class AccountController {
     public @ResponseBody
     Response validateRecoveryCode(String mail, String code) {
 
+        UserChangePasswordAttempt attempt = userService.getUserPasswordChangeAttempts(mail);
+        if (attempt.isLocked())
+            return new Response(Response.ERROR, CustomLocalizationUtils.getInstance().getMessage("error.maxLoginAttempts", String.valueOf(Math.abs(WAITING_TIME_IN_SECONDS - CustomDateUtils.getDifferenceInSeconds(attempt.getLastModified(), new Date())))));
+
         try {
-            accountService.validateRecoveryCode(mail, code, false);
+            accountService.validateRecoveryCode(mail, code, false, true);
+            userService.resetPasswordChangeFailAttempts(attempt);
             return new Response(Response.OK);
-        } catch (MailNotFoundException e) {
-            e.printStackTrace();
-            return new Response(ERROR, LocalizationUtils.getInstance().getMessage("error.mail.not.found"));
-        } catch (CodeNotValidException e) {
-            e.printStackTrace();
-            return new Response(ERROR, LocalizationUtils.getInstance().getMessage("error.code.not.valid"));
+        }  catch (Exception e) {
+            userService.updatePasswordChangeFailAttempts(attempt);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("msg.validation"));
         }
     }
 }

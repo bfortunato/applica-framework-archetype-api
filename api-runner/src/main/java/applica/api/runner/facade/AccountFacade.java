@@ -1,9 +1,10 @@
 package applica.api.runner.facade;
 
-import applica.api.domain.model.auth.CustomPermissions;
 import applica.api.domain.model.Filters;
+import applica.api.domain.model.auth.CustomPermissions;
 import applica.api.domain.model.auth.PasswordRecoveryCode;
 import applica.api.domain.model.auth.User;
+import applica.api.domain.utils.SecurityUtils;
 import applica.api.services.AccountService;
 import applica.api.services.MailService;
 import applica.api.services.exceptions.MailNotFoundException;
@@ -57,13 +58,9 @@ public class AccountFacade {
 
     public String generateAndSendUserOneTimePassword(User user) throws AuthorizationException {
         Security.withMe().authorize(CustomPermissions.RESET_USER_PASSWORD);
-        String tempPassword = optionsManager.get("password.onetime.value");
-        if (!org.springframework.util.StringUtils.hasLength(tempPassword))
-            tempPassword = randomAlphaNumeric(8);
+        String tempPassword = accountService.generateOneTimePassword();
 
-
-        //rimettere a tempPassword a regime
-        user.setPassword(encryptAndGetPassword(tempPassword));
+        user.setPassword(SecurityUtils.encodePassword(tempPassword));
         user.setCurrentPasswordSetDate(null);
         Repo.of(User.class).save(user);
 

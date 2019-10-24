@@ -75,13 +75,13 @@ public class CustomerSaveOperation extends EntityCodedBaseSaveOperation {
     @Override
     protected void beforeSave(ObjectNode node, Entity entity) throws OperationException {
         super.beforeSave(node, entity);
-        if (entity.getId() == null && node.get("mail") == null || node.get("mail").isNull() || node.get("password") == null || node.get("password").isNull()){
+        if (entity.getId() == null && node.get("mail") == null || node.get("mail").isNull()){
             throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
         } else if (entity.getId() == null){
             User user = null;
             Customer customer = ((Customer) entity);
             try {
-                user = userService.createUser(node.get("mail").asText(), node.get("password").asText(), Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getSocialReason(), customer.getLastName());
+                user = userService.createUser(node.get("mail").asText(), Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getSocialReason(), customer.getLastName());
                 ((Customer) entity).setUserId(user.getId());
             } catch (UserAlreadyExistException e) {
                 throw new OperationException(ResponseCode.ERROR_MAIL_ALREADY_EXISTS);

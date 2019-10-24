@@ -2,6 +2,8 @@ package applica.api.services.impl;
 
 import applica.api.data.mongodb.utils.RepositoryUtils;
 import applica.api.domain.model.Filters;
+import applica.api.domain.model.UserChangePasswordAttempt;
+import applica.api.domain.model.UserLoginAttempt;
 import applica.api.domain.model.auth.Role;
 import applica.api.domain.model.auth.User;
 import applica.api.services.UserService;
@@ -9,9 +11,7 @@ import applica.api.services.exceptions.UserAlreadyExistException;
 import applica.framework.*;
 import applica.framework.security.Security;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(String mail, String password, String name, String lastname) throws UserAlreadyExistException {
+    public User createUser(String mail, String name, String lastname) throws UserAlreadyExistException {
         List<User> users = getUserByMails(Collections.singletonList(mail));
         if (users.size() == 0){
             User user = new User();
@@ -70,10 +70,6 @@ public class UserServiceImpl implements UserService {
             user.setLastname(lastname);
             user.setMail(mail);
             user.setActive(true);
-            user.setCurrentPasswordSetDate(new Date());
-            user.setPassword(new BCryptPasswordEncoder().encode(password));
-            user.setFirstLogin(false);
-            user.setRegistrationDate(new Date());
 
             Repo.of(User.class).save(user);
 
@@ -92,12 +88,6 @@ public class UserServiceImpl implements UserService {
             } else throw new UserAlreadyExistException(node.get("mail").asText());
         }
 
-        if (node.get("password") != null && !node.get("password").isNull() && !Objects.equals(user.getPassword(), node.get("password").asText())){
-            save = true;
-            user.setCurrentPasswordSetDate(new Date());
-            user.setPassword(new BCryptPasswordEncoder().encode(node.get("password").asText()));
-        }
-
         if (node.get("active").asBoolean() != user.isActive()){
             save = true;
             user.setActive(node.get("active").asBoolean());
@@ -109,7 +99,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserIfNecessary(User user, String mail, String password, boolean active) throws UserAlreadyExistException {
+    public void updateUserIfNecessary(User user, String mail, boolean active) throws UserAlreadyExistException {
         boolean save = false;
         if (!Objects.equals(user.getMail(), mail)){
             List<User> users = getUserByMails(Collections.singletonList(mail));
@@ -117,12 +107,6 @@ public class UserServiceImpl implements UserService {
                 user.setMail(mail);
                 save = true;
             } else throw new UserAlreadyExistException(mail);
-        }
-
-        if (StringUtils.hasLength(password) && !Objects.equals(user.getPassword(), password)){
-            save = true;
-            user.setCurrentPasswordSetDate(new Date());
-            user.setPassword(new BCryptPasswordEncoder().encode(password));
         }
 
         if (active != user.isActive()){
@@ -133,5 +117,41 @@ public class UserServiceImpl implements UserService {
         if (save) {
             Repo.of(User.class).save(user);
         }
+    }
+
+    @Override
+    public void updateLoginFailAttempts(UserLoginAttempt attempt) {
+        attempt.incrementAttemps();
+        attempt.setLastModified(new Date());
+        Repo.of(UserLoginAttempt.class).save(attempt);
+    }
+
+    @Override
+    public void resetLoginFailAttempts(UserLoginAttempt attempt) {
+        attempt.resetAttempts();
+        Repo.of(UserLoginAttempt.class).save(attempt);
+    }
+
+    @Override
+    public UserLoginAttempt getUserLoginAttempts(String mail) {
+        return Repo.of(UserLoginAttempt.class).find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(new UserLoginAttempt(mail));
+    }
+
+    @Override
+    public void updatePasswordChangeFailAttempts(UserChangePasswordAttempt attempt) {
+        attempt.incrementAttemps();
+        attempt.setLastModified(new Date());
+        Repo.of(UserChangePasswordAttempt.class).save(attempt);
+    }
+
+    @Override
+    public void resetPasswordChangeFailAttempts(UserChangePasswordAttempt attempt) {
+        attempt.resetAttempts();
+        Repo.of(UserChangePasswordAttempt.class).save(attempt);
+    }
+
+    @Override
+    public UserChangePasswordAttempt getUserPasswordChangeAttempts(String mail) {
+        return Repo.of(UserChangePasswordAttempt.class).find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(new UserChangePasswordAttempt(mail));
     }
 }
