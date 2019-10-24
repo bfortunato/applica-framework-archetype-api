@@ -2,9 +2,10 @@ package applica.api.services.impl;
 
 import applica.api.domain.model.Filters;
 import applica.api.domain.model.auth.User;
+import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.users.Customer;
-import applica.api.domain.utils.CustomUtils;
 import applica.api.services.CustomersService;
+import applica.api.services.DossiersService;
 import applica.api.services.UserService;
 import applica.api.services.exceptions.UserAlreadyExistException;
 import applica.framework.Filter;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +24,9 @@ public class CustomerServiceImpl implements CustomersService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DossiersService dossiersService;
 
     @Override
     public List<Customer> findCustomerByKeyword(String keyword, boolean includeUser) {
@@ -66,22 +69,37 @@ public class CustomerServiceImpl implements CustomersService {
     }
 
     @Override
-    public void saveCustomer(Customer customer, String mail, String password) throws UserAlreadyExistException {
+    public void saveCustomer(Customer customer, String mail, String password, boolean active) throws UserAlreadyExistException {
         if (customer.getId() == null){
-            //TODO: Fare il controllo su presenza di mail e password
-            List<User> users = userService.getUserByMails(Collections.singletonList(mail));
-            if (users.size() == 0){
-                User user = CustomUtils.createUser(mail, password, Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getName(), customer.getLastName());
-                customer.setUserId(user.getId());
-            } else throw new UserAlreadyExistException(mail);
+            User user = userService.createUser(mail, password, Objects.equals(customer.getSubjectType(), Customer.SUBJECT_TYPE_PHYSICAL_PERSON) ? customer.getFirstName() : customer.getName(), customer.getLastName());
+            customer.setUserId(user.getId());
+        } else {
+            User user = Repo.of(User.class).get(customer.getUserId()).orElse(null);
+            if (user != null){
+                userService.updateUserIfNecessary(user, mail, password, active);
+            }
         }
         Repo.of(Customer.class).save(customer);
     }
 
     @Override
     public void deleteCustomer(Object customerId) {
-        //TODO: Potrò cancellare il cliente solo se non ha pratiche
-//        Repo.of(Customer.class).delete(customerId);
+        Customer customer = Repo.of(Customer.class).get(customerId).get();
+        User user = Repo.of(User.class).get(customer.getUserId()).orElse(null);
+        List<Dossier> dossiers = dossiersService.findDossiersByCustomer(customerId);
+        if (dossiers.size() > 0 ){
+            if (user != null){
+                user.setActive(false);
+                Repo.of(User.class).save(user);
+            }
+            customer.setActive(false);
+            Repo.of(Customer.class).save(customer);
+        } else {
+            if (user != null){
+                Repo.of(User.class).delete(user.getId());
+            }
+            Repo.of(Customer.class).delete(customerId);
+        }
     }
 
     @Override

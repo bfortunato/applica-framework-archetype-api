@@ -12,7 +12,7 @@ public interface CustomersService {
     List<Customer> findCustomerByKeyword(String keyword, boolean includeUser);
     Result<Customer> findCustomerByQuery(Query query);
     Result<Customer> findActiveCustomerByQuery(Query query);
-    void saveCustomer(Customer customer, String mail, String password) throws UserAlreadyExistException;
+    void saveCustomer(Customer customer, String mail, String password, boolean active) throws UserAlreadyExistException;
     void deleteCustomer(Object customerId);
     void materializeUser(Customer customer);
 

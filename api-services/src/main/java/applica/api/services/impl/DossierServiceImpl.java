@@ -58,7 +58,18 @@ public class DossierServiceImpl implements DossiersService {
 
     }
 
+    @Override
+    public List<Dossier> findDossiersByCustomer(Object customerId) {
+        return Repo.of(Dossier.class)
+                .find(Query.build().filter(Filters.CUSTOMER_ID, customerId, Filter.EQ)
+                        .sort(Filters.CREATION_DATE, false))
+                .getRows()
+                .stream()
+                .map(this::materializeCustomer)
+                .map(this::materializeDocumentWithDocumentTypes)
+                .collect(Collectors.toList());
 
+    }
 
     public Dossier materializeCustomer(Dossier dossier) {
         if (dossier.getCustomerId() != null && dossier.getCustomer() == null) {
@@ -135,7 +146,6 @@ public class DossierServiceImpl implements DossiersService {
             return null;
         }
     }
-
     @Override
     public List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException {
         InputStream is = fileServer.getFile(path);
@@ -221,6 +231,15 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.edit(fabricator, customer, priceCalculatorSheet, notes);
         saveDossier(dossier);
+        return dossier;
+    }
+    @Override
+    public Dossier quotation(Object dossierId) throws WorkflowException, DossierNotFoundException {
+        Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
+        DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
+        dossierWorkflow.quotation();
+        saveDossier(dossier);
+        materializeCustomer(dossier);
         return dossier;
     }
 

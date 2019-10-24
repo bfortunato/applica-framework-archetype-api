@@ -26,9 +26,9 @@ public class CustomersController {
     }
 
     @PostMapping("")
-    public Response save(@RequestBody Customer customer, String mail, String password) {
+    public Response save(@RequestBody Customer customer, String mail, String password, boolean active) {
         try {
-            customersService.saveCustomer(customer, mail, password);
+            customersService.saveCustomer(customer, mail, password, active);
             return new Response(Response.OK);
         } catch (UserAlreadyExistException e) {
             return new ErrorResponse(ResponseCode.ERROR_MAIL_ALREADY_EXISTS, e.getMail());

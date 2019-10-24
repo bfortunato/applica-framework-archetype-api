@@ -1,8 +1,10 @@
 package applica.api.runner.operations;
 
+import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.model.users.categories.FabricatorCategory;
 import applica.api.services.DocumentsService;
+import applica.api.services.FabricatorService;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.widgets.operations.BaseGetOperation;
@@ -20,6 +22,9 @@ public class FabricatorGetOperation extends BaseGetOperation {
     @Autowired
     private DocumentsService documentsService;
 
+    @Autowired
+    private FabricatorService fabricatorService;
+
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
 
@@ -34,6 +39,10 @@ public class FabricatorGetOperation extends BaseGetOperation {
         node.put("_address", fabricator.getAddress().getAddress());
         node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
         documentsService.materializeDocumentTypes(fabricator.getDocuments());
+        User user = Repo.of(User.class).get(fabricator.getUserId()).orElse(null);
+        if (user != null){
+            node.put("mail", user.getMail());
+        }
         node.putPOJO("documents", fabricator.getDocuments());
 
     }
