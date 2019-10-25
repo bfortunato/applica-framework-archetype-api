@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -91,9 +92,10 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     public Dossier materializeDocumentWithDocumentTypes(Dossier dossier) {
-        for (Document d: dossier.getDocuments()
-             ) {
-            Repo.of(DocumentType.class).get(d.getDocumentTypeId()).ifPresent(d::setDocumentType);
+        for (Document d: dossier.getDocuments()) {
+            if (d.getDocumentType() == null & d.getDocumentTypeId() != null) {
+                Repo.of(DocumentType.class).get(d.getDocumentTypeId()).ifPresent(d::setDocumentType);
+            }
         }
 
         return dossier;
@@ -115,9 +117,17 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public List<Document> attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException {
+    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException {
+        byte[] attachmentData = Base64.getDecoder().decode(base64Data);
+        return attachDocumentData(dossierId, documentTypeId, attachmentData);
+    }
+
+    @Override
+    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
+        DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(() -> new DocumentTypeNotFoundException(documentTypeId));
         try {
+            String attachmentName = documentType.toPdfName();
             String extension = FilenameUtils.getExtension(attachmentName);
             String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(attachmentName), new ByteArrayInputStream(attachmentData));
             String preview = null;
@@ -151,17 +161,21 @@ public class DossierServiceImpl implements DossiersService {
             DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
             dossierWorkflow.attachDocument(documentTypeId, file, preview != null ? FileUtils.getImageFullUrl(preview.replaceFirst("/", "")) : null);
             saveDossier(dossier);
-            return dossier.getDocuments();
+
+            materializeCustomer(dossier);
+            materializeDocumentWithDocumentTypes(dossier);
+
+            return dossier;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
     @Override
-    public List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException {
+    public Dossier attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException {
         InputStream is = fileServer.getFile(path);
         File file = new File(path);
-        return attachDocument(dossierId, documentTypeId, is.readAllBytes(), file.getName());
+        return attachDocumentData(dossierId, documentTypeId, is.readAllBytes());
     }
 
     @Override

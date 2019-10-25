@@ -1,6 +1,7 @@
 package applica.api.runner.controllers;
 
 import applica.api.domain.exceptions.WorkflowException;
+import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
@@ -81,22 +82,26 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/attach/{documentTypeId}")
-    public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody byte[] attachmentData, @RequestBody String attachmentName) {
+    @PostMapping("/{dossierId}/attachments/{documentTypeId}")
+    public Response attachData(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
         try {
-            dossiersService.attachDocument(dossierId, documentTypeId, attachmentData, attachmentName);
-            return new Response(Response.OK);
+            Dossier dossier = dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
+            return new ValueResponse(dossier);
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentTypeNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND, e.getDocumentTypeId());
         }
     }
 
     @PostMapping("/{dossierId}/attachPath/{documentTypeId}")
     public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, String path) {
         try {
-            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path));
+            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path).getDocuments());
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentTypeNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND, e.getDocumentTypeId());
         } catch (IOException e) {
             e.printStackTrace();
             return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);

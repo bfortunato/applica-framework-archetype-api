@@ -13,4 +13,5 @@ public abstract class CodedEntity extends AEntity {
     public void setCode(long code) {
         this.code = code;
     }
+
 }
