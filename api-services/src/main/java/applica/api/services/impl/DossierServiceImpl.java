@@ -8,6 +8,7 @@ import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
+import applica.api.services.FabricatorService;
 import applica.api.services.exceptions.CustomerNotFoundException;
 import applica.api.services.exceptions.DocumentTypeNotFoundException;
 import applica.api.services.exceptions.DossierNotFoundException;
@@ -17,7 +18,7 @@ import applica.framework.Filter;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
-import applica.framework.library.options.OptionsManager;
+import applica.framework.security.Security;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -44,7 +45,7 @@ public class DossierServiceImpl implements DossiersService {
     private DocumentsService documentsService;
 
     @Autowired
-    private OptionsManager optionsManager;
+    private FabricatorService fabricatorService;
 
     @Override
     public List<Dossier> findDossiersByFabricator(Object fabricatorId) {
@@ -181,7 +182,8 @@ public class DossierServiceImpl implements DossiersService {
         dossierWorkflow.refuseDocument(documentTypeId, refuseReason);
         saveDossier(dossier);
         if (Objects.equals(documentType.getAssignationType(), DocumentType.FABRICATOR_PROFILE) || Objects.equals(documentType.getAssignationType(), DocumentType.PREPARATORY_DOCUMENTATION)) {
-            //TODO: Mandare mail al serramentista
+            fabricatorService.sendDocumentRefusedMail(dossier, documentType);
+            fabricatorService.sendDossierDocumentRefusedNotification(dossier, Security.withMe().getLoggedUser().getId());
         }
         documentsService.materializeDocumentTypes(dossier.getDocuments());
         return dossier.getDocuments();
@@ -278,6 +280,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
         return materializeCustomer(dossier);
     }
 
@@ -287,6 +290,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
         return materializeCustomer(dossier);
     }
 
@@ -296,6 +300,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
         return materializeCustomer(dossier);
     }
 
@@ -305,6 +310,7 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
         return materializeCustomer(dossier);
     }
 

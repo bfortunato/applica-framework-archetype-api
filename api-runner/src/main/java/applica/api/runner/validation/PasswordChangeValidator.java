@@ -2,6 +2,7 @@ package applica.api.runner.validation;
 
 
 import applica.api.domain.model.auth.PasswordChange;
+import applica.api.domain.utils.SecurityUtils;
 import applica.api.services.AccountService;
 import applica.framework.Entity;
 import applica.framework.library.validation.ValidationResult;
@@ -36,7 +37,7 @@ public class PasswordChangeValidator implements applica.framework.library.valida
             }
 
             //l'utente non può inserire la stessa password che già possiede
-            if (passwordChange.getUser().getPassword().equals(accountService.encryptAndGetPassword(passwordChange.getPassword()))) {
+            if (passwordChange.getUser().getPassword().equals(SecurityUtils.encodePassword(passwordChange.getPassword()))) {
                 validationResult.reject("password", "validation.password.different");
             }
         }
@@ -45,13 +46,6 @@ public class PasswordChangeValidator implements applica.framework.library.valida
         }
         if (!passwordChange.getPassword().equals(passwordChange.getPasswordConfirm())) {
             validationResult.reject("passwordConfirm", "validation.user.password_confirm");
-        }
-
-        //Verifico che la password non sia uguale a nessuna delle eventuali tre password precedenti
-        if (validationResult.isValid()) {
-            if (accountService.hasPasswordSetBefore(passwordChange.getUser().getSid(), accountService.encryptAndGetPassword(passwordChange.getPassword()), 3)) {
-                validationResult.reject("passwordConfirm", "validation.user.password.settedBefore");
-            }
         }
     }
 

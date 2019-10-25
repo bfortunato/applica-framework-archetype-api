@@ -4,6 +4,7 @@ import applica.api.domain.model.EntityList;
 import applica.framework.AEntity;
 import applica.framework.annotations.ManyToMany;
 import applica.framework.widgets.entities.EntityId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
@@ -51,6 +52,7 @@ public class User extends AEntity implements applica.framework.security.User {
         this.mail = mail;
     }
 
+    @JsonIgnoreProperties
     public String getPassword() {
         return password;
     }
