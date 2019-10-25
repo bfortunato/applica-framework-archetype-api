@@ -81,13 +81,15 @@ public class DossierController {
         }
     }
 
-    @PostMapping("/{dossierId}/attach/{documentTypeId}")
-    public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody byte[] attachmentData, @RequestBody String attachmentName) {
+    @PostMapping("/{dossierId}/attachments/{documentTypeId}")
+    public Response attachDta(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
         try {
-            dossiersService.attachDocument(dossierId, documentTypeId, attachmentData, attachmentName);
+            dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
             return new Response(Response.OK);
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentTypeNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND, e.getDocumentTypeId());
         }
     }
 
@@ -97,6 +99,8 @@ public class DossierController {
             return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path));
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
+        } catch (DocumentTypeNotFoundException e) {
+            return new ErrorResponse(ResponseCode.ERROR_DOCUMENT_TYPE_NOT_FOUND, e.getDocumentTypeId());
         } catch (IOException e) {
             e.printStackTrace();
             return new ErrorResponse(ResponseCode.ERROR_INVALID_DATA, null);

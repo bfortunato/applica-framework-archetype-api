@@ -5,6 +5,8 @@ import applica.api.domain.model.EntityList;
 import applica.framework.widgets.entities.EntityId;
 import applica.framework.widgets.mapping.Attachment;
 
+import java.util.UUID;
+
 @EntityId(EntityList.DOCUMENT_TYPE)
 public class DocumentType extends CodedEntity {
 
@@ -70,5 +72,17 @@ public class DocumentType extends CodedEntity {
 
     public void setTypology(String typology) {
         this.typology = typology;
+    }
+
+    public String toPdfName() {
+        if (description == null) {
+            return normalizeName((UUID.randomUUID().toString() + ".pdf"));
+        } else {
+            return normalizeName(description + ".pdf");
+        }
+    }
+
+    public String normalizeName(String name) {
+        return name.replace(" ", "_");
     }
 }

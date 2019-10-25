@@ -21,11 +21,13 @@ public interface DossiersService {
      * In questo caso va controllato, se tutti i documenti sono stati inseriti, andare in stato da verificare chiamando il metodo commit()
      * @param dossierId
      * @param documentTypeId
-     * @param attachmentData
+     * @param base64Data
      */
-    List<Document> attachDocument(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    List<Document> attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
-    List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    List<Document> attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException;
+
+    List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
     /**
      * Solitamente chiamato da app, per rimuovere un documento gia allegato
