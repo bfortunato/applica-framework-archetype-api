@@ -8,12 +8,14 @@ import applica.api.services.exceptions.UserAlreadyExistException;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
 import applica.framework.Repo;
+import applica.framework.library.utils.DateUtils;
 import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -42,6 +44,13 @@ public class EndUserSaveOperation extends EntityCodedBaseSaveOperation {
         map().dataUrlToImage(node, entity, "_avatar", "avatar", "images/users");
         if (node.get("_category") != null){
             endUser.setCategoryId(node.get("_category").get("id").asText());
+        }
+        if (node.get("_birthDate") != null && !node.get("_birthDate").isNull()){
+            try {
+                endUser.setBirthDate(DateUtils.getDateFromString(node.get("_birthDate").asText(), DateUtils.FORMAT_DATE_DATEPICKER));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -73,7 +82,7 @@ public class EndUserSaveOperation extends EntityCodedBaseSaveOperation {
     @Override
     protected void afterSave(ObjectNode node, Entity entity) {
         EndUser endUser = ((EndUser) entity);
-        User user = Repo.of(User.class).get(endUser.getId()).orElse(null);
+        User user = Repo.of(User.class).get(endUser.getUserId()).orElse(null);
         if (user != null && user.getFirstLogin() == null) {
             user.setRegistrationDate(new Date());
             user.setFirstLogin(true);

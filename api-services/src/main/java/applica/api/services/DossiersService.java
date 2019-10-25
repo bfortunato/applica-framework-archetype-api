@@ -23,9 +23,9 @@ public interface DossiersService {
      * @param documentTypeId
      * @param base64Data
      */
-    Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data, String attachmentName) throws DossierNotFoundException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
-    Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException;
+    Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException, DocumentTypeNotFoundException;
 
     Dossier attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
@@ -51,9 +51,9 @@ public interface DossiersService {
      * @param priceCalculatorSheet
      * @return
      */
-    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
+    Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) throws WorkflowException, CustomerNotFoundException, FabricatorNotFoundException;
 
-    Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException;
+    Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException;
 
     Dossier quotation(Object dossierId) throws WorkflowException, DossierNotFoundException;
 

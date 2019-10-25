@@ -21,7 +21,7 @@ public class DossierWorkflow {
         this.dossier = dossier;
     }
 
-    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet, String notes) {
+    public void create(Person fabricator, Person customer, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) {
         var dossier = new Dossier();
 
         dossier.setCreationDate(new Date());
@@ -30,17 +30,19 @@ public class DossierWorkflow {
         dossier.setStatus(Dossier.STATUS_QUOTATION);
         dossier.setPriceCalculatorSheet(priceCalculatorSheet);
         dossier.setNotes(notes);
+        dossier.setServiceFeeInvoiced(serviceFeeInvoiced);
 
         this.dossier = dossier;
     }
 
-    public void edit(Fabricator fabricator, Customer customer, PriceCalculatorSheet priceCalculatorSheet, String notes) {
+    public void edit(Fabricator fabricator, Customer customer, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) {
         Objects.requireNonNull(dossier, "Dossier not loaded. Call DossierWorkflow(Dossier dossier) constructor");
 
         dossier.setFabricatorId(fabricator.getId());
         dossier.setCustomerId(customer.getId());
         dossier.setPriceCalculatorSheet(priceCalculatorSheet);
         dossier.setNotes(notes);
+        dossier.setServiceFeeInvoiced(serviceFeeInvoiced);
 
     }
 

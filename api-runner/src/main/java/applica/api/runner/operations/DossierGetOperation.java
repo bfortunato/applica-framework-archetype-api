@@ -3,6 +3,7 @@ package applica.api.runner.operations;
 import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.users.Customer;
 import applica.api.domain.model.users.Fabricator;
+import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.framework.Entity;
 import applica.framework.Repo;
@@ -36,6 +37,7 @@ public class DossierGetOperation extends BaseGetOperation {
         node.put("_significantValue", dossier.getPriceCalculatorSheet().getSignificantValue());
         node.put("_nonSignificantValue", dossier.getPriceCalculatorSheet().getNonSignificantValue());
         node.put("_serviceValue", dossier.getPriceCalculatorSheet().getServiceValue());
+        node.put("_dimSolDossierManagementFee", DocumentPriceUtils.getDimSolDossierManagementFee(dossier.getPriceCalculatorSheet()));
         documentsService.materializeDocumentTypes(dossier.getDocuments());
         node.putPOJO("documents", dossier.getDocuments());
     }

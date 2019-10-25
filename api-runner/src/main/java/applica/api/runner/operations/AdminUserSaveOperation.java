@@ -2,7 +2,6 @@ package applica.api.runner.operations;
 
 import applica.api.domain.model.auth.User;
 import applica.api.domain.model.users.AdminUser;
-import applica.api.domain.model.users.Fabricator;
 import applica.api.runner.facade.AccountFacade;
 import applica.api.services.UserService;
 import applica.api.services.exceptions.UserAlreadyExistException;
@@ -53,7 +52,7 @@ public class AdminUserSaveOperation extends EntityCodedBaseSaveOperation {
         } else if (entity.getId() == null){
             User user = null;
             try {
-                user = userService.createUser(node.get("mail").asText(), ((Fabricator) entity).getBusinessName(), null);
+                user = userService.createUser(node.get("mail").asText(), ((AdminUser) entity).getName(), ((AdminUser) entity).getLastname());
                 ((AdminUser) entity).setUserId(user.getId());
             } catch (UserAlreadyExistException e) {
                 throw new OperationException(ResponseCode.ERROR_MAIL_ALREADY_EXISTS);
@@ -73,7 +72,7 @@ public class AdminUserSaveOperation extends EntityCodedBaseSaveOperation {
     @Override
     protected void afterSave(ObjectNode node, Entity entity) {
         AdminUser adminUser = ((AdminUser) entity);
-        User user = Repo.of(User.class).get(adminUser.getId()).orElse(null);
+        User user = Repo.of(User.class).get(adminUser.getUserId()).orElse(null);
         if (user != null && user.getFirstLogin() == null) {
             user.setRegistrationDate(new Date());
             user.setFirstLogin(true);

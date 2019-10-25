@@ -8,6 +8,7 @@ import applica.api.domain.model.users.Fabricator;
 import applica.api.domain.utils.DocumentPriceUtils;
 import applica.api.services.DocumentsService;
 import applica.api.services.DossiersService;
+import applica.api.services.FabricatorService;
 import applica.api.services.exceptions.CustomerNotFoundException;
 import applica.api.services.exceptions.DocumentTypeNotFoundException;
 import applica.api.services.exceptions.DossierNotFoundException;
@@ -17,7 +18,7 @@ import applica.framework.Filter;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
-import applica.framework.library.options.OptionsManager;
+import applica.framework.security.Security;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -45,7 +46,7 @@ public class DossierServiceImpl implements DossiersService {
     private DocumentsService documentsService;
 
     @Autowired
-    private OptionsManager optionsManager;
+    private FabricatorService fabricatorService;
 
     @Override
     public List<Dossier> findDossiersByFabricator(Object fabricatorId) {
@@ -116,19 +117,18 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException {
+    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data, String attachmentName) throws DossierNotFoundException, DocumentTypeNotFoundException {
         byte[] attachmentData = Base64.getDecoder().decode(base64Data);
-        return attachDocumentData(dossierId, documentTypeId, attachmentData);
+        return attachDocumentData(dossierId, documentTypeId, attachmentData, attachmentName);
     }
 
     @Override
-    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException {
+    public Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData, String attachmentName) throws DossierNotFoundException, DocumentTypeNotFoundException {
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DocumentType documentType = Repo.of(DocumentType.class).get(documentTypeId).orElseThrow(() -> new DocumentTypeNotFoundException(documentTypeId));
         try {
-            String attachmentName = documentType.toPdfName();
             String extension = FilenameUtils.getExtension(attachmentName);
-            String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(attachmentName), new ByteArrayInputStream(attachmentData));
+            String file = fileServer.saveFile("/files/documents", FilenameUtils.getExtension(documentType.toPdfName()), new ByteArrayInputStream(attachmentData));
             String preview = null;
             if (haveToGeneratePreview(extension)) {
                 File convertedPdfFile = null;
@@ -170,11 +170,12 @@ public class DossierServiceImpl implements DossiersService {
             return null;
         }
     }
+
     @Override
     public Dossier attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException {
         InputStream is = fileServer.getFile(path);
         File file = new File(path);
-        return attachDocumentData(dossierId, documentTypeId, is.readAllBytes());
+        return attachDocumentData(dossierId, documentTypeId, is.readAllBytes(), file.getName());
     }
 
     @Override
@@ -195,7 +196,8 @@ public class DossierServiceImpl implements DossiersService {
         dossierWorkflow.refuseDocument(documentTypeId, refuseReason);
         saveDossier(dossier);
         if (Objects.equals(documentType.getAssignationType(), DocumentType.FABRICATOR_PROFILE) || Objects.equals(documentType.getAssignationType(), DocumentType.PREPARATORY_DOCUMENTATION)) {
-            //TODO: Mandare mail al serramentista
+            fabricatorService.sendDocumentRefusedMail(dossier, documentType);
+            fabricatorService.sendDossierDocumentRefusedNotification(dossier, Security.withMe().getLoggedUser().getId());
         }
         documentsService.materializeDocumentTypes(dossier.getDocuments());
         return dossier.getDocuments();
@@ -230,7 +232,7 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws CustomerNotFoundException, FabricatorNotFoundException {
+    public Dossier create(Object fabricatorId, Object customerId, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) throws CustomerNotFoundException, FabricatorNotFoundException {
         Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new FabricatorNotFoundException(fabricatorId));
         Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow();
@@ -238,7 +240,8 @@ public class DossierServiceImpl implements DossiersService {
                 fabricator,
                 customer,
                 priceCalculatorSheet,
-                notes
+                notes,
+                serviceFeeInvoiced
         );
         Dossier dossier = dossierWorkflow.get();
         dossier.setDocuments(documentsService.generateDossierDocuments());
@@ -248,12 +251,12 @@ public class DossierServiceImpl implements DossiersService {
     }
 
     @Override
-    public Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException {
+    public Dossier edit(String dossierId, String fabricatorId, String customerId, PriceCalculatorSheet priceCalculatorSheet, String notes, boolean serviceFeeInvoiced) throws FabricatorNotFoundException, CustomerNotFoundException, DossierNotFoundException {
         Fabricator fabricator = Repo.of(Fabricator.class).get(fabricatorId).orElseThrow(() -> new FabricatorNotFoundException(fabricatorId));
         Customer customer = Repo.of(Customer.class).get(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
         Dossier dossier = Repo.of(Dossier.class).get(dossierId).orElseThrow(() -> new DossierNotFoundException(dossierId));
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
-        dossierWorkflow.edit(fabricator, customer, priceCalculatorSheet, notes);
+        dossierWorkflow.edit(fabricator, customer, priceCalculatorSheet, notes, serviceFeeInvoiced);
         saveDossier(dossier);
         dossier.setCustomer(customer);
         materializeDocumentWithDocumentTypes(dossier);
@@ -298,10 +301,15 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
+<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
+=======
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
+        return materializeCustomer(dossier);
+>>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -310,10 +318,15 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
+<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
+=======
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
+        return materializeCustomer(dossier);
+>>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -322,10 +335,15 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
+<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
+=======
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
+        return materializeCustomer(dossier);
+>>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -334,10 +352,15 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
+<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
+=======
+        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
+        return materializeCustomer(dossier);
+>>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override

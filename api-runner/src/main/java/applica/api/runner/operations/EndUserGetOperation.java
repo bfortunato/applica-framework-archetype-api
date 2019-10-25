@@ -5,6 +5,7 @@ import applica.api.domain.model.users.EndUser;
 import applica.api.domain.model.users.categories.EndUserCategory;
 import applica.framework.Entity;
 import applica.framework.Repo;
+import applica.framework.library.utils.DateUtils;
 import applica.framework.widgets.operations.BaseGetOperation;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,9 @@ public class EndUserGetOperation extends BaseGetOperation {
         User user = Repo.of(User.class).get(((EndUser) entity).getUserId()).orElse(null);
         if (user != null){
             node.put("mail", user.getMail());
+        }
+        if (((EndUser) entity).getBirthDate() != null){
+            node.put("_birthDate", DateUtils.getStringFromDate(((EndUser) entity).getBirthDate(), DateUtils.FORMAT_DATE_DATEPICKER));
         }
     }
 

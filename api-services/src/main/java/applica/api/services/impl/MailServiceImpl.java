@@ -77,7 +77,6 @@ public class MailServiceImpl implements MailService {
         Recipient recipient = new Recipient();
         recipient.setRecipient(user.getMail());
         sendMail(createMail("mailTemplates/userActivation.vm", TemplatedMail.HTML, optionsManager.get("registration.mail.subject"), data), Collections.singletonList(recipient));
-        System.out.println("--- Mail sent to: " + user.getMail() + " ---");
     }
 
     @Override

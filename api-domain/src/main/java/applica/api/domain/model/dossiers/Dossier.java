@@ -21,6 +21,8 @@ public class Dossier extends CodedEntity {
     public static final String STATUS_APPROVED = "approved";
     public static final String STATUS_PAY_OFF = "pay-off";
 
+    private String dossierCode;
+
     private Object customerId;
     private Object fabricatorId;
 
@@ -39,6 +41,14 @@ public class Dossier extends CodedEntity {
     private String notes;
 
     private boolean serviceFeeInvoiced;
+
+    public String getDossierCode() {
+        return dossierCode;
+    }
+
+    public void setDossierCode(String dossierCode) {
+        this.dossierCode = dossierCode;
+    }
 
     public Object getCustomerId() {
         return customerId;

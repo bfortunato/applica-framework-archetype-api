@@ -39,10 +39,6 @@ public class AccountFacade {
         mailService.sendActivationMail(user, tempPassword);
     }
 
-    public String encryptAndGetPassword(String password) {
-        return accountService.encryptAndGetPassword(password);
-    }
-
     /**
      * Forza il reinvio di una password generata con le stesse politiche adottate in fase di creazione all'utente con id userId
      * @param userId

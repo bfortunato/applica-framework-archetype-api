@@ -48,8 +48,6 @@ public interface AccountService {
 
     void changePassword(User user, String currentEncodedPassword, String password, String passwordConfirm) throws ValidationException, MailNotFoundException;
 
-    String encryptAndGetPassword(String password);
-
     boolean needToChangePassword(applica.framework.security.User user);
 
     void deactivateInactiveUsers();

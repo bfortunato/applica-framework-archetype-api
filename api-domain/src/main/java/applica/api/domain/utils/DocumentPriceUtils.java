@@ -112,4 +112,11 @@ public class DocumentPriceUtils {
         bdFourtyEight = bdFourtyEight.setScale(2, RoundingMode.HALF_EVEN);
         return new SimulatedFinancing(bdTwelve.doubleValue(), bdTwentyFour.doubleValue(), bdThirtySix.doubleValue(), bdFourtyEight.doubleValue());
     }
+
+    public static double getDimSolDossierManagementFee(PriceCalculatorSheet priceCalculatorSheet) {
+        double totalVATExcluded = calculateTotalVatExcluded(priceCalculatorSheet);
+        BigDecimal bd = new BigDecimal((totalVATExcluded * DIM_SOL_TAX_CREDIT)/100);
+        bd = bd.setScale(2, RoundingMode.HALF_EVEN);
+        return bd.doubleValue();
+    }
 }

@@ -35,9 +35,9 @@ public class DossierController {
     }
 
     @PostMapping("{dossierId}/edit")
-    public Response save(@PathVariable String dossierId, String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes) {
+    public Response save(@PathVariable String dossierId, String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes, Boolean serviceFeeInvoiced) {
         try {
-            return new ValueResponse(dossiersService.edit(dossierId, fabricatorId, customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes));
+            return new ValueResponse(dossiersService.edit(dossierId, fabricatorId, customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes, serviceFeeInvoiced != null ? serviceFeeInvoiced : false));
         } catch (FabricatorNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_FABRICATOR_NOT_FOUND, e.getFabricatorId());
         } catch (CustomerNotFoundException e) {
@@ -48,9 +48,9 @@ public class DossierController {
     }
 
     @PostMapping("/quotation")
-    public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes) {
+    public Response create(String customerId, String fabricatorId, double significantValue, double nonSignificantValue, double serviceValue, String notes, Boolean serviceFeeInvoiced) {
         try {
-            return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes));
+            return new ValueResponse(dossiersService.create(StringUtils.hasLength(fabricatorId) ? fabricatorId : fabricatorService.getLoggedUserFabricatorId(), customerId, new PriceCalculatorSheet(significantValue, nonSignificantValue, serviceValue), notes, serviceFeeInvoiced != null ? serviceFeeInvoiced : false));
         } catch (OperationException e) {
             return new ErrorResponse(e.getErrorCode(), e.getData());
         } catch (WorkflowException e) {
@@ -83,10 +83,10 @@ public class DossierController {
     }
 
     @PostMapping("/{dossierId}/attachments/{documentTypeId}")
-    public Response attachData(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
+    public Response attachData(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data, String attachmentName) {
         try {
-            Dossier dossier = dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
-            return new Response(Response.OK);
+            Dossier dossier = dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data, attachmentName);
+            return new ValueResponse(dossier);
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         } catch (DocumentTypeNotFoundException e) {
@@ -97,7 +97,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/attachPath/{documentTypeId}")
     public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, String path) {
         try {
-            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path).getDocuments());
+            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path));
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         } catch (DocumentTypeNotFoundException e) {
@@ -109,7 +109,7 @@ public class DossierController {
     }
 
     @PostMapping("/{dossierId}/clear/{documentTypeId}")
-    public Response save(@PathVariable String dossierId, @PathVariable String documentTypeId) {
+    public Response clear(@PathVariable String dossierId, @PathVariable String documentTypeId) {
         try {
             return new ValueResponse(dossiersService.clearDocumentAttachment(dossierId, documentTypeId));
         } catch (DossierNotFoundException e) {
