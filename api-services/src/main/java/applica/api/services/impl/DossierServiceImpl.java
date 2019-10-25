@@ -246,7 +246,7 @@ public class DossierServiceImpl implements DossiersService {
         Dossier dossier = dossierWorkflow.get();
         dossier.setDocuments(documentsService.generateDossierDocuments());
         saveDossier(dossier);
-        materializeCustomer(dossier);
+        dossier.setCustomer(customer);
         return dossier;
     }
 
@@ -258,6 +258,8 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.edit(fabricator, customer, priceCalculatorSheet, notes, serviceFeeInvoiced);
         saveDossier(dossier);
+        dossier.setCustomer(customer);
+        materializeDocumentWithDocumentTypes(dossier);
         return dossier;
     }
     @Override
@@ -277,6 +279,7 @@ public class DossierServiceImpl implements DossiersService {
         dossierWorkflow.confirmQuotation();
         saveDossier(dossier);
         materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
         return dossier;
     }
 
@@ -286,7 +289,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.commit();
         saveDossier(dossier);
-        return materializeCustomer(dossier);
+        materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
+
+        return dossier;
     }
 
     @Override
@@ -295,8 +301,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
+        materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
+
+        return dossier;
     }
 
     @Override
@@ -305,8 +313,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
+        materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
+
+        return dossier;
     }
 
     @Override
@@ -315,8 +325,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
+        materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
+
+        return dossier;
     }
 
     @Override
@@ -325,8 +337,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
+        materializeCustomer(dossier);
+        materializeDocumentWithDocumentTypes(dossier);
+
+        return dossier;
     }
 
     @Override
