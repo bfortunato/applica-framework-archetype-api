@@ -23,11 +23,11 @@ public interface DossiersService {
      * @param documentTypeId
      * @param base64Data
      */
-    List<Document> attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    Dossier attachDocumentData(Object dossierId, Object documentTypeId, String base64Data) throws DossierNotFoundException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
-    List<Document> attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException;
+    Dossier attachDocumentData(Object dossierId, Object documentTypeId, byte[] attachmentData) throws DossierNotFoundException, DocumentTypeNotFoundException;
 
-    List<Document> attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
+    Dossier attachDocument(Object dossierId, Object documentTypeId, String path) throws DossierNotFoundException, IOException, DocumentTypeNotFoundException; //verifica se tutti i documenti attivi sono caricati, dopodiche chiamare commit
 
     /**
      * Solitamente chiamato da app, per rimuovere un documento gia allegato

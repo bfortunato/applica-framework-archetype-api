@@ -1,6 +1,7 @@
 package applica.api.runner.controllers;
 
 import applica.api.domain.exceptions.WorkflowException;
+import applica.api.domain.model.dossiers.Dossier;
 import applica.api.domain.model.dossiers.PriceCalculatorSheet;
 import applica.api.services.DossiersService;
 import applica.api.services.FabricatorService;
@@ -82,9 +83,9 @@ public class DossierController {
     }
 
     @PostMapping("/{dossierId}/attachments/{documentTypeId}")
-    public Response attachDta(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
+    public Response attachData(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
         try {
-            dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
+            Dossier dossier = dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
             return new Response(Response.OK);
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
@@ -96,7 +97,7 @@ public class DossierController {
     @PostMapping("/{dossierId}/attachPath/{documentTypeId}")
     public Response attach(@PathVariable String dossierId, @PathVariable String documentTypeId, String path) {
         try {
-            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path));
+            return new ValueResponse(dossiersService.attachDocument(dossierId, documentTypeId, path).getDocuments());
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         } catch (DocumentTypeNotFoundException e) {
