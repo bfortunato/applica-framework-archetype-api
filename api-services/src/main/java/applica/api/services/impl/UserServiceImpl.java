@@ -88,10 +88,24 @@ public class UserServiceImpl implements UserService {
             } else throw new UserAlreadyExistException(node.get("mail").asText());
         }
 
-        if (node.get("active").asBoolean() != user.isActive()){
-            save = true;
-            user.setActive(node.get("active").asBoolean());
+        if (!node.get("appEnabled").isNull()) {
+            if (!node.get("active").asBoolean() && user.isActive()){
+                save = true;
+                user.setActive(false);
+            } else {
+                if (node.get("appEnabled").asBoolean() != user.isActive()) {
+                    save = true;
+                    user.setActive(node.get("appEnabled").asBoolean());
+                }
+            }
+        } else {
+            if (node.get("active").asBoolean() != user.isActive()){
+                save = true;
+                user.setActive(node.get("active").asBoolean());
+            }
         }
+
+
 
         if (save) {
             Repo.of(User.class).save(user);

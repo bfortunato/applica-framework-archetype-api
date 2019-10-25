@@ -67,4 +67,9 @@ public class Address extends AEntity {
     public void setStreetNumber(String streetNumber) {
         this.streetNumber = streetNumber;
     }
+
+    @Override
+    public String toString() {
+        return getMunicipality();
+    }
 }

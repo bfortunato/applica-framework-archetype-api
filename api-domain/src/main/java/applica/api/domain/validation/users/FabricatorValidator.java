@@ -8,11 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.regex.Pattern;
+
 @Component
 public class FabricatorValidator implements Validator {
 
     @Autowired
     private PersonValidator personValidator;
+
+    private static final String FISCAL_CODE_REGEX = "^[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]$";
 
     @Override
     public void validate(Entity entity, ValidationResult validationResult) {
@@ -30,6 +34,18 @@ public class FabricatorValidator implements Validator {
         if(!StringUtils.hasLength(fabricator.getAddress().getMunicipality())) { validationResult.reject("_municipality", "validation.user.municipality"); }
         if(!StringUtils.hasLength(fabricator.getAddress().getAddress())) { validationResult.reject("_address", "validation.user.address"); }
         if(!StringUtils.hasLength(fabricator.getAddress().getStreetNumber())) { validationResult.reject("_streetNumber", "validation.user.streetNumber"); }
+
+        if(!StringUtils.hasLength(fabricator.getName())) { validationResult.reject("name", "validation.user.name"); }
+        if(!StringUtils.hasLength(fabricator.getLastname())) { validationResult.reject("lastname", "validation.user.lastname"); }
+        if(fabricator.getBirthDate() == null) { validationResult.reject("_birthDate", "validation.user.birthDate"); }
+        if(!StringUtils.hasLength(fabricator.getBirthPlace())) { validationResult.reject("birthPlace", "validation.user.birthPlace"); }
+        if(!StringUtils.hasLength(fabricator.getFiscalCode())) {
+            validationResult.reject("fiscalCode", "validation.user.fiscalCode");
+        } else {
+            if (!Pattern.matches(FISCAL_CODE_REGEX, fabricator.getFiscalCode())){
+                validationResult.reject("fiscalCode", "validation.user.invalid.fiscalCode");
+            }
+        }
     }
 
     @Override

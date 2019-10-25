@@ -27,4 +27,5 @@ public class ResponseCode {
     public static final int ERROR_DOCUMENT_NOT_FOUND = 1021;
     public static final int ERROR_DOCUMENT_TYPE_NOT_FOUND = 1022;
     public static final int ERROR_WORKFLOW = 1023;
+    public static final int ERROR_MAIL_REQUIRED = 1024;
 }

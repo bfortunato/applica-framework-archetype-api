@@ -7,6 +7,7 @@ import applica.framework.widgets.entities.EntityId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.util.StringUtils;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +34,6 @@ public class User extends AEntity implements applica.framework.security.User {
 
     @ManyToMany
     private List<Role> roles;
-
-    private transient boolean needToChangePassword;
 
     public String getName() {
         return name;
@@ -137,14 +136,6 @@ public class User extends AEntity implements applica.framework.security.User {
         this.lastname = lastname;
     }
 
-    public boolean isNeedToChangePassword() {
-        return needToChangePassword;
-    }
-
-    public void setNeedToChangePassword(boolean needToChangePassword) {
-        this.needToChangePassword = needToChangePassword;
-    }
-
     public String getInitials() {
         if (StringUtils.hasLength(getMail())) {
             return getMail().substring(0, 1);
@@ -161,5 +152,11 @@ public class User extends AEntity implements applica.framework.security.User {
     @Override
     public String getUsername() {
         return getMail();
+    }
+
+    public boolean isNeedToChangePassword() {
+        Calendar threeMonthAgo = Calendar.getInstance();
+        threeMonthAgo.add(Calendar.MONTH, -3);
+        return currentPasswordSetDate == null || currentPasswordSetDate.before(threeMonthAgo.getTime());
     }
 }

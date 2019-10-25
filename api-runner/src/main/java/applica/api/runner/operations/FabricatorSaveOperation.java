@@ -9,13 +9,16 @@ import applica.api.services.exceptions.UserAlreadyExistException;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
 import applica.framework.Repo;
+import applica.framework.library.utils.DateUtils;
 import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 public class FabricatorSaveOperation extends EntityCodedBaseSaveOperation {
@@ -62,32 +65,55 @@ public class FabricatorSaveOperation extends EntityCodedBaseSaveOperation {
         if (node.get("_category") != null){
             fabricator.setCategoryId(node.get("_category").get("id").asText());
         }
+
+        if (node.get("_birthDate") != null && !node.get("_birthDate").isNull()){
+            try {
+                fabricator.setBirthDate(DateUtils.getDateFromString(node.get("_birthDate").asText(), DateUtils.FORMAT_DATE_DATEPICKER));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     protected void beforeSave(ObjectNode node, Entity entity) throws OperationException {
         super.beforeSave(node, entity);
-        if (entity.getId() == null && (node.get("mail") == null || node.get("mail").isNull())){
-            throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
-        } else if (entity.getId() == null){
-            User user = null;
-            try {
-                user = userService.createUser(node.get("mail").asText(), ((Fabricator) entity).getBusinessName(), null);
-                ((Fabricator) entity).setUserId(user.getId());
-            } catch (UserAlreadyExistException e) {
-                throw new OperationException(ResponseCode.ERROR_MAIL_ALREADY_EXISTS);
-            }
+        Fabricator fabricator = ((Fabricator) entity);
+
+        if (Objects.isNull(fabricator.getId())){
             ((Fabricator) entity).setDocuments(documentsService.generateFabricatorDocuments());
-        } else {
-            User user = Repo.of(User.class).get(((Fabricator) entity).getUserId()).orElse(null);
-            if (user != null) {
+        }
+
+        User user = null;
+        //Se non ho lo user Id significa che non ho creato l'utenza di riferimento
+        if (Objects.nonNull(fabricator.getUserId())){
+            user = Repo.of(User.class).get(((Fabricator) entity).getUserId()).orElse(null);
+        }
+
+        //se non ho l'utenza di riferimento
+        if (user == null) {
+            //e ho abilitato l'accesso all'app, creo l'utente e lo associo al serramentista
+            if (fabricator.isAppEnabled()) {
+                if (node.get("mail") == null || node.get("mail").isNull())
+                    throw new OperationException(ResponseCode.ERROR_MAIL_REQUIRED);
+
                 try {
-                    userService.updateUserIfNecessary(user, node);
+                    user = userService.createUser(node.get("mail").asText(), fabricator.getName(), fabricator.getLastname());
+                    ((Fabricator) entity).setUserId(user.getId());
                 } catch (UserAlreadyExistException e) {
-                    e.printStackTrace();
+                    throw new OperationException(ResponseCode.ERROR_MAIL_ALREADY_EXISTS);
                 }
+
+            }
+        } else {
+            //altrimenti aggiorno i dati se necessario
+            try {
+                userService.updateUserIfNecessary(user, node);
+            } catch (UserAlreadyExistException e) {
+                e.printStackTrace();
             }
         }
+
     }
 
     @Override

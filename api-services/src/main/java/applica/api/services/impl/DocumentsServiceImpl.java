@@ -4,8 +4,10 @@ import applica.api.domain.model.Filters;
 import applica.api.domain.model.dossiers.Document;
 import applica.api.domain.model.dossiers.DocumentType;
 import applica.api.domain.model.dossiers.Dossier;
+import applica.api.domain.utils.ClassUtils;
 import applica.api.services.DocumentTypeService;
 import applica.api.services.DocumentsService;
+import applica.api.services.DossiersService;
 import applica.api.services.ReportsService;
 import applica.api.services.exceptions.DocumentTypeNotFoundException;
 import applica.api.services.exceptions.DossierNotFoundException;
@@ -47,6 +49,9 @@ public class DocumentsServiceImpl implements DocumentsService {
     @Autowired
     private DocumentsService documentsService;
 
+    @Autowired
+    private DossiersService dossiersService;
+
     @Override
     public List<DocumentType> findAllDocumentTypes() {
         return Repo.of(DocumentType.class).find(Query.build().eq(Filters.ACTIVE, true)).getRows();
@@ -68,8 +73,29 @@ public class DocumentsServiceImpl implements DocumentsService {
     @Override
     public String generateFromTemplate(DocumentType documentType, Dossier dossier) throws Exception {
 
+        dossiersService.materializeCustomer(dossier);
+        dossiersService.materializeFabricator(dossier);
+
         HashMap<String, Object> fields = new HashMap<>();
-        fields.put("status", "ciao");
+
+        HashMap<Object, Object> dossierValues = ClassUtils.getAllValuesInClass(dossier);
+        HashMap<Object, Object> customerValues = ClassUtils.getAllValuesInClass(dossier.getCustomer());
+        HashMap<Object, Object> fabricatorValues = ClassUtils.getAllValuesInClass(dossier.getFabricator());
+
+        for (Object o: dossierValues.keySet()
+             ) {
+            fields.put("dossier_"+o, dossierValues.get(o));
+        }
+
+        for (Object o: customerValues.keySet()
+                ) {
+            fields.put("customer_"+o, customerValues.get(o));
+        }
+
+        for (Object o: fabricatorValues.keySet()
+                ) {
+            fields.put("fabricator_"+o, fabricatorValues.get(o));
+        }
 
         String fileserverPath = optionsManager.get("applica.framework.fileserver.basePath") + "\\";
         String outputPath = String.format("%s%s%s_%s", fileserverPath, TEMP_DIR_PATH, generatePrefix(), documentType.getDescription());

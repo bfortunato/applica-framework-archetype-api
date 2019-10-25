@@ -58,7 +58,7 @@ public class EndUserSaveOperation extends EntityCodedBaseSaveOperation {
     protected void beforeSave(ObjectNode node, Entity entity) throws OperationException {
         super.beforeSave(node, entity);
         if (entity.getId() == null && node.get("mail") == null || node.get("mail").isNull()){
-            throw new OperationException(ResponseCode.ERROR_MAIL_AND_PASSWORD_REQUIRED);
+            throw new OperationException(ResponseCode.ERROR_MAIL_REQUIRED);
         } else if (entity.getId() == null){
             User user = null;
             try {

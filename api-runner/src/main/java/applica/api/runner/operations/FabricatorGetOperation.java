@@ -7,6 +7,7 @@ import applica.api.services.DocumentsService;
 import applica.api.services.FabricatorService;
 import applica.framework.Entity;
 import applica.framework.Repo;
+import applica.framework.library.utils.DateUtils;
 import applica.framework.widgets.operations.BaseGetOperation;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,11 +40,12 @@ public class FabricatorGetOperation extends BaseGetOperation {
         node.put("_address", fabricator.getAddress().getAddress());
         node.put("_streetNumber", fabricator.getAddress().getStreetNumber());
         documentsService.materializeDocumentTypes(fabricator.getDocuments());
-        User user = Repo.of(User.class).get(fabricator.getUserId()).orElse(null);
-        if (user != null){
-            node.put("mail", user.getMail());
-        }
+        Repo.of(User.class).get(fabricator.getUserId()).ifPresent(user -> node.put("mail", user.getMail()));
         node.putPOJO("documents", fabricator.getDocuments());
+
+        if (fabricator.getBirthDate() != null){
+            node.put("_birthDate", DateUtils.getStringFromDate(fabricator.getBirthDate(), DateUtils.FORMAT_DATE_DATEPICKER));
+        }
 
     }
 
