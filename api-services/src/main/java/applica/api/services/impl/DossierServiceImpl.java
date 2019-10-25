@@ -301,15 +301,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.candidate();
         saveDossier(dossier);
-<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
-=======
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
->>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -318,15 +313,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.approve();
         saveDossier(dossier);
-<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
-=======
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
->>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -335,15 +325,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.refuse();
         saveDossier(dossier);
-<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
-=======
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
->>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
@@ -352,15 +337,10 @@ public class DossierServiceImpl implements DossiersService {
         DossierWorkflow dossierWorkflow = new DossierWorkflow(dossier);
         dossierWorkflow.payOff();
         saveDossier(dossier);
-<<<<<<< HEAD
         materializeCustomer(dossier);
         materializeDocumentWithDocumentTypes(dossier);
 
         return dossier;
-=======
-        fabricatorService.sendDossierStatusChangedNotification(dossier, Security.withMe().getLoggedUser().getId());
-        return materializeCustomer(dossier);
->>>>>>> dcc96903e8042f4fc88cf0b1c8db98ddac1a6142
     }
 
     @Override
