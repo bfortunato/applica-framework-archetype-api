@@ -1,5 +1,7 @@
 package applica.api.services;
 
+import applica.api.domain.model.UserChangePasswordAttempt;
+import applica.api.domain.model.UserLoginAttempt;
 import applica.api.domain.model.auth.User;
 import applica.api.services.exceptions.UserAlreadyExistException;
 import applica.framework.Query;
@@ -21,9 +23,23 @@ public interface UserService {
 
     User getUserThatCanBeLoggedId(String authorId);
 
-    User createUser(String mail, String password, String name, String lastname) throws UserAlreadyExistException;
+    User createUser(String mail, String name, String lastname) throws UserAlreadyExistException;
 
     void updateUserIfNecessary(User user, ObjectNode node) throws UserAlreadyExistException;
 
-    void updateUserIfNecessary(User user, String mail, String password, boolean active) throws UserAlreadyExistException;
+    void updateUserIfNecessary(User user, String mail, boolean active) throws UserAlreadyExistException;
+
+    //User account lock
+    void updateLoginFailAttempts(UserLoginAttempt attempt);
+
+    void resetLoginFailAttempts(UserLoginAttempt attempt);
+
+    UserLoginAttempt getUserLoginAttempts(String username);
+
+    //User password change lock
+    void updatePasswordChangeFailAttempts(UserChangePasswordAttempt attempt);
+
+    void resetPasswordChangeFailAttempts(UserChangePasswordAttempt attempt);
+
+    UserChangePasswordAttempt getUserPasswordChangeAttempts(String username);
 }

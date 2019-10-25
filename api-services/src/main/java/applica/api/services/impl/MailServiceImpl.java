@@ -10,8 +10,8 @@ import applica.framework.library.utils.ProgramException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.helper.StringUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,6 +77,7 @@ public class MailServiceImpl implements MailService {
         Recipient recipient = new Recipient();
         recipient.setRecipient(user.getMail());
         sendMail(createMail("mailTemplates/userActivation.vm", TemplatedMail.HTML, optionsManager.get("registration.mail.subject"), data), Collections.singletonList(recipient));
+        System.out.println("--- Mail sent to: " + user.getMail() + " ---");
     }
 
     @Override

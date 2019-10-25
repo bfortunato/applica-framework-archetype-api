@@ -1,13 +1,14 @@
 package applica.api.services.impl;
 
 import applica.api.domain.data.RolesRepository;
-import applica.api.domain.model.*;
+import applica.api.domain.data.UsersRepository;
+import applica.api.domain.model.Filters;
 import applica.api.domain.model.auth.*;
+import applica.api.domain.utils.SecurityUtils;
 import applica.api.services.AccountService;
 import applica.api.services.MailService;
 import applica.api.services.UserService;
 import applica.api.services.exceptions.*;
-import applica.api.domain.data.UsersRepository;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
@@ -173,21 +174,17 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public void changePassword(User user, String password, String passwordConfirm) throws ValidationException, MailNotFoundException {
-        if (user == null)
-            throw new MailNotFoundException();
-        Validation.validate(new PasswordChange(user, password, passwordConfirm));
+    public void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException {
+        Validation.validate(new PasswordChange(user, currentPassword, password, passwordConfirm));
 
         //Salvo la vecchia password (criptata) nello storico di quelle modificate dall'utente
         String previousPassword = user.getPassword();
 
         user.setCurrentPasswordSetDate(new Date());
-        user.setPassword(encryptAndGetPassword(password));
+        user.setPassword(SecurityUtils.encodePassword(password));
         usersRepository.save(user);
 
-        new Thread(()-> {
-            Repo.of(UserPassword.class).save(new UserPassword(previousPassword, user.getSid()));
-        }).start();
+        new Thread(() -> Repo.of(UserPassword.class).save(new UserPassword(previousPassword, user.getSid()))).start();
     }
 
     @Override
@@ -250,20 +247,37 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void validateRecoveryCode(String mail, String code, boolean deleteRecord) throws MailNotFoundException, CodeNotValidException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElseThrow(MailNotFoundException::new);
-        PasswordRecoveryCode passwordRecoveryCode = Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, user.getSid()).eq(Filters.CODE, code.toUpperCase())).findFirst().orElseThrow(CodeNotValidException::new);
-        if (deleteRecord)
-            Repo.of(PasswordRecoveryCode.class).delete(passwordRecoveryCode.getId());
+    public void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException {
+        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(null);
+        if (user != null) {
+            PasswordRecoveryCode passwordRecoveryCode = Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, user.getSid()).eq(Filters.CODE, code)).findFirst().orElse(null);
+            if (passwordRecoveryCode != null) {
+                if (deleteRecord)
+                    Repo.of(PasswordRecoveryCode.class).delete(passwordRecoveryCode.getId());
+            } else if (propagateError)
+                throw new CodeNotValidException();
+
+        } else if (propagateError)
+            throw new MailNotFoundException();
+
     }
 
     @Override
     public void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException {
-        validateRecoveryCode(mail, code, false);
+
+        validateRecoveryCode(mail, code, false, true);
         User user = userService.getUserByMails(Arrays.asList(mail)).get(0);
-        changePassword(user, password, passwordConfirm);
+        changePassword(user, user.getPassword(), password, passwordConfirm);
         PasswordRecoveryCode passwordRecoveryCode = getPasswordRecoveryCode(code);
-        deletePasswordRecoveryCode(passwordRecoveryCode);
+        if (passwordRecoveryCode != null)
+            deletePasswordRecoveryCode(passwordRecoveryCode);
     }
 
+    @Override
+    public String generateOneTimePassword() {
+        String tempPassword = options.get("password.onetime.value");
+        if (!org.springframework.util.StringUtils.hasLength(tempPassword))
+            tempPassword = UUID.randomUUID().toString().substring(0, 8).trim();
+        return tempPassword;
+    }
 }

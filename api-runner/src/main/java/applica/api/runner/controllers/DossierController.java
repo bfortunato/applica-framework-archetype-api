@@ -237,4 +237,14 @@ public class DossierController {
             return new Response(ERROR);
         }
     }
+
+    @GetMapping("/count")
+    public Response count() {
+        try {
+            return new ValueResponse(dossiersService.count());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response(ERROR);
+        }
+    }
 }

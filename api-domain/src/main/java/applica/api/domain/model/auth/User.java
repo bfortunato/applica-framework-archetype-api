@@ -23,7 +23,7 @@ public class User extends AEntity implements applica.framework.security.User {
     private String mail;
     private String password;
     private boolean active;
-    private boolean firstLogin;
+    private Boolean firstLogin;
     private Date registrationDate;
     private String activationCode;
     private String image;
@@ -107,12 +107,16 @@ public class User extends AEntity implements applica.framework.security.User {
         this.roles = roles;
     }
 
-    public void setFirstLogin(boolean firstLogin) {
-        this.firstLogin = firstLogin;
+    public String getLastname() {
+        return lastname;
     }
 
-    public boolean isFirstLogin() {
+    public Boolean getFirstLogin() {
         return firstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        this.firstLogin = firstLogin;
     }
 
     public Date getCurrentPasswordSetDate() {
