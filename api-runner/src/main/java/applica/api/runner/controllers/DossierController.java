@@ -86,7 +86,7 @@ public class DossierController {
     public Response attachData(@PathVariable String dossierId, @PathVariable String documentTypeId, @RequestBody String base64Data) {
         try {
             Dossier dossier = dossiersService.attachDocumentData(dossierId, documentTypeId, base64Data);
-            return new Response(Response.OK);
+            return new ValueResponse(dossier);
         } catch (DossierNotFoundException e) {
             return new ErrorResponse(ResponseCode.ERROR_DOSSIER_NOT_FOUND, e.getDossierId());
         } catch (DocumentTypeNotFoundException e) {
