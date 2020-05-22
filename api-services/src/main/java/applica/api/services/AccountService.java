@@ -1,0 +1,70 @@
+package applica.api.services;
+
+import applica.api.domain.model.auth.PasswordRecoveryCode;
+import applica.api.domain.model.auth.User;
+import applica.api.services.exceptions.*;
+import applica.framework.library.base64.URLData;
+import applica.framework.library.validation.ValidationException;
+
+import java.io.IOException;
+
+/**
+ * Created by bimbobruno on 15/11/2016.
+ */
+public interface AccountService {
+
+    /**
+     * Register a new account. Registered account is inactive and a confirmation mail is sent
+     * @param name
+     * @param email
+     * @param password
+     */
+    String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
+
+    /**
+     * Confirm a previously registered account
+     * @param activationCode
+     */
+    void confirm(String activationCode) throws MailNotFoundException;
+
+    /**
+     * Removes user from system, included related entities
+     * @param id
+     */
+    void delete(Object id) throws UserNotFoundException;
+
+    /**
+     * Recover user account by sending a new password to specified mail address, if exists
+     * @param mail
+     */
+    void recover(String mail) throws MailNotFoundException;
+
+    /**
+     * Gets user profile image (the user image in top left of web application)
+     * @param userId
+     * @return
+     */
+    URLData getProfileImage(Object userId, String size) throws UserNotFoundException, IOException;
+
+    void changePassword(User user, String currentEncodedPassword, String password, String passwordConfirm) throws ValidationException, MailNotFoundException;
+
+    boolean needToChangePassword(applica.framework.security.User user);
+
+    void deactivateInactiveUsers();
+
+    boolean hasPasswordSetBefore(Object userId, String encryptedPassword, Integer changesToConsider);
+
+    PasswordRecoveryCode getPasswordRecoverForUser(String userId);
+
+    PasswordRecoveryCode getPasswordRecoveryCode(String code);
+
+    void deletePasswordRecoveryCode(PasswordRecoveryCode code);
+
+    void savePasswordRecoveryCode(PasswordRecoveryCode passwordRecoveryCode);
+
+    void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException;
+
+    void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException;
+
+    String generateOneTimePassword();
+}
