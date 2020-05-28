@@ -5,10 +5,12 @@ import applica.api.domain.model.auth.PasswordChange;
 import applica.api.services.AccountService;
 import applica.framework.Entity;
 import applica.framework.library.validation.ValidationResult;
+import applica.framework.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,17 +28,22 @@ public class PasswordChangeValidator implements applica.framework.library.valida
     @Override
     public void validate(Entity entity, ValidationResult validationResult) {
         PasswordChange passwordChange = (PasswordChange) entity;
+
+        if (!StringUtils.hasLength(passwordChange.getCurrentPassword()))
+            validationResult.reject("currentPassword", "validation.field.required");
+        else if (!Objects.equals(passwordChange.getUser().getPassword(), passwordChange.getCurrentPassword()))
+            validationResult.reject("currentPassword", "validation.currentPassword.notValid");
+
         if (!StringUtils.hasLength(passwordChange.getPassword())) {
             validationResult.reject("password", "validation.field.required");
         } else {
 
             if (!isValid(passwordChange.getPassword())) {
                 validationResult.reject("password", "validation.password.pattern");
-
             }
 
             //l'utente non può inserire la stessa password che già possiede
-            if (passwordChange.getUser().getPassword().equals(accountService.encryptAndGetPassword(passwordChange.getPassword()))) {
+            if (passwordChange.getUser().getPassword().equals(SecurityUtils.encryptAndGetPassword(passwordChange.getPassword()))) {
                 validationResult.reject("password", "validation.password.different");
             }
         }
@@ -49,7 +56,7 @@ public class PasswordChangeValidator implements applica.framework.library.valida
 
         //Verifico che la password non sia uguale a nessuna delle eventuali tre password precedenti
         if (validationResult.isValid()) {
-            if (accountService.hasPasswordSetBefore(passwordChange.getUser().getSid(), accountService.encryptAndGetPassword(passwordChange.getPassword()), 3)) {
+            if (accountService.hasPasswordSetBefore(passwordChange.getUser().getSid(), SecurityUtils.encryptAndGetPassword(passwordChange.getPassword()), 3)) {
                 validationResult.reject("passwordConfirm", "validation.user.password.settedBefore");
             }
         }

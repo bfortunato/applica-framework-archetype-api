@@ -1,5 +1,7 @@
 package applica.api.runner.configuration;
 
+import applica.api.runner.filters.CsrfTokenResponseHeaderBindingFilter;
+import applica.api.runner.filters.UserPasswordChangeDetectFilter;
 import applica.api.runner.localization.LocalizationFilter;
 import applica.framework.security.UserService;
 import applica.framework.security.authorization.AuthorizationService;
@@ -20,9 +22,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 import java.util.List;
 
@@ -87,6 +91,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public UserPasswordChangeDetectFilter userPasswordChangeDetectFilter() throws Exception {
+        return new UserPasswordChangeDetectFilter();
+    }
+
+    @Bean
     public LocalizationFilter localizationFiler() {
         return new LocalizationFilter();
     }
@@ -100,13 +109,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .csrf().disable().addFilterAfter(new CsrfTokenResponseHeaderBindingFilter(), CsrfFilter.class)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .antMatchers("/**").authenticated()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/**").authenticated()
                 .and()
                 .addFilterAfter(tokenAuthenticationFilter(), BasicAuthenticationFilter.class)
-        ;
+
+                .headers()
+                .contentSecurityPolicy("script-src 'self'")
+                .and()
+                .frameOptions()
+                .sameOrigin()
+                .httpStrictTransportSecurity()
+                .includeSubDomains(true)
+                .maxAgeInSeconds(31536000);
 
     }
 

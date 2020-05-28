@@ -11,6 +11,10 @@ public class EntityList {
     // inserire i nomi di tutte le entità
     public static final String USER = "user";
     public static final String ROLE = "role";
+    public static final String REVISION = "revision";
+    public static final String TEMP_ATTACHMENT_ENTITY = "tempAttachmentEntity";
+    public static final String GEO_CITY = "geoCity";
+    public static final String MAIL_LOG = "mailLog";
 
 
     public static String [] getPermittedEntitiesByRole(String permission) {
@@ -32,6 +36,6 @@ public class EntityList {
     }
 
     public static String[] getAll() {
-        return new String[]{USER, ROLE};
+        return new String[]{USER, ROLE, REVISION};
     }
 }

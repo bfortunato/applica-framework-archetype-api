@@ -4,10 +4,11 @@ import applica.api.runner.facade.AccountFacade;
 import applica.api.domain.model.auth.User;
 import applica.framework.Entity;
 import applica.framework.Repo;
+import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.widgets.operations.BaseSaveOperation;
+import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -32,46 +33,31 @@ public class UserSaveOperation extends BaseSaveOperation {
         map().dataUrlToImage(node, entity, "_image", "image", "images/users");
     }
 
+
     @Override
-    protected void beforeSave(ObjectNode data, Entity entity) {
+    protected void beforeSave(ObjectNode data, Entity entity) throws OperationException {
+        super.beforeSave(data, entity);
         String passwordToSave = null;
-        if (org.springframework.util.StringUtils.hasLength(data.get("password").asText())) {
-            //set / modifica password
-            passwordToSave = new BCryptPasswordEncoder().encode(data.get("password").asText());
-            ((User) entity).setCurrentPasswordSetDate(new Date());
-        } else {
-            if (entity.getId() != null) {
-                User previous = Repo.of(User.class).get(((User) entity).getSid()).get();
-                passwordToSave = ((User) previous).getPassword();
-            }
+        if (entity.getId() != null) {
+            //Previene la modifica password direttamente dal form: è necessario richiamare l'apposita funzione di reset (se si è admin)
+            User previous = Repo.of(User.class).get(((User) entity).getSid()).get();
+            passwordToSave = previous.getPassword();
         }
         ((User) entity).setPassword(passwordToSave);
-        ((User) entity).setMail(((User) entity).getMail());
-
+        ((User) entity).setMail(((User) entity).getMail().toLowerCase());
     }
 
     @Override
     protected void afterSave(ObjectNode node, Entity entity) {
         // Ottengo tutte le info necessarie ad aggiornare/creare un utente
         User user = (User) entity;
-
-        if (user.isActive()) {
-            boolean needToActivate = false;
-
-            // Se nuovo utente autogenero password temporanea
-            if (node.get("id") == null) {
-                needToActivate = true;
-                user.setFirstLogin(true);
-                user.setRegistrationDate(new Date());
-
-                String tempPassword = user.getSid();
-                user.setPassword(new BCryptPasswordEncoder().encode(tempPassword));
-            }
-
-            Repo.of(User.class).save(user);
-
-            if (needToActivate) {
-                new Thread(() -> accountFacade.sendRegistrationMail(user, user.getSid())).start();
+        if (user.getFirstLogin() == null) {
+            user.setRegistrationDate(new Date());
+            user.setFirstLogin(true);
+            try {
+                accountFacade.generateAndSendUserOneTimePassword(user);
+            } catch (AuthorizationException e) {
+                e.printStackTrace();
             }
         }
 

@@ -14,6 +14,7 @@ import applica.framework.library.mail.Recipient;
 import applica.framework.library.mail.TemplatedMail;
 import applica.framework.library.options.OptionsManager;
 import applica.framework.security.Security;
+import applica.framework.security.SecurityUtils;
 import applica.framework.security.authorization.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,9 +39,6 @@ public class AccountFacade {
         mailService.sendActivationMail(user, tempPassword);
     }
 
-    public String encryptAndGetPassword(String password) {
-        return accountService.encryptAndGetPassword(password);
-    }
 
     /**
      * Forza il reinvio di una password generata con le stesse politiche adottate in fase di creazione all'utente con id userId
@@ -63,7 +61,7 @@ public class AccountFacade {
 
 
         //rimettere a tempPassword a regime
-        user.setPassword(encryptAndGetPassword(tempPassword));
+        user.setPassword(SecurityUtils.encryptAndGetPassword(tempPassword));
         user.setCurrentPasswordSetDate(null);
         Repo.of(User.class).save(user);
 

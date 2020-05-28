@@ -6,6 +6,7 @@ import applica.framework.annotations.ManyToMany;
 import applica.framework.widgets.entities.EntityId;
 import org.springframework.util.StringUtils;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -23,11 +24,11 @@ public class User extends AEntity implements applica.framework.security.User {
     private String mail;
     private String password;
     private boolean active;
-    private boolean firstLogin;
     private Date registrationDate;
     private String activationCode;
     private String image;
     private Date lastLogin;
+    private Boolean firstLogin;
     private Date currentPasswordSetDate;
 
     @ManyToMany
@@ -107,13 +108,6 @@ public class User extends AEntity implements applica.framework.security.User {
         this.roles = roles;
     }
 
-    public void setFirstLogin(boolean firstLogin) {
-        this.firstLogin = firstLogin;
-    }
-
-    public boolean isFirstLogin() {
-        return firstLogin;
-    }
 
     public Date getCurrentPasswordSetDate() {
         return currentPasswordSetDate;
@@ -129,14 +123,6 @@ public class User extends AEntity implements applica.framework.security.User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
-    }
-
-    public boolean isNeedToChangePassword() {
-        return needToChangePassword;
-    }
-
-    public void setNeedToChangePassword(boolean needToChangePassword) {
-        this.needToChangePassword = needToChangePassword;
     }
 
     public String getInitials() {
@@ -155,5 +141,20 @@ public class User extends AEntity implements applica.framework.security.User {
     @Override
     public String getUsername() {
         return getMail();
+    }
+
+    public Boolean getFirstLogin() {
+        return firstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        this.firstLogin = firstLogin;
+    }
+
+
+    public boolean isNeedToChangePassword() {
+        Calendar threeMonthAgo = Calendar.getInstance();
+        threeMonthAgo.add(Calendar.MONTH, -3);
+        return currentPasswordSetDate == null || currentPasswordSetDate.before(threeMonthAgo.getTime());
     }
 }

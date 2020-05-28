@@ -2,6 +2,7 @@ package applica.api.runner.configuration;
 
 import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
+import applica.api.runner.operations.CustomEntityMapper;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.DefaultRepositoriesFactory;
 import applica.framework.library.i18n.LocalizationUtils;
@@ -89,7 +90,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public EntityMapper entityMapper() {
-        return new EntityMapper();
+        return new CustomEntityMapper();
     }
 
     @Bean
@@ -159,7 +160,9 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
             public void addCorsMappings(CorsRegistry registry) {
                 registry
                         .addMapping("/**")
-                        .allowedMethods("POST", "PUT", "GET", "DELETE");
+                        .allowedMethods("POST", "PUT", "GET", "DELETE")
+                        .allowedOrigins(options.get("applica.security.cors.allowedOrigins").split(","))
+                ;
             }
         };
     }

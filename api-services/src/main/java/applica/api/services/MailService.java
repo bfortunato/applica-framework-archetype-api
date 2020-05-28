@@ -15,4 +15,6 @@ public interface MailService {
     void sendActivationMail(User user, String defaultPassword);
 
     void createAndSendMail(String template, int mailType, String message, List<Recipient> recipients, Map<String, Object> data);
+
+    void sendSimpleMail(String mail, String text);
 }
