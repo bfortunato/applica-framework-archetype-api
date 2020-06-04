@@ -15,7 +15,9 @@ public class SchedulerCondition implements Condition {
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return Objects.equals(ApplicationContextProvider.provide().getBean(OptionsManager.class).get("enable.scheduled.sync"), "ON");
+        //TODO: al momento non funziona
+       // return Objects.equals(ApplicationContextProvider.provide().getBean(OptionsManager.class).get("enable.scheduled.sync"), "ON");
+        return true;
     }
 
 }

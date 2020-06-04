@@ -1,5 +1,6 @@
 package applica.api.services;
 
+
 import applica.framework.library.mail.Recipient;
 import applica.framework.library.mail.TemplatedMail;
 import applica.api.domain.model.auth.User;
@@ -17,4 +18,5 @@ public interface MailService {
     void sendActivationMail(User user, String defaultPassword);
 
     void createAndSendMail(String template, int mailType, String message, List<Recipient> recipients, Map<String, Object> data);
+
 }

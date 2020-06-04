@@ -19,7 +19,7 @@ public class CsvUtils {
             CsvInfo info = reader.readFile();
 
             if(info.getError() != null){
-               // throw new Exception(info.getError());
+                throw new Exception(info.getError());
             }
 
             return new File(filePath);

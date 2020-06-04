@@ -1,14 +1,30 @@
 package applica.api.domain.model.geo;
 
+import applica.api.domain.model.Entities;
+import applica.framework.annotations.ManyToOne;
+import applica.framework.widgets.annotations.Search;
+import applica.framework.widgets.entities.EntityId;
 
-import applica.framework.AEntity;
+/**
+ * Created by federicomalvasi on 15/05/15.
+ */
 
-public class GeoCity extends AEntity {
+@EntityId(Entities.GEO_CITY)
+public class GeoCity extends GeoEntity {
 
-    String description;
-    String cap;
+    @Search(includeInKeyword = true)
+    private String description;
 
-    GeoProvince province;
+    @Search(includeInKeyword = true)
+    private String cap;
+
+
+    @ManyToOne
+    private GeoProvince province;
+
+    private String provinceToString;
+
+    private String istatCode;
 
     public String getDescription() {
         return description;
@@ -31,10 +47,32 @@ public class GeoCity extends AEntity {
     }
 
     public void setProvince(GeoProvince province) {
+        this.provinceToString = province != null? province.toString(): null;
         this.province = province;
     }
 
     public String toString() {
         return String.format("%s (%s)", description, cap);
+    }
+
+
+    public String getIstatCode() {
+        return istatCode;
+    }
+
+    public void setIstatCode(String istatCode) {
+        this.istatCode = istatCode;
+    }
+
+    public String getFullDescription() {
+        return String.format("%s - %s", toString(), province.toString());
+    }
+
+    public void setProvinceToString(String provinceToString) {
+        this.provinceToString = provinceToString;
+    }
+
+    public String getProvinceToString() {
+        return provinceToString;
     }
 }

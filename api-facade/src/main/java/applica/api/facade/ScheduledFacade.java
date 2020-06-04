@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static applica.api.services.utils.FileUtils.TEMP_DIR_PATH;
+
+
 /**
  * Created by antoniolovicario on 22/03/17.
  */
@@ -44,7 +47,7 @@ public class ScheduledFacade {
     //@Scheduled(cron = "0 0/1 * * * *")
     public void deleteTempFiles() {
         //Cancello i tempi files
-        fileServer.deleteOldFiles("files/_temp/", 1);
+        fileServer.deleteOldFiles(TEMP_DIR_PATH, 1);
     }
 
 

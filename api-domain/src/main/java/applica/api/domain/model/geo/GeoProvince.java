@@ -1,14 +1,17 @@
 package applica.api.domain.model.geo;
 
+import applica.api.domain.model.Entities;
+import applica.framework.annotations.ManyToOne;
+import applica.framework.widgets.entities.EntityId;
 
-import applica.framework.AEntity;
+@EntityId(Entities.GEO_PROVINCE)
+public class GeoProvince extends GeoEntity {
 
-public class GeoProvince extends AEntity {
+    private String description;
+    private String code;
 
-    String description;
-    String code;
-
-    private boolean excludeInReport;
+    @ManyToOne
+    private GeoRegion region;
 
     public String getDescription() {
         return description;
@@ -26,15 +29,16 @@ public class GeoProvince extends AEntity {
         this.code = code;
     }
 
+
     public String toString() {
-        return String.format("%s (%s)", description != null? description : "", code != null? code : "");
+        return String.format("%s (%s)", description, code);
     }
 
-    public boolean isExcludeInReport() {
-        return excludeInReport;
+    public GeoRegion getRegion() {
+        return region;
     }
 
-    public void setExcludeInReport(boolean excludeInReport) {
-        this.excludeInReport = excludeInReport;
+    public void setRegion(GeoRegion region) {
+        this.region = region;
     }
 }

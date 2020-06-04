@@ -4,7 +4,7 @@ import applica.api.domain.data.RolesRepository;
 import applica.api.domain.data.UsersRepository;
 import applica.api.domain.model.Filters;
 import applica.api.domain.model.auth.*;
-import applica.api.domain.utils.SecurityUtils;
+import applica.api.domain.utils.CustomLocalizationUtils;
 import applica.api.services.AccountService;
 import applica.api.services.MailService;
 import applica.api.services.UserService;
@@ -20,6 +20,8 @@ import applica.framework.library.options.OptionsManager;
 import applica.framework.library.validation.Validation;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.security.PasswordUtils;
+import applica.framework.security.Security;
+import applica.framework.security.SecurityUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,13 +34,17 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static applica.api.domain.model.auth.PasswordReset.generatePasswordRequest;
 
 /**
  * Created by bimbobruno on 15/11/2016.
  */
 @Service
 public class AccountServiceImpl implements AccountService {
+
 
     private Log logger = LogFactory.getLog(getClass());
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -59,6 +65,17 @@ public class AccountServiceImpl implements AccountService {
         this.mailService = mailService;
         this.userService = userService;
     }
+
+
+
+    @Override
+    public void confirm(String activationCode) throws MailNotFoundException {
+        User user = usersRepository.find(Query.build().eq(Filters.USER_ACTIVATION_CODE, activationCode)).findFirst().orElseThrow(MailNotFoundException::new);
+        user.setActive(true);
+
+        usersRepository.save(user);
+    }
+
 
     @Override
     public String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
@@ -82,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         String activationCode = UUID.randomUUID().toString();
-        String encodedPassword = SecurityUtils.encodePassword(password);
+        String encodedPassword = SecurityUtils.encryptAndGetPassword(password);
 
         User user = new User();
         user.setName(name);
@@ -109,28 +126,19 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("mail", mail);
         templatedMail.put("activationUrl", activationUrl);
 
-        executor.execute(() -> mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO))));
+        mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
 
         return activationCode;
     }
 
-    @Override
-    public void confirm(String activationCode) throws MailNotFoundException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_ACTIVATION_CODE, activationCode)).findFirst().orElseThrow(MailNotFoundException::new);
-        user.setActive(true);
-
-        usersRepository.save(user);
-    }
 
     @Override
     public void recover(String mail) throws MailNotFoundException {
         User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElseThrow(MailNotFoundException::new);
 
         String newPassword = PasswordUtils.generateRandom();
-        String encodedPassword = SecurityUtils.encodePassword(newPassword);
+        String encodedPassword = SecurityUtils.encryptAndGetPassword(newPassword);
         user.setPassword(encodedPassword);
-
-        usersRepository.save(user);
 
         TemplatedMail templatedMail = new TemplatedMail();
         templatedMail.setOptions(options);
@@ -142,8 +150,10 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("password", newPassword);
         templatedMail.put("mail", mail);
 
-        mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
+        executor.execute(() -> mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO))));
+
     }
+
 
     @Override
     public URLData getProfileImage(Object userId, String size) throws UserNotFoundException, IOException {
@@ -175,25 +185,25 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException {
-        Validation.validate(new PasswordChange(user, currentPassword, password, passwordConfirm));
+    public void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException {
+        if (!force)
+            Validation.validate(generatePasswordRequest(user, currentPassword, password, passwordConfirm));
+
+
 
         //Salvo la vecchia password (criptata) nello storico di quelle modificate dall'utente
         String previousPassword = user.getPassword();
 
         user.setCurrentPasswordSetDate(new Date());
-        user.setPassword(SecurityUtils.encodePassword(password));
+        user.setPassword(SecurityUtils.encryptAndGetPassword(password));
         usersRepository.save(user);
 
         new Thread(() -> Repo.of(UserPassword.class).save(new UserPassword(previousPassword, user.getSid()))).start();
     }
 
-
     @Override
-    public boolean needToChangePassword(applica.framework.security.User user) {
-        Calendar threeMonthAgo = Calendar.getInstance();
-        threeMonthAgo.add(Calendar.MONTH, -1 * getPasswordDuration());
-        return ((User) user).getCurrentPasswordSetDate() == null || ((User) user).getCurrentPasswordSetDate().before(threeMonthAgo.getTime());
+    public void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException {
+        changePassword(user, currentPassword, password, passwordConfirm, false);
     }
 
     @Override
@@ -207,21 +217,38 @@ public class AccountServiceImpl implements AccountService {
         });
     }
 
+    @Override
+    public boolean needToChangePassword(applica.framework.security.User user) {
+        Calendar threeMonthAgo = Calendar.getInstance();
+        threeMonthAgo.add(Calendar.MONTH, -1 * getPasswordDuration());
+        return ((User) user).getCurrentPasswordSetDate() == null || ((User) user).getCurrentPasswordSetDate().before(threeMonthAgo.getTime());
+    }
 
     private int getPasswordDuration() {
         return Integer.parseInt(options.get("password.duration"));
     }
 
     @Override
-    public boolean hasPasswordSetBefore(Object userId, String encryptedPassword, Integer changesToConsider) {
+    public boolean hasPasswordSetBefore(Object userId, String md5Password, Integer changesToConsider) {
         Query query = Query.build().eq(Filters.USER_ID, userId).sort(Filters.CREATION_DATE, true);
         if (changesToConsider != null) {
             query.setPage(1);
             query.setRowsPerPage(changesToConsider);
         }
 
-        return Repo.of(UserPassword.class).find(query).getRows().stream().filter(p -> Objects.equals(encryptedPassword, p.getPassword())).collect(Collectors.toList()).size() > 0;
+        return Repo.of(UserPassword.class).find(query).getRows().stream().filter(p -> Objects.equals(md5Password, p.getPassword())).collect(Collectors.toList()).size() > 0;
     }
+
+    @Override
+    public boolean isCurrentPassword(String password) {
+        User user = (User) Security.withMe().getLoggedUser();
+        try {
+            return user != null && Objects.equals(SecurityUtils.encryptAndGetPassword(password), user.getPassword());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public PasswordRecoveryCode getPasswordRecoverForUser(String userId) {
         return Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, userId)).findFirst().orElse(null);
@@ -243,6 +270,66 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void sendConfirmationCode(String mail) {
+        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(null);
+        if (user != null) {
+
+            PasswordRecoveryCode passwordRecoveryCode = getPasswordRecoverForUser(user.getSid());
+
+            if (passwordRecoveryCode == null) {
+                passwordRecoveryCode = new PasswordRecoveryCode();
+                passwordRecoveryCode.setUserId(user.getSid());
+            }
+
+            String code = randomAlphaNumeric(ThreadLocalRandom.current().nextInt(9, 15));
+            passwordRecoveryCode.setCode(code);
+
+            savePasswordRecoveryCode(passwordRecoveryCode);
+            PasswordRecoveryCode finalPasswordRecoveryCode = passwordRecoveryCode;
+            new Thread(() -> sendPasswordRecoveryCodeMail(user.getMail(), user.getFullName(), finalPasswordRecoveryCode)).start();
+
+        }
+    }
+
+    private static String randomAlphaNumeric(int count) {
+        String ALPHA_NUMERIC_STRING = "abcdefghilmnopqrstuvzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
+    }
+
+    private void sendPasswordRecoveryCodeMail(String mail, String name, PasswordRecoveryCode passwordRecoveryCode) {
+
+        String template = "mailTemplates/passwordRecoveryCode.vm";
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", name);
+        data.put("code", passwordRecoveryCode.getCode());
+
+        createAndSendMail(template, TemplatedMail.HTML, CustomLocalizationUtils.getInstance().getMessage("subject.password.recovery.code"), Arrays.asList(new Recipient(mail, Recipient.TYPE_TO)), data);
+
+    }
+
+    private void createAndSendMail(String templatePath, int mailType, String subject, List<Recipient> recipients, Map<String, Object> data) {
+
+        TemplatedMail mail = new TemplatedMail();
+        mail.setOptions(options);
+        mail.setMailFormat(mailType);
+        mail.setTemplatePath(templatePath);
+        mail.setFrom(options.get("registration.mail.from"));
+        mail.setSubject(subject);
+        mail.setRecipients(recipients);
+        for (String key : data.keySet()) {
+            mail.put(key, data.get(key));
+        }
+
+        mailService.sendMail(mail, recipients);
+
+    }
+
+    @Override
     public void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException {
         User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(null);
         if (user != null) {
@@ -258,6 +345,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+
     @Override
     public void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException {
 
@@ -268,6 +356,7 @@ public class AccountServiceImpl implements AccountService {
         if (passwordRecoveryCode != null)
             deletePasswordRecoveryCode(passwordRecoveryCode);
     }
+
 
     @Override
     public String generateOneTimePassword() {

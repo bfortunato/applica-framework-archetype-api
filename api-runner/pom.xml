@@ -10,6 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>api-runner</artifactId>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <applica.framework.version>2.3.0</applica.framework.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -80,7 +84,6 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 

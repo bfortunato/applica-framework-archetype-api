@@ -18,10 +18,8 @@ import java.util.List;
 @EntityId(Entities.ROLE)
 public class Role extends AEntity implements applica.framework.security.Role {
 
-    public static final String ADMIN = "admin"; //Amministratore di sistema
-    public static final String USER = "user"; //Utente finale
-    public static final String FABRICATOR = "fabricator"; //Collaboratore serramentista
-    public static final String CUSTOMER = "customer"; //Cliente
+    public static final String ADMIN = "admin";
+    public static final String USER = "user";
 
     private String role;
     private List<String> permissions = new ArrayList<>();
@@ -49,7 +47,7 @@ public class Role extends AEntity implements applica.framework.security.Role {
     }
 
     public static List<String> getAllRoles() {
-        return Arrays.asList(ADMIN, USER, FABRICATOR, CUSTOMER);
+        return Arrays.asList(ADMIN, USER);
     }
 
     public String getLocalizedRole(){

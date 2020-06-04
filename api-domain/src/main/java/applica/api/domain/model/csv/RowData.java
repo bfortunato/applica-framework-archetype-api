@@ -13,11 +13,11 @@ public class RowData {
     private Hashtable<String, String> data = new Hashtable();
     private String rowValidationError ="";
 
-    public Boolean isValid() {
+    public boolean isValid() {
         return valid;
     }
 
-    private Boolean valid = true;
+    private boolean valid = true;
 
 
     public String getRowValidationError() {

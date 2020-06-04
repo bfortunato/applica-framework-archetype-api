@@ -1,18 +1,22 @@
 package applica.api.services.impl;
 
+
+import applica.api.domain.model.MailLog;
+import applica.api.domain.model.auth.AppPermissions;
+import applica.api.domain.model.auth.User;
+import applica.api.services.MailService;
 import applica.framework.Repo;
 import applica.framework.fileserver.FileServer;
 import applica.framework.library.mail.MailUtils;
 import applica.framework.library.mail.Recipient;
 import applica.framework.library.mail.TemplatedMail;
 import applica.framework.library.options.OptionsManager;
+import applica.framework.library.utils.ProgramException;
+import applica.framework.library.utils.SystemOptionsUtils;
 import applica.framework.security.Security;
-import applica.api.domain.model.MailLog;
-import applica.api.domain.model.auth.User;
-import applica.api.domain.model.auth.AppPermissions;
-import applica.api.services.MailService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.utils.SystemUtils;
 import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,26 +49,7 @@ public class MailServiceImpl implements MailService {
         return mail;
     }
 
-    @Override
-    public void sendMail(TemplatedMail mail, List<Recipient> recipients) {
 
-        if (optionsManager.get("testmode").equals("ON")) {
-            for (Recipient recipient: recipients) {
-                recipient.setRecipient(optionsManager.get("testmode.recipient.mail"));
-            }
-        }
-        String recipientString = recipients.stream().map(Recipient::getRecipient).collect(Collectors.joining(", "));
-        try {
-            mail.setRecipients(recipients);
-            mail.send();
-            generateMailLog(mail, recipientString, "OK");
-
-            logger.info(String.format("Email '%s' correttamente inviata in data %s a %s", mail.getSubject(), new Date(), recipientString));
-        } catch (Exception e) {
-            e.printStackTrace();
-            generateMailLog(mail, recipientString, String.format("Errore: %s", e.getMessage()));
-        }
-    }
 
     @Override
     public void sendSimpleMail(String mail, String text) {
@@ -76,6 +61,7 @@ public class MailServiceImpl implements MailService {
         recipient.setRecipient(mail);
         sendMail(createMail("mailTemplates/simpletext.vm", TemplatedMail.HTML, "Test", data), Collections.singletonList(recipient));
     }
+
 
 
 
@@ -125,17 +111,56 @@ public class MailServiceImpl implements MailService {
         return null;
     }
 
-    private void generateMailLog(TemplatedMail mail, String recipients, String messageLog) {
+
+    //TODO:lambda
+    @Override
+    public void sendMail(TemplatedMail mail, List<Recipient> recipients) {
+
+        if (optionsManager.get("testmode").equals("ON")) {
+            for (Recipient recipient: recipients) {
+                recipient.setRecipient(optionsManager.get("testmode.recipient.mail"));
+            }
+        }
+        String recipientString = recipients.stream().map(Recipient::getRecipient).collect(Collectors.joining(", "));
+        try {
+            mail.setRecipients(recipients);
+            mail.send();
+            generateMailLog(mail, recipients, "OK", mail.getFrom());
+            logger.info(String.format("Email '%s' correttamente inviata in data %s a %s", mail.getSubject(), new Date(), recipientString));
+        } catch (Exception e) {
+            e.printStackTrace();
+            generateMailLog(mail, recipients, String.format("Errore: %s", e.getMessage()),  mail.getFrom());
+
+            throw new ProgramException(String.format("Errore durante l'invio della mail '%s' a %s: %s", mail.getSubject(), recipientString,e.getMessage()));
+
+        }
+    }
+
+    private void generateMailLog(TemplatedMail mail, List<Recipient> recipient, String messageLog, String sender) {
+        if (!SystemOptionsUtils.isEnabled("log.email"))
+            return;
         MailLog log = new MailLog();
         log.setDate(new Date());
-        log.setSender(mail.getFrom());
+        log.setSender(sender);
         log.setSubject(mail.getSubject());
         log.setLog(messageLog);
-        log.setRecipient(recipients);
-        //log.setText(mail.getMailText());
-        log.setAttachments(mail.getAttachments());
-
+        log.setRecipient(recipient.stream().map(Recipient::getRecipient).collect(Collectors.joining(", ")));
+        log.setText(mail.getMailText());
+//        if (mail.getAttachmentList() != null && mail.getAttachmentList().size() > 0){
+//            List<Attachment> attachments = new ArrayList<>();
+//            for (Attachment a: mail.getAttachmentList()
+//            ) {
+//                try {
+//                    Attachment attachment = new Attachment(a.getName(), fileServer.copyFile(a.getPath(), "files/mailLog"), a.getSize());
+//                    attachments.add(attachment);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            log.setAttachments(attachments);
+//        }
         Repo.of(MailLog.class).save(log);
     }
+
 
 }

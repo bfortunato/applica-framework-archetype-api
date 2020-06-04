@@ -1,9 +1,11 @@
 package applica.api.domain.model.auth;
 
+import applica.api.domain.model.AIntegerCodedEntity;
 import applica.api.domain.model.Entities;
 import applica.framework.AEntity;
 import applica.framework.annotations.ManyToMany;
 import applica.framework.revisions.AvoidRevision;
+import applica.framework.security.NumericCodedEntity;
 import applica.framework.widgets.entities.EntityId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.util.StringUtils;
@@ -12,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Applica (www.applica.guru)
@@ -19,8 +22,9 @@ import java.util.Objects;
  * Date: 6/12/2016
  * Time: 17:08
  */
+
 @EntityId(value = Entities.USER, allowRevision = true)
-public class User extends AEntity implements applica.framework.security.User {
+public class User extends AIntegerCodedEntity implements applica.framework.security.User {
 
     private String name;
     private String lastname;
@@ -34,7 +38,6 @@ public class User extends AEntity implements applica.framework.security.User {
 
     @AvoidRevision
     private Date lastLogin;
-
     private Date currentPasswordSetDate;
 
     @ManyToMany
@@ -155,9 +158,15 @@ public class User extends AEntity implements applica.framework.security.User {
     }
 
     @Override
+    protected String getDescription() {
+        return toString();
+    }
+
+    @Override
     public String getUsername() {
         return getMail();
     }
+
 
     public boolean isNeedToChangePassword() {
         Calendar threeMonthAgo = Calendar.getInstance();
@@ -166,11 +175,14 @@ public class User extends AEntity implements applica.framework.security.User {
     }
 
     public boolean hasRole(String role){
-        for (Role r: getRoles()
-             ) {
+        for (Role r: getRoles()) {
             if (Objects.equals(r.getRole(), role))
                 return true;
         }
         return false;
+    }
+
+    public String getRoleDescription() {
+        return String.join(", ", roles.stream().map(Role::getLocalizedRole).collect(Collectors.joining()));
     }
 }

@@ -5,45 +5,17 @@ import applica.framework.AEntity;
 /**
  * Created by antoniolovicario on 06/11/17.
  */
-public class PasswordChange extends AEntity {
+public class PasswordChange extends PasswordReset {
 
-    private User user;
-    private String password;
+
+    //Password IN CHIARO corrente
     private String currentPassword;
-    private String passwordConfirm;
-
-    public PasswordChange(User user, String currentEncodedPassword, String password, String passwordConfirm) {
-        this.user = user;
-        this.currentPassword = currentEncodedPassword;
-        this.password = password;
-        this.passwordConfirm = passwordConfirm;
-    }
 
     public PasswordChange() {}
 
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getPasswordConfirm() {
-        return passwordConfirm;
-    }
-
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public PasswordChange(User user, String currentPassword, String password, String passwordConfirm) {
+        super(user, password, passwordConfirm);
+        this.currentPassword = currentPassword;
     }
 
     public String getCurrentPassword() {

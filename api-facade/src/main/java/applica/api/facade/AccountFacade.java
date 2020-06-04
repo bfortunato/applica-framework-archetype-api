@@ -1,5 +1,13 @@
 package applica.api.facade;
 
+
+import applica.api.domain.model.Filters;
+import applica.api.domain.model.auth.AppPermissions;
+import applica.api.domain.model.auth.PasswordRecoveryCode;
+import applica.api.domain.model.auth.User;
+import applica.api.services.AccountService;
+import applica.api.services.MailService;
+import applica.api.services.exceptions.MailNotFoundException;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.library.i18n.LocalizationUtils;
@@ -7,15 +15,8 @@ import applica.framework.library.mail.Recipient;
 import applica.framework.library.mail.TemplatedMail;
 import applica.framework.library.options.OptionsManager;
 import applica.framework.security.Security;
+import applica.framework.security.SecurityUtils;
 import applica.framework.security.authorization.AuthorizationException;
-import applica.api.domain.model.Filters;
-import applica.api.domain.model.auth.PasswordRecoveryCode;
-import applica.api.domain.model.auth.User;
-import applica.api.domain.model.auth.AppPermissions;
-import applica.api.domain.utils.SecurityUtils;
-import applica.api.services.AccountService;
-import applica.api.services.MailService;
-import applica.api.services.exceptions.MailNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,7 @@ public class AccountFacade {
         mailService.sendActivationMail(user, tempPassword);
     }
 
+
     /**
      * Forza il reinvio di una password generata con le stesse politiche adottate in fase di creazione all'utente con id userId
      * @param userId
@@ -54,9 +56,13 @@ public class AccountFacade {
 
     public String generateAndSendUserOneTimePassword(User user) throws AuthorizationException {
         Security.withMe().authorize(AppPermissions.RESET_USER_PASSWORD);
-        String tempPassword = accountService.generateOneTimePassword();
+        String tempPassword = optionsManager.get("password.onetime.value");
+        if (!org.springframework.util.StringUtils.hasLength(tempPassword))
+            tempPassword = randomAlphaNumeric(8);
 
-        user.setPassword(SecurityUtils.encodePassword(tempPassword));
+
+        //rimettere a tempPassword a regime
+        user.setPassword(SecurityUtils.encryptAndGetPassword(tempPassword));
         user.setCurrentPasswordSetDate(null);
         Repo.of(User.class).save(user);
 
@@ -68,7 +74,7 @@ public class AccountFacade {
 
 
     public void sendConfirmationCode(String mail) throws MailNotFoundException {
-        User user = Repo.of(User.class).find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElseThrow(MailNotFoundException::new);
+        User user = Repo.of(User.class).find(Query.build().eq(Filters.USER_MAIL, mail.toLowerCase())).findFirst().orElseThrow(MailNotFoundException::new);
 
         PasswordRecoveryCode passwordRecoveryCode = accountService.getPasswordRecoverForUser(user.getSid());
 
@@ -77,7 +83,7 @@ public class AccountFacade {
             passwordRecoveryCode.setUserId(user.getSid());
         }
 
-        String code = randomAlphaNumeric(5);
+        String code = randomAlphaNumeric(8);
         passwordRecoveryCode.setCode(code);
 
         accountService.savePasswordRecoveryCode(passwordRecoveryCode);
@@ -85,10 +91,10 @@ public class AccountFacade {
     }
 
     private static String randomAlphaNumeric(int count) {
-        String ALPHA_NUMERIC_STRING = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        String ALPHA_NUMERIC_STRING = "abcdefghilmnopqrstuvzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
             builder.append(ALPHA_NUMERIC_STRING.charAt(character));
         }
         return builder.toString();

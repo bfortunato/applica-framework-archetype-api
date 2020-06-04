@@ -1,7 +1,5 @@
 package applica.api.services.impl;
 
-import applica.framework.security.Security;
-import applica.framework.security.token.*;
 import applica.api.domain.data.UsersRepository;
 import applica.api.domain.model.UserLoginAttempt;
 import applica.api.domain.model.auth.User;
@@ -11,7 +9,10 @@ import applica.api.services.AuthService;
 import applica.api.services.UserService;
 import applica.api.services.exceptions.BadCredentialsException;
 import applica.api.services.exceptions.UserLoginMaxAttemptsException;
+import applica.framework.security.Security;
+import applica.framework.security.token.*;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -24,13 +25,11 @@ import static applica.api.domain.model.UserAttempt.WAITING_TIME_IN_SECONDS;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UsersRepository usersRepository;
-    private final UserService userService;
+    @Autowired
+    private UsersRepository usersRepository;
 
-    public AuthServiceImpl(UsersRepository usersRepository, UserService userService) {
-        this.usersRepository = usersRepository;
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @Override
     public String token(String mail, String password) throws IllegalArgumentException, BadCredentialsException, TokenGenerationException, UserLoginMaxAttemptsException {

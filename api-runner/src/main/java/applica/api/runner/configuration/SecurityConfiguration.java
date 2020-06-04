@@ -1,5 +1,7 @@
 package applica.api.runner.configuration;
 
+import applica.api.runner.filters.UserPasswordChangeDetectFilter;
+import applica.api.runner.localization.LocalizationFilter;
 import applica.framework.security.UserService;
 import applica.framework.security.authorization.AuthorizationService;
 import applica.framework.security.authorization.BaseAuthorizationService;
@@ -23,6 +25,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 
 import java.util.List;
 
@@ -48,8 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         web.ignoring()
                 .antMatchers("/ping")
                 .antMatchers("/auth/**")
-                .antMatchers("/account/register")
-                .antMatchers("/account/confirm")
+                .antMatchers("/account/**")
                 .antMatchers("/images/**")
                 .antMatchers("/services/**")
                 .antMatchers( "/system/**")
@@ -82,7 +84,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return manager;
     }
 
-    @Override
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        TokenAuthenticationFilter filter = new TokenAuthenticationFilter();
+        return filter;
+    }
+
+    @Bean
+    public UserPasswordChangeDetectFilter userPasswordChangeDetectFilter() throws Exception {
+        return new UserPasswordChangeDetectFilter();
+    }
+
+    @Bean
+    public LocalizationFilter localizationFiler() {
+        return new LocalizationFilter();
+    }
+
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(tokenAuthenticationProvider());
         auth.authenticationProvider(daoAuthenticationProvider());
@@ -99,7 +117,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/**").authenticated()
                 .and()
-                .addFilterAfter(new TokenAuthenticationFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(tokenAuthenticationFilter(), BasicAuthenticationFilter.class)
 
                 .headers()
                 .contentSecurityPolicy("script-src 'self'")

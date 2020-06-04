@@ -4,7 +4,6 @@ import applica.api.domain.model.UserChangePasswordAttempt;
 import applica.api.domain.utils.CustomDateUtils;
 import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
-import applica.api.domain.utils.SecurityUtils;
 import applica.api.facade.AccountFacade;
 import applica.api.facade.viewmodels.UIUserWithToken;
 import applica.api.services.AccountService;
@@ -18,6 +17,7 @@ import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.security.Security;
+import applica.framework.security.SecurityUtils;
 import applica.framework.security.User;
 import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.security.token.TokenGenerationException;
@@ -117,17 +117,15 @@ public class AccountController {
         }
     }
 
-    @RequestMapping("/changePassword")
+    public static final String CHANGE_PASSWORD_URL = "/changePassword";
+    @RequestMapping(CHANGE_PASSWORD_URL)
     public @ResponseBody
     Response resetPassword(String currentPassword, String password, String passwordConfirm) {
 
         try {
-            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), StringUtils.hasLength(currentPassword) ? SecurityUtils.encodePassword(currentPassword) : null, password, passwordConfirm);
+            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), currentPassword, password, passwordConfirm);
         } catch (ValidationException e) {
-            e.getValidationResult().getErrors();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
-        } catch (MailNotFoundException e) {
-            return new Response(ERROR, e.getMessage());
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors(), "\n"));
         } catch (Exception e) {
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
@@ -190,7 +188,7 @@ public class AccountController {
             accountFacade.sendConfirmationCode(mail);
             return new Response(Response.OK);
         } catch (MailNotFoundException e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("error.mail.not.found"));
+            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(Response.ERROR);
@@ -212,7 +210,7 @@ public class AccountController {
             return new Response(Response.OK);
         }  catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("msg.validation"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
 }

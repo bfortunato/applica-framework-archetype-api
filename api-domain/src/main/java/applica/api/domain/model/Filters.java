@@ -20,6 +20,8 @@ public class Filters {
     public static final String DESCRIPTION = "description";
     public static final String POSTAL_CODE = "postalCode";
     public static final String CAP = "cap";
-
+    public static final String ENTITY = "entity";
+    public static final String ENTITY_ID = "entityId";
+    public static final String DATE ="date";
 }
 

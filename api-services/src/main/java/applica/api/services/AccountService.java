@@ -3,8 +3,8 @@ package applica.api.services;
 import applica.api.domain.model.auth.PasswordRecoveryCode;
 import applica.api.domain.model.auth.User;
 import applica.api.services.exceptions.*;
-import applica.framework.library.base64.URLData;
 import applica.framework.library.validation.ValidationException;
+import applica.framework.library.base64.URLData;
 
 import java.io.IOException;
 
@@ -13,12 +13,6 @@ import java.io.IOException;
  */
 public interface AccountService {
 
-    /**
-     * Register a new account. Registered account is inactive and a confirmation mail is sent
-     * @param name
-     * @param email
-     * @param password
-     */
     String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
 
     /**
@@ -46,13 +40,18 @@ public interface AccountService {
      */
     URLData getProfileImage(Object userId, String size) throws UserNotFoundException, IOException;
 
-    void changePassword(User user, String currentEncodedPassword, String password, String passwordConfirm) throws ValidationException, MailNotFoundException;
 
     boolean needToChangePassword(applica.framework.security.User user);
+
+    void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException;
+
+    void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException;
 
     void deactivateInactiveUsers();
 
     boolean hasPasswordSetBefore(Object userId, String encryptedPassword, Integer changesToConsider);
+
+    boolean isCurrentPassword(String password);
 
     PasswordRecoveryCode getPasswordRecoverForUser(String userId);
 
@@ -61,6 +60,8 @@ public interface AccountService {
     void deletePasswordRecoveryCode(PasswordRecoveryCode code);
 
     void savePasswordRecoveryCode(PasswordRecoveryCode passwordRecoveryCode);
+
+    void sendConfirmationCode(String mail);
 
     void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException;
 

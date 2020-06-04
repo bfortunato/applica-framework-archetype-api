@@ -7,9 +7,16 @@ import applica.api.domain.model.auth.Role;
  */
 public class Entities {
 
+
+    // inserire i nomi di tutte le entità
     public static final String USER = "user";
     public static final String ROLE = "role";
+    public static final String REVISION = "revision";
+    public static final String TEMP_ATTACHMENT_ENTITY = "tempAttachmentEntity";
+    public static final String GEO_CITY = "geoCity";
+    public static final String GEO_PROVINCE = "geoProvince";
     public static final String MAIL_LOG = "mailLog";
+
 
     public static String [] getPermittedEntitiesByRole(String permission) {
 
@@ -30,6 +37,6 @@ public class Entities {
     }
 
     public static String[] getAll() {
-        return new String[]{USER, ROLE, MAIL_LOG};
+        return new String[]{USER, ROLE, REVISION, GEO_CITY, GEO_PROVINCE};
     }
 }

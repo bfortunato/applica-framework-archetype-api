@@ -2,6 +2,7 @@ package applica.api.runner.configuration;
 
 import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
+import applica.api.runner.operations.CustomEntityMapper;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.DefaultRepositoriesFactory;
 import applica.framework.RepositoriesFactory;
@@ -19,20 +20,23 @@ import applica.framework.library.velocity.VelocityBuilderProvider;
 import applica.framework.notifications.NotificationService;
 import applica.framework.notifications.NotificationsController;
 import applica.framework.notifications.firebase.FirebaseNotificationService;
+import applica.framework.revision.RevisionController;
+import applica.framework.revision.RevisionTrackingCrudStrategy;
+import applica.framework.revision.services.RevisionService;
+import applica.framework.revision.services.implementation.BaseRevisionService;
 import applica.framework.widgets.factory.DefaultOperationsFactory;
 import applica.framework.widgets.factory.OperationsFactory;
 import applica.framework.widgets.mapping.EntityMapper;
 import applica.framework.widgets.operations.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
+import org.springframework.scheduling.config.TaskManagementConfigUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -40,6 +44,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
+
 
 /**
  * Created by bimbobruno on 14/11/2016.
@@ -105,7 +110,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public EntityMapper entityMapper() {
-        return new EntityMapper();
+        return new CustomEntityMapper();
     }
 
     @Bean
@@ -155,7 +160,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurerAdapter() {
+        return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry
@@ -191,6 +196,27 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
     @Bean
     public NotificationsController notificationsController(ResourceLoader resourceLoader, OptionsManager optionsManager) {
         return new NotificationsController(notificationService(resourceLoader, optionsManager));
+    }
+
+
+    @Conditional(SchedulerCondition.class)
+    @Bean(name = TaskManagementConfigUtils.SCHEDULED_ANNOTATION_PROCESSOR_BEAN_NAME)
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public ScheduledAnnotationBeanPostProcessor scheduledAnnotationProcessor() {
+        return new ScheduledAnnotationBeanPostProcessor();
+    }
+
+
+
+    @Bean
+    public RevisionController revisionController() {
+        return new RevisionController();
+    }
+
+
+    @Bean
+    public RevisionService revisionService() {
+        return new BaseRevisionService();
     }
 
 }
