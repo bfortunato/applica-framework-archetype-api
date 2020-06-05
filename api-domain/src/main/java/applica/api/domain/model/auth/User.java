@@ -152,14 +152,10 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
         return "@";
     }
 
-    @Override
-    public String toString() {
-        return getMail();
-    }
 
     @Override
     protected String getDescription() {
-        return toString();
+        return getMail();
     }
 
     @Override
