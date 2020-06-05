@@ -25,10 +25,10 @@ public abstract class AIntegerCodedEntity extends AEntity implements NumericCode
 
     @Override
     public String toString() {
-        return String.format("%s - %s", getCode(), getDescription());
+        return String.format("%s - %s", getCode(), entityDescription());
     }
 
-    protected String getDescription() {
+    protected String entityDescription() {
         return "";
     }
 
