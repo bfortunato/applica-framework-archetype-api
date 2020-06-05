@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Time: 17:08
  */
 
-@EntityId(value = Entities.USER, allowRevision = true)
+@EntityId(value = Entities.USER, allowRevision = true, automaticCodeGeneration = true)
 public class User extends AIntegerCodedEntity implements applica.framework.security.User {
 
     private String name;
