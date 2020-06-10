@@ -17,12 +17,10 @@ import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.security.Security;
-import applica.framework.security.SecurityUtils;
 import applica.framework.security.User;
 import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.security.token.TokenGenerationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -188,7 +186,7 @@ public class AccountController {
             accountFacade.sendConfirmationCode(mail);
             return new Response(Response.OK);
         } catch (MailNotFoundException e) {
-            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("generic.error"));
+            return new Response(ERROR, LocalizationUtils.getInstance().getMessage("error.mail.not.found"));
         } catch (Exception e) {
             e.printStackTrace();
             return new Response(Response.ERROR);
@@ -210,7 +208,7 @@ public class AccountController {
             return new Response(Response.OK);
         }  catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.recoveryCode.not.valid"));
         }
     }
 }
