@@ -28,7 +28,7 @@ public abstract class AIntegerCodedEntity extends AEntity implements NumericCode
         return String.format("%s - %s", getCode(), entityDescription());
     }
 
-    protected String entityDescription() {
+    public String entityDescription() {
         return "";
     }
 

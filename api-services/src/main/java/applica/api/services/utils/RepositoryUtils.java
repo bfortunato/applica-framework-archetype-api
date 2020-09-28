@@ -2,12 +2,26 @@ package applica.api.services.utils;
 
 import applica.framework.Entity;
 import applica.framework.Query;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RepositoryUtils {
+
+
+    public static List<ObjectId> getRepositoryIdFromIds(List<String> ids) {
+        if (ids != null && ids.size() > 0)
+            return ids.stream().map(ObjectId::new).collect(Collectors.toList());
+        return new ArrayList<>();
+    }
+
+    public static List<ObjectId> getRepositoryIdFromEntities(List<? extends Entity> entities) {
+        if (entities != null && entities.size() > 0)
+            return getRepositoryIdFromIds(entities.stream().map(e -> ((String) e.getId())).collect(Collectors.toList()));
+        return new ArrayList<>();
+    }
 
     public static List<String> getIdsFromEntities(List<? extends Entity> entities) {
         if (entities != null && entities.size() > 0)

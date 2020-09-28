@@ -28,7 +28,7 @@ public abstract class AStringedCodedEntity extends AEntity implements Stringifie
         return String.format("%s - %s", getCode(), entityDescription());
     }
 
-    protected String entityDescription() {
+    public String entityDescription() {
         return "";
     }
 
