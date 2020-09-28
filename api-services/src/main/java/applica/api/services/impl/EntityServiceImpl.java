@@ -7,6 +7,7 @@ import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.security.EntityService;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -15,9 +16,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.bson.types.ObjectId;
-
-import static org.apache.commons.beanutils.PropertyUtils.getPropertyType;
 
 
 @Service
