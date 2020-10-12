@@ -8,6 +8,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -53,5 +54,22 @@ public class ClassUtils extends applica.framework.widgets.utils.ClassUtils {
         }
         return null;
 
+    }
+
+
+    public static HashMap<Object, Object> getAllValuesInClass(Object object) throws IllegalAccessException {
+        HashMap<Object, Object> map = new HashMap<>();
+        Class currentClass = object.getClass();
+        while (currentClass != null){
+            for (Field field : currentClass.getDeclaredFields()) {
+                field.setAccessible(true);
+                String name = field.getName();
+                Object value = field.get(object);
+                map.put(name, value);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return map;
     }
 }
