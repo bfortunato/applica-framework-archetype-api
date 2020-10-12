@@ -11,23 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ClassUtils {
+public class ClassUtils extends applica.framework.widgets.utils.ClassUtils {
 
     public interface ClassUtilsRunnable {
         void perform(Class component);
     }
 
-    public static List<Field> getAllFields(Class<? extends Object> type) {
-        ArrayList fields = new ArrayList();
-        for(Class c = type; c != null; c = c.getSuperclass()) {
-            for (Field declaredField : c.getDeclaredFields()) {
-                declaredField.setAccessible(true);
-                fields.add(declaredField);
-            }
-        }
-
-        return fields;
-    }
 
     public static void performForAllSubclassesInModel(Class father, ClassUtilsRunnable runnable) {
 
