@@ -30,7 +30,6 @@ public class UserSaveOperation extends BaseSaveOperation {
         map().dataUrlToImage(node, entity, "_image", "image", "images/users");
     }
 
-
     @Override
     protected void beforeSave(ObjectNode data, Entity entity) throws OperationException {
         super.beforeSave(data, entity);
@@ -57,6 +56,5 @@ public class UserSaveOperation extends BaseSaveOperation {
                 e.printStackTrace();
             }
         }
-
     }
 }

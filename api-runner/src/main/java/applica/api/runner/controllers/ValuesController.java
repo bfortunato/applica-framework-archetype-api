@@ -4,16 +4,27 @@ import applica.api.domain.data.RolesRepository;
 import applica.api.domain.data.UsersRepository;
 import applica.api.domain.model.auth.Role;
 import applica.api.domain.model.auth.User;
+import applica.framework.Entity;
 import applica.framework.Query;
+import applica.framework.Repo;
 import applica.framework.library.SimpleItem;
+import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
+import applica.framework.library.utils.ObjectUtils;
 import applica.framework.security.authorization.Permissions;
+import applica.framework.widgets.entities.EntitiesRegistry;
+import applica.framework.widgets.entities.EntityDefinition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.ServletRequestParameterPropertyValues;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +69,24 @@ public class ValuesController {
     @RequestMapping("/users")
     public List<User> users() {
         return usersRepository.find(null).getRows();
+    }
+
+    @GetMapping("/entities/{entityId}")
+    public Response entities(@PathVariable String entityId, HttpServletRequest request) {
+        try {
+            Query query = ObjectUtils.bind(new Query(), new ServletRequestParameterPropertyValues(request));
+            Optional<EntityDefinition> definition = EntitiesRegistry.instance().get(entityId);
+            if (definition.isPresent()) {
+                List<? extends Entity> entities = Repo.of(definition.get().getType()).find(query).getRows();
+
+                return new ValueResponse(entities.stream().map(c -> new SimpleItem(c.toString(), String.valueOf(c.getId()))).collect(Collectors.toList()));
+            } else {
+                return new Response(Response.ERROR_NOT_FOUND);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response(Response.ERROR);
+        }
     }
 
 }
