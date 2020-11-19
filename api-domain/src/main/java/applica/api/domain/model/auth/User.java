@@ -154,7 +154,7 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
 
 
     @Override
-    protected String entityDescription() {
+    public String entityDescription() {
         return getMail();
     }
 

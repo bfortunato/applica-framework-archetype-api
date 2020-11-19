@@ -26,7 +26,8 @@ public class UserSaveOperation extends BaseSaveOperation {
     }
 
     @Override
-    protected void finishEntity(ObjectNode node, Entity entity) {
+    protected void finishEntity(ObjectNode node, Entity entity) throws OperationException {
+        super.finishEntity(node, entity);
         map().dataUrlToImage(node, entity, "_image", "image", "images/users");
     }
 
@@ -44,7 +45,8 @@ public class UserSaveOperation extends BaseSaveOperation {
     }
 
     @Override
-    protected void afterSave(ObjectNode node, Entity entity) {
+    protected void afterSave(ObjectNode node, Entity entity) throws OperationException {
+        super.afterSave(node, entity);
         // Ottengo tutte le info necessarie ad aggiornare/creare un utente
         User user = (User) entity;
         if (user.getFirstLogin() == null) {

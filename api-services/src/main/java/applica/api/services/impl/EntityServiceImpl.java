@@ -23,11 +23,9 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public boolean isUnique(Class<? extends Entity> entityClass, String fieldName, Object fieldValue, Entity entity) {
-        Entity duplicated = Repo.of(entityClass).find(Query.build().eq(fieldName, fieldValue)).findFirst().orElse(null);
+        Entity duplicated = Repo.of(entityClass).find(Query.build().eq(fieldName, fieldValue != null? fieldValue: getPropertyWrapper(entity, fieldName))).findFirst().orElse(null);
         return duplicated == null || Objects.equals(duplicated.getId(), entity.getId());
     }
-
-
 
     private Class getPropertyType(Object bean, String property) {
         try {
