@@ -32,12 +32,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-
-import static applica.api.domain.model.auth.PasswordReset.generatePasswordRequest;
 
 /**
  * Created by bimbobruno on 15/11/2016.
@@ -45,40 +41,29 @@ import static applica.api.domain.model.auth.PasswordReset.generatePasswordReques
 @Service
 public class AccountServiceImpl implements AccountService {
 
-
     private Log logger = LogFactory.getLog(getClass());
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
-
-    private final UsersRepository usersRepository;
-    private final RolesRepository rolesRepository;
-    private final OptionsManager options;
-    private final FileServer fileServer;
-    private final MailService mailService;
-    private final UserService userService;
 
     @Autowired
-    public AccountServiceImpl(UsersRepository usersRepository, RolesRepository rolesRepository, OptionsManager options, FileServer fileServer, MailService mailService, UserService userService) {
-        this.usersRepository = usersRepository;
-        this.rolesRepository = rolesRepository;
-        this.options = options;
-        this.fileServer = fileServer;
-        this.mailService = mailService;
-        this.userService = userService;
-    }
+    private UsersRepository usersRepository;
 
+    @Autowired
+    private RolesRepository rolesRepository;
+
+    @Autowired
+    private OptionsManager options;
+
+    @Autowired
+    private FileServer fileServer;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private UserService userService;
 
 
     @Override
-    public void confirm(String activationCode) throws MailNotFoundException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_ACTIVATION_CODE, activationCode)).findFirst().orElseThrow(MailNotFoundException::new);
-        user.setActive(true);
-
-        usersRepository.save(user);
-    }
-
-
-    @Override
-    public String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
+    public void register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(password)) {
             throw new ValidationException(null);
         }
@@ -115,6 +100,7 @@ public class AccountServiceImpl implements AccountService {
         usersRepository.save(user);
 
         String activationUrl = String.format("%s/#/confirm?activationCode=%s", options.get("frontend.public.url"), user.getActivationCode());
+        String loginUrl = String.format("%s/#/login", options.get("frontend.public.url"));
         final TemplatedMail templatedMail = new TemplatedMail();
         templatedMail.setOptions(options);
         templatedMail.setMailFormat(TemplatedMail.HTML);
@@ -125,12 +111,18 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("password", password);
         templatedMail.put("mail", mail);
         templatedMail.put("activationUrl", activationUrl);
+        templatedMail.put("loginUrl", loginUrl);
 
         mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
-
-        return activationCode;
     }
 
+    @Override
+    public void confirm(String activationCode) throws MailNotFoundException {
+        User user = usersRepository.find(Query.build().eq(Filters.USER_ACTIVATION_CODE, activationCode)).findFirst().orElseThrow(MailNotFoundException::new);
+        user.setActive(true);
+
+        usersRepository.save(user);
+    }
 
     @Override
     public void recover(String mail) throws MailNotFoundException {
@@ -150,9 +142,9 @@ public class AccountServiceImpl implements AccountService {
         templatedMail.put("password", newPassword);
         templatedMail.put("mail", mail);
 
-        executor.execute(() -> mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO))));
-
+        mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
     }
+
 
 
     @Override
@@ -183,11 +175,10 @@ public class AccountServiceImpl implements AccountService {
                 });
     }
 
-
     @Override
-    public void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException {
+    public void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force, boolean requireChange) throws ValidationException {
         if (!force)
-            Validation.validate(generatePasswordRequest(user, currentPassword, password, passwordConfirm));
+            Validation.validate(new PasswordChange(user, currentPassword, password, passwordConfirm));
 
 
 
@@ -203,7 +194,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException {
-        changePassword(user, currentPassword, password, passwordConfirm, false);
+        changePassword(user, currentPassword, password, passwordConfirm, false, false);
     }
 
     @Override
@@ -365,4 +356,5 @@ public class AccountServiceImpl implements AccountService {
             tempPassword = UUID.randomUUID().toString().substring(0, 8).trim();
         return tempPassword;
     }
+
 }

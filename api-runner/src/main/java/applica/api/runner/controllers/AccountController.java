@@ -12,18 +12,18 @@ import applica.api.services.UserService;
 import applica.api.services.exceptions.*;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.library.base64.URLData;
-import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.security.Security;
+import applica.framework.security.SecurityUtils;
 import applica.framework.security.User;
 import applica.framework.security.authorization.AuthorizationException;
 import applica.framework.security.token.TokenGenerationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.Date;
 
 import static applica.api.domain.model.UserAttempt.WAITING_TIME_IN_SECONDS;
@@ -38,26 +38,29 @@ import static applica.framework.library.responses.Response.OK;
  * Time: 5:47 PM
  */
 @RestController
-@RequestMapping("/account")
 public class AccountController {
 
-    private final AccountService accountService;
-    private final AccountFacade accountFacade;
-    private final AuthService authService;
-    private final UserService userService;
+
+    private static final String BASE = "/account";
 
     @Autowired
-    public AccountController(AccountService accountService, AccountFacade accountFacade, AuthService authService, UserService userService) {
-        this.accountService = accountService;
-        this.accountFacade = accountFacade;
-        this.authService = authService;
-        this.userService = userService;
-    }
+    private AccountService accountService;
 
-    @PostMapping("/register")
+    @Autowired
+    private AccountFacade accountFacade;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private UserService userService;
+
+
+    @PostMapping(BASE + "/register")
     public Response register(String name, String mail, String password) {
         try {
-            return new ValueResponse(accountService.register(name, mail, password));
+            accountService.register(name, mail, password);
+            return new Response(OK);
         } catch (MailAlreadyExistsException e) {
             return new Response(ERROR_MAIL_ALREADY_EXISTS);
         } catch (MailNotValidException e) {
@@ -68,11 +71,11 @@ public class AccountController {
             return new Response(ERROR_VALIDATION);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response(ERROR);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
 
-    @PostMapping("/confirm")
+    @PostMapping(BASE + "/confirm")
     public Response confirm(String activationCode) {
         try {
             accountService.confirm(activationCode);
@@ -81,11 +84,11 @@ public class AccountController {
             return new Response(ERROR_MAIL_NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response(ERROR);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
 
-    @PostMapping("/recover")
+    @PostMapping(BASE + "/recover")
     public Response recover(String mail) {
         try {
             accountService.recover(mail);
@@ -94,14 +97,31 @@ public class AccountController {
             return new Response(ERROR_MAIL_NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response(ERROR);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
 
-    @GetMapping("/{userId}/profile/image")
+//    @GetMapping(BASE + "/{userId}/cover")
+//    public Response cover(@PathVariable String userId) {
+//        try {
+//            URLData coverImage = accountService.getCoverImage(userId, "268x129");
+//            if (coverImage != null) {
+//                return new ValueResponse(coverImage.write());
+//            } else {
+//                return new Response(ERROR_NOT_FOUND);
+//            }
+//        } catch (UserNotFoundException e) {
+//            return new Response(ResponseCode.ERROR_USER_NOT_FOUND);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+//        }
+//    }
+
+    @GetMapping(BASE + "/{userId}/profile/image")
     public Response image(@PathVariable String userId) {
         try {
-            URLData profileImage = accountService.getProfileImage(userId, "100x100");
+            URLData profileImage = accountService.getProfileImage(userId, "47x47");
             if (profileImage != null) {
                 return new ValueResponse(profileImage.write());
             } else {
@@ -109,29 +129,30 @@ public class AccountController {
             }
         } catch (UserNotFoundException e) {
             return new Response(ResponseCode.ERROR_USER_NOT_FOUND);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return new Response(Response.ERROR);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
 
-    public static final String CHANGE_PASSWORD_URL = "/changePassword";
+    private static final String CHANGE_PASSWORD_METHOD = "/changePassword";
+    public static final String CHANGE_PASSWORD_URL = BASE + CHANGE_PASSWORD_METHOD;
+
     @RequestMapping(CHANGE_PASSWORD_URL)
     public @ResponseBody
     Response resetPassword(String currentPassword, String password, String passwordConfirm) {
 
         try {
-            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), currentPassword, password, passwordConfirm);
+            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), StringUtils.hasLength(currentPassword) ? SecurityUtils.encryptAndGetPassword(currentPassword) : null, password, passwordConfirm);
         } catch (ValidationException e) {
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors(), "\n"));
-        } catch (Exception e) {
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            e.getValidationResult().getErrors();
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
         }
         User user = Security.withMe().getLoggedUser();
         String token = null;
         try {
             token = authService.token(((applica.api.domain.model.auth.User) user).getMail(), password);
-        } catch (BadCredentialsException | TokenGenerationException | UserLoginMaxAttemptsException e) {
+        } catch (UserLoginMaxAttemptsException | BadCredentialsException | TokenGenerationException e) {
             e.printStackTrace();
         }
         return new ValueResponse(new UIUserWithToken(user, token));
@@ -140,7 +161,7 @@ public class AccountController {
 
 
 
-    @PostMapping("/resetUserPassword")
+    @PostMapping(BASE + "/resetUserPassword")
     public @ResponseBody
     Response resetUserPassword(String id) {
         try {
@@ -158,7 +179,7 @@ public class AccountController {
         }
         return new Response(Response.OK);
     }
-    @PostMapping("/resetPassword")
+    @PostMapping(BASE + "/resetPassword")
     public @ResponseBody
     Response reset(String mail, String code, String password, String passwordConfirm) {
 
@@ -173,28 +194,25 @@ public class AccountController {
             e.getValidationResult().getErrors();
             userService.updatePasswordChangeFailAttempts(userService.getUserPasswordChangeAttempts(mail));
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
-        }  catch (Exception e) {
+        }   catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
         return new Response(Response.OK);
     }
 
-    @PostMapping("/sendConfirmationCode")
+    @PostMapping(BASE + "/sendConfirmationCode")
     public Response sendConfirmationCode(String mail) {
         try {
-            accountFacade.sendConfirmationCode(mail);
+            accountService.sendConfirmationCode(mail);
             return new Response(Response.OK);
-        } catch (MailNotFoundException e) {
-            return new Response(ERROR, LocalizationUtils.getInstance().getMessage("error.mail.not.found"));
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Response(Response.ERROR);
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
+
     }
 
-
-    @PostMapping( "/validateRecoveryCode")
+    @PostMapping(BASE + "/validateRecoveryCode")
     public @ResponseBody
     Response validateRecoveryCode(String mail, String code) {
 
@@ -208,7 +226,8 @@ public class AccountController {
             return new Response(Response.OK);
         }  catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.recoveryCode.not.valid"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
         }
     }
+
 }

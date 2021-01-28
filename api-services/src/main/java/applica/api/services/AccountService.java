@@ -13,7 +13,13 @@ import java.io.IOException;
  */
 public interface AccountService {
 
-    String register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
+    /**
+     * Register a new account. Registered account is inactive and a confirmation mail is sent
+     * @param name
+     * @param mail
+     * @param password
+     */
+    void register(String name, String mail, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException;
 
     /**
      * Confirm a previously registered account
@@ -40,10 +46,9 @@ public interface AccountService {
      */
     URLData getProfileImage(Object userId, String size) throws UserNotFoundException, IOException;
 
-
     boolean needToChangePassword(applica.framework.security.User user);
 
-    void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException;
+    void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force, boolean requireChange) throws ValidationException;
 
     void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException;
 
@@ -65,7 +70,7 @@ public interface AccountService {
 
     void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException;
 
-    void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException;
+    void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, ValidationException, CodeNotValidException;
 
     String generateOneTimePassword();
 }
