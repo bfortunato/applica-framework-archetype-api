@@ -7,7 +7,6 @@ import applica.framework.Entity;
 import applica.framework.Query;
 import applica.framework.Repo;
 import applica.framework.library.options.OptionsManager;
-import applica.framework.security.CodeGeneratorService;
 import applica.framework.security.EntityService;
 import applica.framework.widgets.factory.OperationsFactory;
 import org.apache.commons.beanutils.PropertyUtils;
