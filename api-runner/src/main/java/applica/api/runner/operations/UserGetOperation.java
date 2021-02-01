@@ -16,6 +16,7 @@ public class UserGetOperation extends BaseGetOperation {
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {
         map().imageToDataUrl(entity, node, "image", "_image", "150x*");
+        node.put("password", "");
     }
 
     @Override
