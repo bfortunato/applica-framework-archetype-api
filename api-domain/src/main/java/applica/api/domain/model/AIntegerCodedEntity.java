@@ -1,6 +1,7 @@
 package applica.api.domain.model;
 
 import applica.framework.AEntity;
+import applica.framework.Query;
 import applica.framework.security.NumericCodedEntity;
 import applica.framework.widgets.annotations.Validation;
 
@@ -25,14 +26,18 @@ public abstract class AIntegerCodedEntity extends AEntity implements NumericCode
 
     @Override
     public String toString() {
-        return String.format("%s - %s", getCode(), entityDescription());
+        return String.format("%s - %s", getCode(), getDescription());
     }
 
-    public String entityDescription() {
-        return "";
-    }
+    protected abstract String getDescription();
 
     public String getFullDescription() {
         return toString();
+    }
+
+
+    @Override
+    public Query generateQueryForCodeProgressive() {
+        return null;
     }
 }

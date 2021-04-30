@@ -13,6 +13,8 @@ public abstract class AStringedCodedEntity extends AEntity implements Stringifie
     @Validation(required = true, unique = true)
     private String code;
 
+    private long progressive;
+
     @Override
     public String getCode() {
         return code;
@@ -35,4 +37,19 @@ public abstract class AStringedCodedEntity extends AEntity implements Stringifie
     public String getFullDescription() {
         return toString();
     }
+
+    @Override
+    public long getProgressive() {
+        return progressive;
+    }
+
+    @Override
+    public void setProgressive(long progressive) {
+        this.progressive = progressive;
+    }
+
+    @Override
+    public void generateCodeForCreation() {
+    }
+
 }

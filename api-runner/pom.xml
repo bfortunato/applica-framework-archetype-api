@@ -12,7 +12,7 @@
     <artifactId>api-runner</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <applica.framework.version>2.3.0</applica.framework.version>
+        <applica.framework.version>2.3.1</applica.framework.version>
     </properties>
 
     <dependencies>

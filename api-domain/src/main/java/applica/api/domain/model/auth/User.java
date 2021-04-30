@@ -152,12 +152,6 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
         return "@";
     }
 
-
-    @Override
-    public String entityDescription() {
-        return getMail();
-    }
-
     @Override
     public String getUsername() {
         return getMail();
@@ -180,5 +174,10 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
 
     public String getRoleDescription() {
         return String.join(", ", roles.stream().map(Role::getLocalizedRole).collect(Collectors.joining()));
+    }
+
+    @Override
+    protected String getDescription() {
+        return getFullName();
     }
 }
