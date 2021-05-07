@@ -12,6 +12,7 @@ import applica.api.services.UserService;
 import applica.api.services.exceptions.*;
 import applica.api.services.responses.ResponseCode;
 import applica.framework.library.base64.URLData;
+import applica.framework.library.i18n.LocalizationUtils;
 import applica.framework.library.responses.Response;
 import applica.framework.library.responses.ValueResponse;
 import applica.framework.library.validation.ValidationException;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 
 import static applica.api.domain.model.UserAttempt.WAITING_TIME_IN_SECONDS;
@@ -41,54 +43,35 @@ import static applica.framework.library.responses.Response.OK;
 public class AccountController {
 
 
-    private static final String BASE = "/account";
+    private final AccountService accountService;
+    private final AccountFacade accountFacade;
+    private final AuthService authService;
+    private final UserService userService;
 
     @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private AccountFacade accountFacade;
-
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private UserService userService;
-
-
-    @PostMapping(BASE + "/register")
-    public Response register(String name, String mail, String password) {
-        try {
-            accountService.register(name, mail, password);
-            return new Response(OK);
-        } catch (MailAlreadyExistsException e) {
-            return new Response(ERROR_MAIL_ALREADY_EXISTS);
-        } catch (MailNotValidException e) {
-            return new Response(ERROR_MAIL_NOT_VALID);
-        } catch (PasswordNotValidException e) {
-            return new Response(ERROR_PASSWORD_NOT_VALID);
-        } catch (ValidationException e) {
-            return new Response(ERROR_VALIDATION);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
-        }
+    public AccountController(AccountService accountService, AccountFacade accountFacade, AuthService authService, UserService userService) {
+        this.accountService = accountService;
+        this.accountFacade = accountFacade;
+        this.authService = authService;
+        this.userService = userService;
     }
 
-    @PostMapping(BASE + "/confirm")
+
+    @PostMapping("/confirm")
     public Response confirm(String activationCode) {
         try {
             accountService.confirm(activationCode);
-            return new Response(OK);
+            //TODO: restituire info su utenza/ruolo/ possibilità di accedere al web o meno
+            return new ValueResponse(OK);
         } catch (MailNotFoundException e) {
-            return new Response(ERROR_MAIL_NOT_FOUND);
+            return new Response(ERROR, CustomLocalizationUtils.getInstance().getMessage("error.generic"));
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(ERROR, CustomLocalizationUtils.getInstance().getMessage("error.generic"));
         }
     }
 
-    @PostMapping(BASE + "/recover")
+    @PostMapping("/recover")
     public Response recover(String mail) {
         try {
             accountService.recover(mail);
@@ -97,31 +80,14 @@ public class AccountController {
             return new Response(ERROR_MAIL_NOT_FOUND);
         } catch (Exception e) {
             e.printStackTrace();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(ERROR);
         }
     }
 
-//    @GetMapping(BASE + "/{userId}/cover")
-//    public Response cover(@PathVariable String userId) {
-//        try {
-//            URLData coverImage = accountService.getCoverImage(userId, "268x129");
-//            if (coverImage != null) {
-//                return new ValueResponse(coverImage.write());
-//            } else {
-//                return new Response(ERROR_NOT_FOUND);
-//            }
-//        } catch (UserNotFoundException e) {
-//            return new Response(ResponseCode.ERROR_USER_NOT_FOUND);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
-//        }
-//    }
-
-    @GetMapping(BASE + "/{userId}/profile/image")
+    @GetMapping("/{userId}/profile/image")
     public Response image(@PathVariable String userId) {
         try {
-            URLData profileImage = accountService.getProfileImage(userId, "47x47");
+            URLData profileImage = accountService.getProfileImage(userId, "100x100");
             if (profileImage != null) {
                 return new ValueResponse(profileImage.write());
             } else {
@@ -129,30 +95,29 @@ public class AccountController {
             }
         } catch (UserNotFoundException e) {
             return new Response(ResponseCode.ERROR_USER_NOT_FOUND);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(Response.ERROR);
         }
     }
 
-    private static final String CHANGE_PASSWORD_METHOD = "/changePassword";
-    public static final String CHANGE_PASSWORD_URL = BASE + CHANGE_PASSWORD_METHOD;
-
+    public static final String CHANGE_PASSWORD_URL = "/changePassword";
     @RequestMapping(CHANGE_PASSWORD_URL)
     public @ResponseBody
     Response resetPassword(String currentPassword, String password, String passwordConfirm) {
 
         try {
-            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), StringUtils.hasLength(currentPassword) ? SecurityUtils.encryptAndGetPassword(currentPassword) : null, password, passwordConfirm);
+            accountService.changePassword((applica.api.domain.model.auth.User) Security.withMe().getLoggedUser(), currentPassword, password, passwordConfirm);
         } catch (ValidationException e) {
-            e.getValidationResult().getErrors();
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors(), "\n"));
+        } catch (Exception e) {
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.generic"));
         }
         User user = Security.withMe().getLoggedUser();
         String token = null;
         try {
             token = authService.token(((applica.api.domain.model.auth.User) user).getMail(), password);
-        } catch (UserLoginMaxAttemptsException | BadCredentialsException | TokenGenerationException e) {
+        } catch (BadCredentialsException | TokenGenerationException | UserLoginMaxAttemptsException e) {
             e.printStackTrace();
         }
         return new ValueResponse(new UIUserWithToken(user, token));
@@ -161,7 +126,7 @@ public class AccountController {
 
 
 
-    @PostMapping(BASE + "/resetUserPassword")
+    @PostMapping("/resetUserPassword")
     public @ResponseBody
     Response resetUserPassword(String id) {
         try {
@@ -175,11 +140,12 @@ public class AccountController {
         } catch (BadCredentialsException | AuthorizationException | TokenGenerationException e) {
             return new Response(ERROR, e.getMessage());
         } catch (Exception e) {
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.generic"));
         }
         return new Response(Response.OK);
     }
-    @PostMapping(BASE + "/resetPassword")
+
+    @PostMapping("/resetPassword")
     public @ResponseBody
     Response reset(String mail, String code, String password, String passwordConfirm) {
 
@@ -194,25 +160,29 @@ public class AccountController {
             e.getValidationResult().getErrors();
             userService.updatePasswordChangeFailAttempts(userService.getUserPasswordChangeAttempts(mail));
             return new Response(Response.ERROR, CustomErrorUtils.getInstance().getAllErrorMessages(e.getValidationResult().getErrors()));
-        }   catch (Exception e) {
+        }  catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.generic"));
         }
         return new Response(Response.OK);
     }
 
-    @PostMapping(BASE + "/sendConfirmationCode")
-    public Response sendConfirmationCode(String mail) {
+    @PostMapping("/sendConfirmationCode")
+    public @ResponseBody
+    Response sendConfirmationCode(String mail) {
         try {
-            accountService.sendConfirmationCode(mail);
+            accountFacade.sendConfirmationCode(mail);
             return new Response(Response.OK);
+        } catch (MailNotFoundException e) {
+            return new Response(Response.ERROR, LocalizationUtils.getInstance().getMessage("error.generic"));
         } catch (Exception e) {
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            e.printStackTrace();
+            return new Response(Response.ERROR);
         }
-
     }
 
-    @PostMapping(BASE + "/validateRecoveryCode")
+
+    @PostMapping( "/validateRecoveryCode")
     public @ResponseBody
     Response validateRecoveryCode(String mail, String code) {
 
@@ -226,7 +196,7 @@ public class AccountController {
             return new Response(Response.OK);
         }  catch (Exception e) {
             userService.updatePasswordChangeFailAttempts(attempt);
-            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("generic.error"));
+            return new Response(Response.ERROR, CustomErrorUtils.getInstance().getMessage("error.generic"));
         }
     }
 

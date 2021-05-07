@@ -35,6 +35,8 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static applica.api.domain.model.auth.PasswordReset.generatePasswordRequest;
+
 /**
  * Created by bimbobruno on 15/11/2016.
  */
@@ -120,9 +122,12 @@ public class AccountServiceImpl implements AccountService {
     public void confirm(String activationCode) throws MailNotFoundException {
         User user = usersRepository.find(Query.build().eq(Filters.USER_ACTIVATION_CODE, activationCode)).findFirst().orElseThrow(MailNotFoundException::new);
         user.setActive(true);
-
+        user.setFirstLogin(true);
+        user.setActivationCode(null);
+        user.setActivationDate(new Date());
         usersRepository.save(user);
     }
+
 
     @Override
     public void recover(String mail) throws MailNotFoundException {
@@ -144,7 +149,6 @@ public class AccountServiceImpl implements AccountService {
 
         mailService.sendMail(templatedMail, Collections.singletonList(new Recipient(mail, Recipient.TYPE_TO)));
     }
-
 
 
     @Override
@@ -175,10 +179,11 @@ public class AccountServiceImpl implements AccountService {
                 });
     }
 
+
     @Override
-    public void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force, boolean requireChange) throws ValidationException {
+    public void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException {
         if (!force)
-            Validation.validate(new PasswordChange(user, currentPassword, password, passwordConfirm));
+            Validation.validate(generatePasswordRequest(user, currentPassword, password, passwordConfirm));
 
 
 
@@ -194,7 +199,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException {
-        changePassword(user, currentPassword, password, passwordConfirm, false, false);
+        changePassword(user, currentPassword, password, passwordConfirm, false);
     }
 
     @Override
@@ -322,7 +327,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(null);
+        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail.toLowerCase())).findFirst().orElse(null);
         if (user != null) {
             PasswordRecoveryCode passwordRecoveryCode = Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, user.getSid()).eq(Filters.CODE, code)).findFirst().orElse(null);
             if (passwordRecoveryCode != null) {
@@ -340,9 +345,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void resetPassword(String mail, String code, String password, String passwordConfirm) throws MailNotFoundException, CodeNotValidException, ValidationException {
 
+        mail = mail.toLowerCase();
         validateRecoveryCode(mail, code, false, true);
         User user = userService.getUserByMails(Arrays.asList(mail)).get(0);
-        changePassword(user, user.getPassword(), password, passwordConfirm);
+        changePassword(user, null, password, passwordConfirm);
         PasswordRecoveryCode passwordRecoveryCode = getPasswordRecoveryCode(code);
         if (passwordRecoveryCode != null)
             deletePasswordRecoveryCode(passwordRecoveryCode);
@@ -356,5 +362,4 @@ public class AccountServiceImpl implements AccountService {
             tempPassword = UUID.randomUUID().toString().substring(0, 8).trim();
         return tempPassword;
     }
-
 }

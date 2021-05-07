@@ -42,6 +42,7 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
 
     @ManyToMany
     private List<Role> roles;
+    private Date activationDate;
 
     public String getName() {
         return name;
@@ -179,5 +180,13 @@ public class User extends AIntegerCodedEntity implements applica.framework.secur
     @Override
     protected String getDescription() {
         return getFullName();
+    }
+
+    public void setActivationDate(Date activationDate) {
+        this.activationDate = activationDate;
+    }
+
+    public Date getActivationDate() {
+        return activationDate;
     }
 }

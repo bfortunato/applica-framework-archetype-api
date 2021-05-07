@@ -48,7 +48,7 @@ public interface AccountService {
 
     boolean needToChangePassword(applica.framework.security.User user);
 
-    void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force, boolean requireChange) throws ValidationException;
+    void changePassword(User user, String currentPassword, String password, String passwordConfirm, boolean force) throws ValidationException;
 
     void changePassword(User user, String currentPassword, String password, String passwordConfirm) throws ValidationException;
 

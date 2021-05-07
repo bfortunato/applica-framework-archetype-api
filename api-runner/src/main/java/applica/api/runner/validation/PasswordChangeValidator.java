@@ -34,6 +34,11 @@ public class PasswordChangeValidator extends PasswordResetValidator {
 
     }
 
+    @Override
+    public Class getEntityType() {
+        return PasswordChange.class;
+    }
+
 }
 
 

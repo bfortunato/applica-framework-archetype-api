@@ -22,12 +22,11 @@ import java.util.regex.Pattern;
 @Component
 public class PasswordResetValidator implements applica.framework.library.validation.Validator  {
 
-
     public static final String PATTERN = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,20}";
 
     @Override
     public void validate(Entity entity, ValidationResult validationResult) {
-        PasswordChange passwordChange = (PasswordChange) entity;
+        PasswordReset passwordChange = (PasswordReset) entity;
 
         if (!StringUtils.hasLength(passwordChange.getPassword())) {
             validationResult.reject("password", "validation.field.required");
@@ -58,7 +57,7 @@ public class PasswordResetValidator implements applica.framework.library.validat
         }
     }
 
-    private boolean isValid(String password) {
+    public static boolean isValid(String password) {
         Pattern p = Pattern.compile(PATTERN);
         Matcher m = p.matcher(password);
         return m.matches();
