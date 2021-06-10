@@ -12,7 +12,12 @@ import org.springframework.stereotype.Service;
 public class CodeGeneratorServiceImpl implements CodeGeneratorService {
 
     public long getFirstAvailableCode(Class<? extends NumericCodedEntity> codeEntity) {
-        Entity lastCode = Repo.of(codeEntity).find(Query.build().page(1).rowsPerPage(1).sort(Filters.CODE, true)).findFirst().orElse(null);
+        return getFirstAvailableCode(codeEntity, Query.build().page(1).rowsPerPage(1).sort(Filters.CODE, true));
+    }
+
+    @Override
+    public long getFirstAvailableCode(Class<? extends NumericCodedEntity> codeEntity, Query query) {
+        Entity lastCode = Repo.of(codeEntity).find(query).findFirst().orElse(null);
         if (lastCode == null)
             return 1;
         else

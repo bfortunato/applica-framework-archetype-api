@@ -6,6 +6,7 @@ import applica.framework.Entity;
 import applica.framework.Query;
 import applica.framework.Result;
 import applica.framework.widgets.operations.BaseFindOperation;
+import applica.framework.widgets.operations.OperationException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +18,7 @@ public class UserFindOperation extends BaseFindOperation {
     }
 
     @Override
-    public Result<? extends Entity> fetch(Query query) {
+    public Result<? extends Entity> fetch(Query query) throws OperationException {
         FilterUtils.parseDateFilter("registrationDate", query);
 
         return super.fetch(query);

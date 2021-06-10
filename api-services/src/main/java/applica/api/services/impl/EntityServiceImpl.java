@@ -2,7 +2,6 @@ package applica.api.services.impl;
 
 import applica.api.domain.model.Filters;
 import applica.api.services.utils.RepositoryUtils;
-import applica.framework.ApplicationContextProvider;
 import applica.framework.Entity;
 import applica.framework.Query;
 import applica.framework.Repo;
@@ -15,7 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -28,6 +30,10 @@ public class EntityServiceImpl implements EntityService {
     @Autowired
     private OperationsFactory operationsFactory;
 
+    @Override
+    public boolean isUnique(Class<? extends Entity> entityClass, String fieldName, Object fieldValue, Entity entity, Query query) {
+        return isUnique(entityClass, fieldName, fieldValue, entity, new Query());
+    }
 
     @Override
     public boolean isUnique(Class<? extends Entity> entityClass, String fieldName, Object fieldValue, Entity entity) {
@@ -57,6 +63,11 @@ public class EntityServiceImpl implements EntityService {
     }
 
     @Override
+    public void materializePropertyFromId(List<? extends Entity> rows, String idProperty) {
+
+    }
+
+    //@Override
     public void materializePropertyFromId(List<? extends Entity> rows, String idProperty, String entityProperty, Class entityPropertyClass) {
         if (rows != null && rows.size() > 0) {
             try {
