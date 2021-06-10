@@ -21,7 +21,7 @@ public class DatabaseInitializer implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        var db = mongoHelper.getDatabase("default");
+        //var db = mongoHelper.getDatabase("default");
 
         //db.getCollection("collection").createIndex(Indexes.ascending("fieldName"));
         //logger.info(String.format("Created db index at %s.%s", index.getV1(), index.getV2()));

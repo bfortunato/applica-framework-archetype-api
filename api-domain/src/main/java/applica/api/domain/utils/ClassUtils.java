@@ -129,7 +129,10 @@ public class ClassUtils  extends applica.framework.widgets.utils.ClassUtils {
         return null;
     }
 
-    //TODO: spostarlo in qualche classe di utils
+    public static Field getField(Class clazz, String fieldName) {
+        return (Field) ClassUtils.getAllFields(clazz).stream().filter(f -> Objects.equals(((Field) f).getName(), fieldName)).findFirst().orElse(null);
+    }
+
     public static Class getFieldMaterializationEntityType(List<Field> fieldList, Field field) {
 
 

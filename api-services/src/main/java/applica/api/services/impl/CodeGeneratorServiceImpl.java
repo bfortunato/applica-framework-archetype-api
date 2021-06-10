@@ -23,5 +23,4 @@ public class CodeGeneratorServiceImpl implements CodeGeneratorService {
         else
             return ((NumericCodedEntity) lastCode).getCode() + 1;
     }
-
 }
