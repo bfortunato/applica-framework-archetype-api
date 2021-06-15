@@ -8,6 +8,9 @@ import applica.framework.security.UserDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import static applica.api.domain.model.Filters.USER_MAIL;
+import static applica.framework.builders.QueryExpressions.*;
+
 /**
  * Applica (www.applica.guru)
  * User: bimbobruno
@@ -23,8 +26,7 @@ public class UserDetailsMongoRepository implements UserDetailsRepository {
     @Override
     public org.springframework.security.core.userdetails.UserDetails getByMail(String mail) {
         try {
-            return usersRepository
-                    .find(Query.build().eq(Filters.USER_MAIL, mail))
+            return usersRepository.find(eq(USER_MAIL, mail))
                     .findFirst()
                     .map(UserDetails::new)
                     .orElse(null);

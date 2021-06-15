@@ -35,7 +35,10 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static applica.api.domain.model.Filters.CODE;
+import static applica.api.domain.model.Filters.USER_MAIL;
 import static applica.api.domain.model.auth.PasswordReset.generatePasswordRequest;
+import static applica.framework.builders.QueryExpressions.*;
 
 /**
  * Created by bimbobruno on 15/11/2016.
@@ -64,6 +67,7 @@ public class AccountServiceImpl implements AccountService {
     private UserService userService;
 
 
+
     @Override
     public void register(String name, String email, String password) throws MailAlreadyExistsException, MailNotValidException, PasswordNotValidException, ValidationException {
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email) || StringUtils.isEmpty(password)) {
@@ -73,7 +77,7 @@ public class AccountServiceImpl implements AccountService {
         final String mail = email.trim().toLowerCase();
 
         //check user existance
-        if (usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().isPresent()) {
+        if (usersRepository.find(Query.build().eq(USER_MAIL, mail)).findFirst().isPresent()) {
             throw new MailAlreadyExistsException();
         }
 
@@ -131,7 +135,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void recover(String mail) throws MailNotFoundException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElseThrow(MailNotFoundException::new);
+        User user = usersRepository.find(Query.build().eq(USER_MAIL, mail)).findFirst().orElseThrow(MailNotFoundException::new);
 
         String newPassword = PasswordUtils.generateRandom();
         String encodedPassword = SecurityUtils.encryptAndGetPassword(newPassword);
@@ -252,7 +256,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public PasswordRecoveryCode getPasswordRecoveryCode(String code) {
-        return Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.CODE, code)).findFirst().orElse(null);
+        return Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(CODE, code)).findFirst().orElse(null);
     }
 
     @Override
@@ -267,7 +271,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void sendConfirmationCode(String mail) {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail)).findFirst().orElse(null);
+        User user = usersRepository.find(Query.build().eq(USER_MAIL, mail)).findFirst().orElse(null);
         if (user != null) {
 
             PasswordRecoveryCode passwordRecoveryCode = getPasswordRecoverForUser(user.getSid());
@@ -327,9 +331,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void validateRecoveryCode(String mail, String code, boolean deleteRecord, boolean propagateError) throws MailNotFoundException, CodeNotValidException {
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, mail.toLowerCase())).findFirst().orElse(null);
+        User user = usersRepository.find(Query.build().eq(USER_MAIL, mail.toLowerCase())).findFirst().orElse(null);
         if (user != null) {
-            PasswordRecoveryCode passwordRecoveryCode = Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, user.getSid()).eq(Filters.CODE, code)).findFirst().orElse(null);
+            PasswordRecoveryCode passwordRecoveryCode = Repo.of(PasswordRecoveryCode.class).find(Query.build().eq(Filters.USER_ID, user.getSid()).eq(CODE, code)).findFirst().orElse(null);
             if (passwordRecoveryCode != null) {
                 if (deleteRecord)
                     Repo.of(PasswordRecoveryCode.class).delete(passwordRecoveryCode.getId());
