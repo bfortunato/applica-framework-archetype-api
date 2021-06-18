@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 import static applica.api.domain.model.Filters.CODE;
 import static applica.api.domain.model.Filters.USER_MAIL;
 import static applica.api.domain.model.auth.PasswordReset.generatePasswordRequest;
-import static applica.framework.builders.QueryExpressions.*;
 
 /**
  * Created by bimbobruno on 15/11/2016.

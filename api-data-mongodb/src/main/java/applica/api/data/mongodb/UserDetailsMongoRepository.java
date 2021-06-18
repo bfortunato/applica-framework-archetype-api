@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import static applica.api.domain.model.Filters.USER_MAIL;
-import static applica.framework.builders.QueryExpressions.*;
+import static applica.framework.builders.QueryExpressions.eq;
 
 /**
  * Applica (www.applica.guru)
