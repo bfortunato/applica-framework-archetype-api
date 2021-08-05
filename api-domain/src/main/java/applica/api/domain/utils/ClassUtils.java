@@ -16,9 +16,22 @@ import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 public class ClassUtils  extends applica.framework.widgets.utils.ClassUtils {
-
     public interface ClassUtilsRunnable {
         void perform(Class component);
+    }
+
+    public static List<String> getKeys(ObjectNode node, boolean onlyWithValue) {
+        List<String> fields = new ArrayList<>();
+
+        if (node != null) {
+            node.fields().forEachRemaining(f -> {
+                if (!onlyWithValue || f.getValue() != null)
+                    fields.add(f.getKey());
+            });
+
+        }
+
+        return fields;
     }
 
     public static Object generateClassInstance(Class clazz) {
@@ -27,18 +40,6 @@ public class ClassUtils  extends applica.framework.widgets.utils.ClassUtils {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public static List<Field> getAllFields(Class<? extends Object> type) {
-        ArrayList fields = new ArrayList();
-        for(Class c = type; c != null; c = c.getSuperclass()) {
-            for (Field declaredField : c.getDeclaredFields()) {
-                declaredField.setAccessible(true);
-                fields.add(declaredField);
-            }
-        }
-
-        return fields;
     }
 
     public static void performForAllSubclassesInModel(Class father, ClassUtilsRunnable runnable) {
@@ -129,21 +130,8 @@ public class ClassUtils  extends applica.framework.widgets.utils.ClassUtils {
         return null;
     }
 
+
     public static Field getField(Class clazz, String fieldName) {
         return (Field) ClassUtils.getAllFields(clazz).stream().filter(f -> Objects.equals(((Field) f).getName(), fieldName)).findFirst().orElse(null);
     }
-
-    public static Class getFieldMaterializationEntityType(List<Field> fieldList, Field field) {
-
-
-        Field fieldToMaterialize = fieldList.stream().filter(f -> Objects.equals(field.getAnnotation(Materialization.class).entityField(), f.getName())).findFirst().get();
-
-        if (List.class.isAssignableFrom(fieldToMaterialize.getType())) {
-            ParameterizedType integerListType = (ParameterizedType) fieldToMaterialize.getGenericType();
-            return (Class) integerListType.getActualTypeArguments()[0];
-        } else
-            return fieldToMaterialize.getType();
-
-    }
-
 }

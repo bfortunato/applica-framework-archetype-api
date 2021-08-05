@@ -8,6 +8,7 @@ import applica.framework.library.responses.ValueResponse;
 import applica.framework.library.utils.ObjectUtils;
 import applica.framework.library.validation.ValidationException;
 import applica.framework.library.validation.ValidationResponse;
+import applica.framework.library.validation.ValidationResult;
 import applica.framework.widgets.acl.CrudAuthorizationException;
 import applica.framework.widgets.acl.CrudGuard;
 import applica.framework.widgets.acl.CrudPermission;
@@ -17,11 +18,13 @@ import applica.framework.widgets.factory.OperationsFactory;
 import applica.framework.widgets.operations.*;
 import applica.api.services.responses.ErrorResponse;
 import applica.api.services.responses.ResponseCode;
+import applica.framework.widgets.serialization.SerializationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestParameterPropertyValues;
 import org.springframework.web.bind.annotation.*;
 
@@ -248,5 +251,47 @@ public class EntitiesController {
             e.printStackTrace();
             return new Response(Response.ERROR);
         }
+    }
+
+    @PostMapping("/validate")
+    public Response validate(@PathVariable("entity") String entity, String fields, @RequestBody ObjectNode data) {
+        try {
+            if (!StringUtils.hasLength(fields))
+                return new Response();
+            Optional<EntityDefinition> definition = EntitiesRegistry.instance().get(entity);
+            if (definition.isPresent()) {
+
+                validateEntity(definition.get(), fields, data);
+
+                return new Response();
+            } else {
+                logger.warn("Entity definition not found: " + entity);
+                return new Response(ResponseCode.ERROR_NOT_FOUND);
+            }
+        } catch (OperationException e) {
+            e.printStackTrace();
+
+            if (e.getCause() != null && e.getCause() instanceof ConstraintException) {
+                return new Response(ResponseCode.ERROR_CONSTRAINT_VIOLATION, ((ConstraintException) e.getCause()).getProperty());
+            }
+
+            return new Response(e.getErrorCode());
+        } catch (ValidationException e) {
+            return new ValidationResponse(ResponseCode.ERROR_VALIDATION, e.getValidationResult());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response(Response.ERROR);
+        }
+    }
+
+
+    private void validateEntity(EntityDefinition definition, String fields, ObjectNode data) throws OperationException, SerializationException, ValidationException {
+        ValidationResult result = new ValidationResult();
+        result.setOnTheFly(true);
+        result.setAllowedProperties(Arrays.asList(fields.split(",")));
+
+        SaveOperation saveOperation = operationsFactory.createSave(definition.getType());
+
+        ((BaseSaveOperation) saveOperation).validate(((BaseSaveOperation) saveOperation).generateEntity(data), result);
     }
 }

@@ -1,6 +1,7 @@
 package applica.api.domain.model;
 
 import applica.framework.AEntity;
+import applica.framework.Query;
 import applica.framework.widgets.annotations.Search;
 import applica.framework.widgets.annotations.Validation;
 /**
@@ -52,4 +53,8 @@ public abstract class AStringedCodedEntity extends AEntity implements Stringifie
     public void generateCodeForCreation() {
     }
 
+    @Override
+    public Query generateQueryForCodeProgressive() {
+        return null;
+    }
 }

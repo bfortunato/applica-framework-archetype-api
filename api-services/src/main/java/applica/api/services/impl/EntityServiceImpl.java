@@ -43,7 +43,7 @@ public class EntityServiceImpl implements EntityService {
 
     @Override
     public boolean isUnique(Class<? extends Entity> entityClass, String fieldName, Object fieldValue, Entity entity, Query query) {
-        Object propertyValue = fieldValue != null? fieldValue: getPropertyWrapper(entity, fieldName);
+        Object propertyValue = fieldValue != null ? fieldValue : getPropertyWrapper(entity, fieldName);
         if (propertyValue == null || !StringUtils.hasLength(propertyValue.toString()))
             return true;
         if (query == null) {
@@ -55,6 +55,7 @@ public class EntityServiceImpl implements EntityService {
         Entity duplicated = Repo.of(entityClass).find(query).findFirst().orElse(null);
         return duplicated == null || Objects.equals(duplicated.getId(), entity.getId());
     }
+
 
     private Object getPropertyWrapper(Object bean, String property) {
         try {
@@ -72,8 +73,6 @@ public class EntityServiceImpl implements EntityService {
 
         }
     }
-
-
     @Override
     public void materializePropertyFromId(List<? extends Entity> rows, String idProperty) {
 
@@ -91,10 +90,12 @@ public class EntityServiceImpl implements EntityService {
 
     public void materializePropertyFromId(List<? extends Entity> rows, String idProperty, String entityProperty) {
         try {
+            if (rows.size() == 0)
+                return;
             Field idPropertyField = getField(rows.get(0).getClass(), idProperty); //Field della property contenente l'id
             Field propertyField =  getField(rows.get(0).getClass(), entityProperty);  //Field della property che conterrà l'entità "materializzata"
 
-            rows.stream().collect(Collectors.groupingBy(i -> getFieldMaterializationEntityType(idPropertyField, propertyField , i))).forEach((entityClass, list) -> {
+            rows.stream().filter(i -> getFieldMaterializationEntityType(idPropertyField, propertyField , i) != null).collect(Collectors.groupingBy(i -> getFieldMaterializationEntityType(idPropertyField, propertyField , i))).forEach((entityClass, list) -> {
                 List<ObjectId> objectIds = rows.stream()
                         .filter(d -> getPropertyWrapper(d, idProperty) != null)
                         .map(d -> {
@@ -129,7 +130,6 @@ public class EntityServiceImpl implements EntityService {
         if (idPropertyField.getAnnotation(Materialization.class) != null && StringUtils.hasLength(idPropertyField.getAnnotation(Materialization.class).generateEntityClass())) {
             return (Class) ClassUtils.invokeMethodOnObject(entity, idPropertyField.getAnnotation(Materialization.class).generateEntityClass());
         }
-
         if (List.class.isAssignableFrom(entityPropertyField.getType())) {
             ParameterizedType integerListType = (ParameterizedType) entityPropertyField.getGenericType();
             return (Class) integerListType.getActualTypeArguments()[0];
@@ -157,7 +157,7 @@ public class EntityServiceImpl implements EntityService {
     public List<? extends Entity> getEntitiesFromIds(Class<? extends Entity> entityClass, List<String> ids) {
         if (ids == null || ids.size() == 0)
             return new ArrayList<>();
-    return Repo.of(entityClass).find(Query.build().in(Filters.REPOSITORY_ID, RepositoryUtils.getRepositoryIdFromIds(ids))).getRows();
+        return Repo.of(entityClass).find(Query.build().in(Filters.REPOSITORY_ID, RepositoryUtils.getRepositoryIdFromIds(ids))).getRows();
     }
 
     private Class getPropertyType(Object bean, String property) {
@@ -169,6 +169,10 @@ public class EntityServiceImpl implements EntityService {
         }
     }
 
+
+    public static void checkStringCode(Entity entity) {
+        if (entity instanceof StringifiedCodedEntity && !StringUtils.hasLength(((StringifiedCodedEntity) entity).getCode())) {
+            ((CodeGeneratorServiceImpl) ApplicationContextProvider.provide().getBean(CodeGeneratorService.class)).generateAndSetCodeForCreation(((StringifiedCodedEntity) entity));
+        }
+    }
 }
-
-

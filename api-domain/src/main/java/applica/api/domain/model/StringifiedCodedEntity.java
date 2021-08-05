@@ -1,5 +1,7 @@
 package applica.api.domain.model;
 
+import applica.framework.Query;
+
 public interface StringifiedCodedEntity extends CodedEntity {
     String getCode();
 
@@ -10,4 +12,6 @@ public interface StringifiedCodedEntity extends CodedEntity {
     long getProgressive();
 
     void generateCodeForCreation();
+
+    Query generateQueryForCodeProgressive();
 }

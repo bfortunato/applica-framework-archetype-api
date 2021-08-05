@@ -23,5 +23,6 @@ public class Filters {
     public static final String ENTITY = "entity";
     public static final String ENTITY_ID = "entityId";
     public static final String DATE ="date";
+    public static final String PROGRESSIVE = "progressive";
 }
 
