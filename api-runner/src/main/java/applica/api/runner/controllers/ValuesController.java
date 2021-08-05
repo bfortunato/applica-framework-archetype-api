@@ -68,7 +68,7 @@ public class ValuesController {
 
     @RequestMapping("/users")
     public List<User> users() {
-        return usersRepository.find(null).getRows();
+        return usersRepository.find(Query.build()).getRows();
     }
 
     @GetMapping("/entities/{entityId}")
