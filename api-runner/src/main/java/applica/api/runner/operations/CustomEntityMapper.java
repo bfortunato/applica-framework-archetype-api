@@ -1,6 +1,5 @@
 package applica.api.runner.operations;
 
-
 import applica.api.domain.utils.DomainFileUtils;
 import applica.api.services.utils.FileUtils;
 import applica.framework.Entity;
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -22,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Created by bimbobruno on 14/02/2017.
+ */
 public class CustomEntityMapper extends EntityMapper {
 
 

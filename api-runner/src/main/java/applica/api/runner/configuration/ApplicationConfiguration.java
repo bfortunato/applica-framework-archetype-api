@@ -3,6 +3,7 @@ package applica.api.runner.configuration;
 import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
 import applica.api.runner.operations.CustomEntityMapper;
+import applica.api.runner.operations.CustomOperationsFactory;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.DefaultRepositoriesFactory;
 import applica.framework.RepositoriesFactory;
@@ -105,7 +106,7 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     public OperationsFactory operationsFactory() {
-        return new DefaultOperationsFactory();
+        return new CustomOperationsFactory();
     }
 
     @Bean
