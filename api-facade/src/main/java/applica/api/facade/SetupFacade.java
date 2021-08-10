@@ -51,8 +51,7 @@ public class SetupFacade {
         if (geoFacade != null && SystemOptionsUtils.isEnabled("setup.import.geoEntities"))
             geoFacade.importGeoEntities();
 
-
-        User user = usersRepository.find(Query.build().eq(Filters.USER_MAIL, ADMIN_DEFAULT_USERNAME)).findFirst().orElse(null);
+        User user = usersRepository.find(Query.build().page(1).rowsPerPage(1).eq(Filters.USER_MAIL, ADMIN_DEFAULT_USERNAME)).findFirst().orElse(null);
         if (user == null) {
             user = new User();
             user.setCode(1);

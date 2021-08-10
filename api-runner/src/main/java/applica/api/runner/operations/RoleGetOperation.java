@@ -6,8 +6,6 @@ import applica.api.services.responses.ResponseCode;
 import applica.framework.Entity;
 import applica.framework.library.SimpleItem;
 import applica.framework.library.responses.Response;
-import applica.framework.widgets.operations.BaseGetOperation;
-import applica.framework.widgets.operations.GetOperation;
 import applica.framework.widgets.operations.OperationException;
 import applica.framework.widgets.serialization.DefaultEntitySerializer;
 import applica.framework.widgets.serialization.EntitySerializer;
@@ -22,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class RoleGetOperation extends BaseGetOperation {
+public class RoleGetOperation extends CustomBaseGetOperation {
 
     @Autowired
     private RolesRepository rolesRepository;

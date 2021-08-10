@@ -2,8 +2,7 @@ package applica.api.runner.configuration;
 
 import applica.api.domain.utils.CustomErrorUtils;
 import applica.api.domain.utils.CustomLocalizationUtils;
-import applica.api.runner.operations.CustomEntityMapper;
-import applica.api.runner.operations.CustomOperationsFactory;
+import applica.api.runner.operations.*;
 import applica.framework.ApplicationContextProvider;
 import applica.framework.DefaultRepositoriesFactory;
 import applica.framework.RepositoriesFactory;
@@ -116,33 +115,34 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
     @Scope("prototype")
-    public DefaultDeleteOperation defaultDeleteOperation() {
-        return new DefaultDeleteOperation();
+    public CustomDefaultDeleteOperation defaultDeleteOperation() {
+        return new CustomDefaultDeleteOperation();
     }
 
     @Bean
     @Scope("prototype")
-    public DefaultSaveOperation defaultSaveOperation() {
-        return new DefaultSaveOperation();
+    public CustomDefaultSaveOperation defaultSaveOperation() {
+        return new CustomDefaultSaveOperation();
     }
 
     @Bean
     @Scope("prototype")
-    public DefaultGetOperation defaultGetOperation() {
-        return new DefaultGetOperation();
+    public CustomDefaultGetOperation defaultGetOperation() {
+        return new CustomDefaultGetOperation();
     }
 
     @Bean
     @Scope("prototype")
-    public DefaultFindOperation defaultFindOperation() {
-        return new DefaultFindOperation();
+    public CustomDefaultFindOperation defaultFindOperation() {
+        return new CustomDefaultFindOperation();
     }
 
     @Bean
     @Scope("prototype")
-    public DefaultCreateOperation defaultCreateOperation() {
-        return new DefaultCreateOperation();
+    public CustomDefaultCreateOperation defaultCreateOperation() {
+        return new CustomDefaultCreateOperation();
     }
+
 
     /* Fileserver */
 

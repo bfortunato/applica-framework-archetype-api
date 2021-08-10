@@ -2,7 +2,6 @@ package applica.api.runner.operations;
 
 import applica.api.domain.model.auth.User;
 import applica.framework.Entity;
-import applica.framework.widgets.operations.BaseGetOperation;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,7 @@ import org.springframework.stereotype.Component;
  */
 
 @Component
-public class UserGetOperation extends BaseGetOperation {
+public class UserGetOperation extends CustomBaseGetOperation {
 
     @Override
     protected void finishNode(Entity entity, ObjectNode node) {

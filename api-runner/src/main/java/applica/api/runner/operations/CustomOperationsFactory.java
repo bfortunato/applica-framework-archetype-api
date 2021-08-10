@@ -7,6 +7,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import java.util.Objects;
+
 /**
  * Created by bimbobruno on 19/12/2016.
  */
@@ -22,7 +24,7 @@ public class CustomOperationsFactory extends DefaultOperationsFactory {
         try {
             getOperation = applicationContext.getBeansOfType(GetOperation.class).values().stream()
                     .filter(r -> !(r instanceof CustomDefaultGetOperation))
-                    .filter(r -> r.getEntityType().equals(entityType))
+                    .filter(r -> Objects.equals(r.getEntityType(), entityType))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchBeanDefinitionException("form processor " + entityType.getName()));
         } catch (NoSuchBeanDefinitionException e) {
@@ -54,7 +56,7 @@ public class CustomOperationsFactory extends DefaultOperationsFactory {
         try {
             find = applicationContext.getBeansOfType(FindOperation.class).values().stream()
                     .filter(r -> !(r instanceof CustomDefaultFindOperation))
-                    .filter(r -> r.getEntityType().equals(entityType))
+                    .filter(r -> Objects.equals(r.getEntityType(), entityType))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchBeanDefinitionException("form processor " + entityType.getName()));
         } catch (NoSuchBeanDefinitionException e) {
@@ -87,7 +89,7 @@ public class CustomOperationsFactory extends DefaultOperationsFactory {
         try {
             createOperation = applicationContext.getBeansOfType(CreateOperation.class).values().stream()
                     .filter(r -> !(r instanceof CustomDefaultCreateOperation))
-                    .filter(r -> r.getEntityType().equals(entityType))
+                    .filter(r ->Objects.equals(r.getEntityType(), entityType))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchBeanDefinitionException("form processor " + entityType.getName()));
         } catch (NoSuchBeanDefinitionException e) {
@@ -119,7 +121,7 @@ public class CustomOperationsFactory extends DefaultOperationsFactory {
         try {
             deleteOperation = applicationContext.getBeansOfType(DeleteOperation.class).values().stream()
                     .filter(r -> !(r instanceof CustomDefaultDeleteOperation))
-                    .filter(r -> r.getEntityType().equals(entityType))
+                    .filter(r ->Objects.equals(r.getEntityType(), entityType))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchBeanDefinitionException("form processor " + entityType.getName()));
         } catch (NoSuchBeanDefinitionException e) {
@@ -152,7 +154,7 @@ public class CustomOperationsFactory extends DefaultOperationsFactory {
         try {
             saveOperation = applicationContext.getBeansOfType(SaveOperation.class).values().stream()
                     .filter(r -> !(r instanceof CustomDefaultSaveOperation))
-                    .filter(r -> r.getEntityType().equals(entityType))
+                    .filter(r ->Objects.equals(r.getEntityType(), entityType))
                     .findFirst()
                     .orElseThrow(() -> new NoSuchBeanDefinitionException("form processor " + entityType.getName()));
         } catch (NoSuchBeanDefinitionException e) {

@@ -4,9 +4,7 @@ import applica.api.domain.data.RolesRepository;
 import applica.api.domain.model.auth.Role;
 import applica.framework.Entity;
 import applica.framework.library.responses.Response;
-import applica.framework.widgets.operations.BaseSaveOperation;
 import applica.framework.widgets.operations.OperationException;
-import applica.framework.widgets.operations.SaveOperation;
 import applica.framework.widgets.serialization.DefaultEntitySerializer;
 import applica.framework.widgets.serialization.EntitySerializer;
 import applica.framework.widgets.serialization.SerializationException;
@@ -22,7 +20,7 @@ import java.util.ArrayList;
  */
 
 @Component
-public class RoleSaveOperation extends BaseSaveOperation {
+public class RoleSaveOperation extends CustomBaseSaveOperation {
 
     @Autowired
     private RolesRepository rolesRepository;

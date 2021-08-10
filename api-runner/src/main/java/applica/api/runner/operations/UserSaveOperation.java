@@ -5,7 +5,6 @@ import applica.api.facade.AccountFacade;
 import applica.framework.Entity;
 import applica.framework.Repo;
 import applica.framework.security.authorization.AuthorizationException;
-import applica.framework.widgets.operations.BaseSaveOperation;
 import applica.framework.widgets.operations.OperationException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import java.util.Date;
 
 
 @Component
-public class UserSaveOperation extends BaseSaveOperation {
+public class UserSaveOperation extends CustomBaseSaveOperation {
 
     @Autowired
     private AccountFacade accountFacade;

@@ -46,7 +46,7 @@ public class FileUtils {
     @Deprecated
     public static final List<String> NOT_ACCEPTED_BACKEND_EXTENSIONS = Arrays.asList("html", "js", "jsx", "xhtml", "css", "php", "htm", "xml");
     public static final String TEMP_DIR = "_temp";
-    public static final String TEMP_DIR_PATH = String.format("%s%s", File.separator, TEMP_DIR, File.separator);
+    public static final String TEMP_DIR_PATH = String.format("%s%s%s", File.separator, TEMP_DIR, File.separator);
 
     public static String getHumanReadableSize(long size) {
         return org.apache.commons.io.FileUtils.byteCountToDisplaySize(size);

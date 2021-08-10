@@ -5,12 +5,11 @@ import applica.api.domain.utils.FilterUtils;
 import applica.framework.Entity;
 import applica.framework.Query;
 import applica.framework.Result;
-import applica.framework.widgets.operations.BaseFindOperation;
 import applica.framework.widgets.operations.OperationException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserFindOperation extends BaseFindOperation {
+public class UserFindOperation extends CustomBaseFindOperation {
 
     @Override
     public Class<? extends Entity> getEntityType() {
