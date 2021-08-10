@@ -24,6 +24,12 @@
 
         <dependency>
             <groupId>applica.framework</groupId>
+            <artifactId>framework-revision</artifactId>
+            <version>${applica.framework.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>applica.framework</groupId>
             <artifactId>framework-notifications</artifactId>
             <version>${applica.framework.version}</version>
         </dependency>

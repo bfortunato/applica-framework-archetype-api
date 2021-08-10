@@ -7,6 +7,7 @@ import applica.api.domain.model.Filters;
 import applica.api.domain.model.auth.AppPermissions;
 import applica.api.domain.model.auth.Role;
 import applica.api.domain.model.auth.User;
+import applica.api.facade.permissions.PermissionMap;
 import applica.api.services.authorizations.AuthorizationContexts;
 import applica.api.services.authorizations.CrudPermissions;
 import applica.framework.Query;
@@ -16,11 +17,14 @@ import applica.framework.security.SecurityUtils;
 import applica.framework.security.authorization.Permissions;
 import applica.framework.widgets.acl.CrudPermission;
 import applica.framework.widgets.acl.CrudSecurityConfigurer;
+import applica.framework.widgets.entities.EntitiesRegistry;
+import applica.framework.widgets.entities.EntityId;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -93,6 +97,45 @@ public class SetupFacade {
 
     private List<String> getPermissionByRole(String roleDescription) {
         List<String> permissions = generateEntityPermissionForRole(roleDescription);
+
+
+        EntitiesRegistry.instance().getDefinitions().forEach(e -> {
+            EntityId annotation = e.getType().getAnnotation(EntityId.class);
+            String entity = annotation.value();
+            if (Arrays.asList(annotation.completePermissionsRoles()).contains(roleDescription)) {
+                //Se si verifica questa condizione ho il permesso totale sulla entità
+                permissions.addAll(PermissionMap.staticPermissions(entity));
+            } else {
+
+                List<String> partialPermissions = new ArrayList<>();
+                //Dovrò gestire i permessi parziali
+                if (Arrays.asList(annotation.creationPermissionsRoles()).contains(roleDescription)) {
+                    partialPermissions.add(PermissionMap.OPERATION_NEW);
+                }
+
+                if (Arrays.asList(annotation.savePermissionsRoles()).contains(roleDescription)) {
+                    partialPermissions.add(PermissionMap.OPERATION_SAVE);
+                }
+
+                if (Arrays.asList(annotation.viewPermissionsRoles()).contains(roleDescription)) {
+                    partialPermissions.add(PermissionMap.OPERATION_EDIT);
+                }
+
+                if (Arrays.asList(annotation.listPermissionsRoles()).contains(roleDescription)) {
+                    partialPermissions.add(PermissionMap.OPERATION_LIST);
+                }
+
+                if (Arrays.asList(annotation.deletePermissionsRoles()).contains(roleDescription)) {
+                    partialPermissions.add(PermissionMap.OPERATION_DELETE);
+                }
+
+                if (partialPermissions.size() > 0)
+                    permissions.addAll(PermissionMap.getPartialPermissions(entity, partialPermissions));
+
+            }
+
+        });
+
         switch (roleDescription) {
 
             case Role.ADMIN:
